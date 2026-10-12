@@ -23,9 +23,9 @@
       poster: '/videos/burger-poster.jpg',
     },
     pizza: {
-      src: '/videos/pizza.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/pizza.jpg',
+      type: 'image',
+      alt: 'Stone-baked artisan pizza with melting mozzarella cheese stretch',
     },
     coffee: {
       src: '/videos/coffee.webm',

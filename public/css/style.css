@@ -617,6 +617,10 @@ button { font: inherit; color: inherit; }
   object-position: center 48%;
 }
 
+.card__video-wrap[data-video-key="pizza"] .card__real-img {
+  object-position: center 52%;
+}
+
 .card__video-wrap[data-video-key="burgers"],
 .card__video-wrap[data-video-key="breakfast"] {
   background: #0e0a07;
