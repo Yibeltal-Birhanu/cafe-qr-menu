@@ -68,7 +68,7 @@ app.get('/api/admin/session', (req, res) => {
 app.put('/api/admin/cafe', (req, res) => {
   const body = req.body || {};
   const cafe = store.update((data) => {
-    for (const key of ['name', 'tagline', 'currency', 'footer', 'logo']) {
+    for (const key of ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass']) {
       if (typeof body[key] === 'string' && body[key].trim()) data.cafe[key] = body[key].trim();
     }
     return data.cafe;
@@ -159,6 +159,9 @@ app.post('/api/admin/categories/:id/items', (req, res) => {
       description: String(body.description || ''),
       price: Number(body.price) || 0,
       badge: body.badge ? String(body.badge).trim() : '',
+      prepTime: body.prepTime ? String(body.prepTime).trim() : '',
+      dietary: body.dietary ? String(body.dietary).trim() : '',
+      available: body.available !== undefined ? Boolean(body.available) : true,
     };
     category.items.push(created);
     return created;
@@ -176,6 +179,9 @@ app.put('/api/admin/items/:id', (req, res) => {
     if (typeof body.description === 'string') found.item.description = body.description;
     if (body.price !== undefined) found.item.price = Number(body.price) || 0;
     if (typeof body.badge === 'string') found.item.badge = body.badge.trim();
+    if (typeof body.prepTime === 'string') found.item.prepTime = body.prepTime.trim();
+    if (typeof body.dietary === 'string') found.item.dietary = body.dietary.trim();
+    if (body.available !== undefined) found.item.available = Boolean(body.available);
     if (typeof body.categoryId === 'string' && body.categoryId !== found.category.id) {
       const next = store.findCategory(data, body.categoryId);
       if (next) {

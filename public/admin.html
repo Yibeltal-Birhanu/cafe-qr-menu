@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#14100e" />
+  <meta name="theme-color" content="#120e0c" />
   <meta name="robots" content="noindex" />
-  <title>Admin &mdash; Cafe menu</title>
+  <title>Admin &mdash; Cafe QR Menu Manager</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9881;</text></svg>" />
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/admin.css" />
@@ -13,15 +13,15 @@
 <body>
   <header class="topbar">
     <div class="wrap topbar__inner">
-      <a class="brand" href="/">
+      <a class="brand" href="/admin">
         <span class="brand__logo" id="cafeLogo">&#9881;</span>
         <span class="brand__text">
-          <span class="brand__name">Menu admin</span>
+          <span class="brand__name">Menu Admin</span>
           <span class="brand__tag" id="saveState">Not signed in</span>
         </span>
       </a>
       <div class="topbar__actions">
-        <a class="btn btn--ghost" href="/" target="_blank" rel="noreferrer">View menu</a>
+        <a class="btn btn--ghost" href="/" target="_blank" rel="noreferrer">View Live Menu &nearr;</a>
         <button class="btn btn--ghost" id="logoutBtn" type="button" hidden>Sign out</button>
       </div>
     </div>
@@ -31,8 +31,8 @@
     <!-- ---------------------------------------------------------- Sign in -->
     <section class="login" id="loginView">
       <div class="login__box">
-        <h1>Admin sign in</h1>
-        <p>Enter the admin password to manage categories, dishes and prices.</p>
+        <h1>Admin Sign In</h1>
+        <p>Enter the admin password to control menu categories, food items, prices, and settings.</p>
         <form id="loginForm" autocomplete="on">
           <label class="field">
             <span>Password</span>
@@ -41,7 +41,7 @@
           <button class="btn btn--primary" type="submit" id="loginBtn">Sign in</button>
           <p class="hint" id="loginError" hidden></p>
         </form>
-        <p class="hint">Default password is <code>admin123</code> &mdash; change it with the <code>ADMIN_PASSWORD</code> environment variable.</p>
+        <p class="hint">Default password is <code>admin123</code> &mdash; set via <code>ADMIN_PASSWORD</code> environment variable.</p>
       </div>
     </section>
 
@@ -49,41 +49,88 @@
     <section id="dashView" hidden>
       <div class="admin__head">
         <div>
-          <h1>Menu manager</h1>
-          <p class="hint">Every change is saved instantly to the live menu.</p>
+          <h1>Cafe Menu Controller</h1>
+          <p class="hint">All changes save instantly and update the live QR menu in real-time.</p>
         </div>
         <div class="admin__head-actions">
-          <button class="btn btn--primary" id="addCategoryBtn" type="button">+ Add category</button>
-          <button class="btn btn--ghost" id="refreshBtn" type="button">Reload</button>
+          <button class="btn btn--primary" id="addCategoryBtn" type="button">+ Add Category</button>
+          <button class="btn btn--ghost" id="refreshBtn" type="button">Reload Menu</button>
         </div>
       </div>
 
       <div class="stats" id="stats"></div>
 
+      <!-- Cafe Details & Operations Panel -->
       <div class="panel">
-        <h2 class="panel__title">Cafe details</h2>
+        <h2 class="panel__title">Cafe Profile &amp; Customer Connectivity</h2>
         <div class="settings">
-          <label class="field"><span>Cafe name</span><input data-cafe="name" type="text" /></label>
+          <label class="field"><span>Cafe Name</span><input data-cafe="name" type="text" /></label>
           <label class="field"><span>Tagline</span><input data-cafe="tagline" type="text" /></label>
           <label class="field"><span>Currency</span><input data-cafe="currency" type="text" placeholder="ETB" /></label>
-          <label class="field"><span>Logo (emoji)</span><input data-cafe="logo" type="text" maxlength="4" /></label>
-          <label class="field field--wide"><span>Footer note</span><input data-cafe="footer" type="text" /></label>
+          <label class="field"><span>Logo Emoji</span><input data-cafe="logo" type="text" maxlength="4" /></label>
+          <label class="field"><span>WhatsApp Order Phone</span><input data-cafe="phone" type="tel" placeholder="+251 91 123 4567" /></label>
+          <label class="field"><span>Guest WiFi SSID</span><input data-cafe="wifi_ssid" type="text" placeholder="Prism-Guest" /></label>
+          <label class="field"><span>WiFi Password</span><input data-cafe="wifi_pass" type="text" placeholder="coffee123" /></label>
+          <label class="field field--wide"><span>Footer Note</span><input data-cafe="footer" type="text" /></label>
         </div>
       </div>
 
+      <!-- Table QR Generator Studio Panel -->
       <div class="panel">
-        <h2 class="panel__title">Categories &amp; dishes</h2>
-        <p class="hint">Edit any field - it saves automatically. Use the arrows to reorder categories.</p>
+        <h2 class="panel__title">Table QR Code Studio</h2>
+        <p class="hint">Generate printable QR code table stands for your dining tables.</p>
+        <div style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-top:1rem">
+          <div style="max-width:240px;flex:1">
+            <label class="field">
+              <span>Select Table</span>
+              <select id="adminTableSelect">
+                <option value="1">Table #1</option>
+                <option value="2">Table #2</option>
+                <option value="3">Table #3</option>
+                <option value="4">Table #4</option>
+                <option value="5">Table #5</option>
+                <option value="6">Table #6</option>
+                <option value="7">Table #7</option>
+                <option value="8">Table #8</option>
+                <option value="VIP">VIP Lounge</option>
+                <option value="Patio">Patio</option>
+                <option value="Bar">Bar</option>
+              </select>
+            </label>
+            <div style="margin-top:0.8rem">
+              <button class="btn btn--primary btn--tiny" id="adminPrintTableBtn" type="button">🖨️ Print Stand Card</button>
+            </div>
+          </div>
+          <div style="text-align:center">
+            <img id="adminQrPreview" alt="Table QR code" style="width:130px;height:130px;border-radius:12px;background:#fffaf4;padding:4px" />
+            <div class="hint" id="adminQrUrl" style="margin-top:0.3rem;font-size:0.75rem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories & Dishes Panel -->
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;margin-bottom:0.8rem">
+          <div>
+            <h2 class="panel__title" style="margin:0">Categories &amp; Food Items</h2>
+            <p class="hint">Edit any name, price, badge, or description. Saves automatically as you type.</p>
+          </div>
+          <div style="max-width:260px;width:100%">
+            <input id="adminSearchInput" placeholder="Filter dishes in admin..." style="padding:0.45rem 0.8rem;font-size:0.82rem" />
+          </div>
+        </div>
+
         <div class="cats" id="cats"></div>
         <div id="catsEmpty" class="empty" hidden>
-          <strong>No categories yet</strong>Add your first category to start building the menu.
+          <strong>No categories found</strong>Add your first category to start building the menu.
         </div>
       </div>
 
+      <!-- Danger zone -->
       <div class="panel panel--danger">
-        <h2 class="panel__title">Danger zone</h2>
-        <p class="hint">Restores the sample menu and deletes everything you added.</p>
-        <button class="btn btn--danger" id="resetBtn" type="button">Reset to sample menu</button>
+        <h2 class="panel__title">Danger Zone</h2>
+        <p class="hint">Restores the default sample menu (Burgers, Pizza, Coffee, Breakfast, Desserts, Drinks) and clears modifications.</p>
+        <button class="btn btn--danger" id="resetBtn" type="button">Reset to Sample Menu</button>
       </div>
     </section>
   </main>

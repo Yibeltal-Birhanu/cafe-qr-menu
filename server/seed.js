@@ -12,6 +12,9 @@ module.exports = {
     currency: 'ETB',
     footer: 'Scan, browse, enjoy. Ask our staff for today\u2019s special.',
     logo: '\u2615',
+    phone: '+251 91 123 4567',
+    wifi_ssid: 'Prism-Cafe-5G',
+    wifi_pass: 'coffee123',
   },
   categories: [
     {

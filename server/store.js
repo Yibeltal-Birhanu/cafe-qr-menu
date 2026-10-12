@@ -42,6 +42,9 @@ function ensureShape(raw) {
       currency: String(cafe.currency || seed.cafe.currency),
       footer: String(cafe.footer || seed.cafe.footer),
       logo: String(cafe.logo || seed.cafe.logo),
+      phone: typeof cafe.phone === 'string' ? cafe.phone : (seed.cafe.phone || ''),
+      wifi_ssid: typeof cafe.wifi_ssid === 'string' ? cafe.wifi_ssid : (seed.cafe.wifi_ssid || ''),
+      wifi_pass: typeof cafe.wifi_pass === 'string' ? cafe.wifi_pass : (seed.cafe.wifi_pass || ''),
     },
     categories: (Array.isArray(data.categories) ? data.categories : []).map((category) => ({
       id: String(category.id || slugify(category.name)),
@@ -54,6 +57,9 @@ function ensureShape(raw) {
         description: String(item.description || ''),
         price: Number(item.price) || 0,
         badge: item.badge ? String(item.badge) : '',
+        prepTime: item.prepTime ? String(item.prepTime) : '',
+        dietary: item.dietary ? String(item.dietary) : '',
+        available: item.available !== undefined ? Boolean(item.available) : true,
       })),
     })),
   };

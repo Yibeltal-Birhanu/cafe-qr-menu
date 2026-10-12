@@ -17,23 +17,26 @@ rising bubbles…) followed by that category's dish list.
 
 ## Features
 
-**Guest-facing menu (`/`)**
+**Guest-facing animated menu (`/`)**
 
-- Animated category cards — each card has a bouncing/tilting SVG illustration above its dish list.
-- Scroll-reveal animations with staggered dish rows, cursor-following glow and hover lift on cards.
-- Live search across every dish name, description and badge.
-- Sticky category chips that filter the board with one tap (mobile-first, since it is scanned on phones).
-- Dish badges (`Popular`, `New`, `Spicy`) with a pulsing glow.
-- "Show table QR" button — generates a printable QR code for the current URL.
-- Respects `prefers-reduced-motion`.
+- **Animated category showcase cards** — each food category has an animated illustration on top (flame-grilled burger with rising steam & toasted sesame seeds, pizza with stretching cheese strings, steaming espresso latte, fizzy iced drinks with rising bubbles, strawberry glazed desserts with twinkling stars, sunny breakfast skillet with morning rays, pasta, and more).
+- **Interactive Table Order Tray** — guests can tap `+` on any dish to add to their tray, review items and quantities, add special instructions, and send the order directly via **WhatsApp** or ring the **Service Bell / Call Waiter**!
+- **Table detection & QR system** — recognizes `?table=5` from scanned QR codes, displays table indicator, and includes a live table QR generator modal with printable stand layout.
+- **Synthesized Web Audio sound effects** — pleasant wooden click/pop feedback and crystal service bell chime (toggleable 🔊/🔇, zero external assets).
+- **Guest WiFi bar** — shows WiFi network & password with 1-click clipboard copy.
+- **Live search & dietary filters** — instant search across dishes, plus quick filter pills (`🔥 Popular`, `🌶️ Spicy`, `✨ New`, `⭐ Signature`).
+- **Scroll-reveal & cursor 3D glow** — staggered animation on load, smooth 3D hover tilt and glow on cards.
+- Respects `prefers-reduced-motion` and mobile-first responsive design.
 
-**Admin dashboard (`/admin`)**
+**Admin dashboard controller (`/admin`)**
 
-- Password sign-in with an HMAC-signed session token (12 h expiry).
-- Add, rename, reorder, re-describe and delete categories; pick the illustration from a live preview.
-- Add, edit, move between categories, badge and delete dishes.
-- Text edits autosave to the server as you type (debounced) — the public menu updates instantly.
-- Menu-wide search, statistics, live footer/currency/branding settings, and one-click reset to the sample menu.
+- Password sign-in (`admin123` default) with HMAC-signed session tokens.
+- Add, rename, reorder, re-describe, and delete categories with animated illustration picker.
+- Add, edit, move, badge (`Popular`, `Spicy`, `New`, `Signature`, `Veg`), and delete food dishes.
+- **Table QR Code Studio** — generate and print table tent cards for any table number in seconds.
+- **Cafe Operations** — manage Cafe Name, Tagline, Currency, WhatsApp Order Phone, and Guest WiFi credentials.
+- Autosaves text edits instantly as you type (debounced) &mdash; the live QR menu updates in real time.
+- Real-time statistics, live menu search filter, and one-click sample menu reset.
 
 ## Quick start
 
