@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#070d12" />
+  <meta name="theme-color" content="#0e0a07" />
   <meta name="description" content="Explore our authentic Habesha specialties, flame-grilled burgers, stone-baked pizzas, specialty coffee, and handcrafted desserts." />
   <title>Prism Cafe &mdash; Digital QR Menu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9749;</text></svg>" />
@@ -36,6 +36,12 @@
       </label>
 
       <div class="topbar-actions">
+        <!-- Language Switcher: English / Amharic -->
+        <button class="lang-btn" id="langBtn" type="button" title="Switch language / ቋንቋ ይቀይሩ" aria-label="Toggle language">
+          <span class="lang-btn__globe">🌐</span>
+          <span class="lang-btn__label" id="langLabel">አማርኛ</span>
+        </button>
+
         <!-- Sound effects toggle -->
         <button class="icon-btn" id="soundBtn" type="button" title="Toggle audio sound effects" aria-label="Toggle sound">
           <span id="soundIcon">🔊</span>
@@ -45,18 +51,40 @@
   </header>
 
   <main>
-    <!-- ============================================= Simple Elegant Hero -->
-    <section class="hero hero--clean wrap">
-      <div class="hero__clean-content">
-        <span class="eyebrow">&#10024; LIVE DIGITAL MENU &bull; TABLE ORDERING</span>
-        <h1 id="heroTitle">Culinary Passion &amp; Authentic Flavors</h1>
-        <p id="heroText">Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas &amp; single-origin Ethiopian coffee.</p>
+    <!-- ============================================= Modern Cafe Hero with 4K Food Video Showcase -->
+    <section class="hero wrap">
+      <div class="hero__layout">
+        <!-- Left Column: Story, Title & Guest Wi-Fi -->
+        <div class="hero__content">
+          <span class="eyebrow" id="heroEyebrow">&#10024; LIVE DIGITAL MENU &bull; TABLE ORDERING</span>
+          <h1 id="heroTitle">Culinary Passion &amp; Authentic Flavors</h1>
+          <p id="heroText">Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas &amp; single-origin Ethiopian coffee.</p>
 
-        <!-- Guest WiFi Pill -->
-        <div class="wifi-card" id="wifiCard">
-          <span aria-hidden="true">📶</span>
-          <span>Free Guest WiFi: <strong id="wifiSsid">Prism-Cafe-5G</strong> &bull; Password: <strong id="wifiPass">coffee123</strong></span>
-          <button type="button" id="copyWifi">Copy</button>
+          <!-- Guest WiFi Card -->
+          <div class="wifi-card" id="wifiCard">
+            <span aria-hidden="true">📶</span>
+            <span><span id="wifiLabel">Free Guest WiFi:</span> <strong id="wifiSsid">Prism-Cafe-5G</strong> &bull; <span id="wifiPassLabel">Password:</span> <strong id="wifiPass">coffee123</strong></span>
+            <button type="button" id="copyWifi">Copy</button>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive 4K Food Video Stage -->
+        <div class="hero__video-card" id="heroVideoCard">
+          <div class="hero__video-header">
+            <div class="hero__video-badge">
+              <span class="video-live-dot"></span>
+              <span id="heroLiveText">4K LIVE SHOWCASE</span>
+            </div>
+            <div class="hero__video-selector" id="heroVideoSelector" role="tablist" aria-label="Featured food video">
+              <button class="hero__selector-btn is-active" data-hero-video="habesha" type="button">🔥 Tibs</button>
+              <button class="hero__selector-btn" data-hero-video="burgers" type="button">🍔 Burger</button>
+              <button class="hero__selector-btn" data-hero-video="coffee" type="button">☕ Buna</button>
+              <button class="hero__selector-btn" data-hero-video="pizza" type="button">🍕 Pizza</button>
+            </div>
+          </div>
+          <div class="hero__video-stage" id="heroVideoStage" title="Tap to interact with chef's live video">
+            <!-- 4K Animated food video rendered here -->
+          </div>
         </div>
       </div>
     </section>
@@ -66,11 +94,11 @@
       <div class="wrap">
         <div class="chips__row" id="chips"></div>
         <div class="filters-row" id="filtersRow">
-          <button class="filter-pill is-active" data-filter="all" type="button">All Dishes</button>
-          <button class="filter-pill" data-filter="popular" type="button">🔥 Popular</button>
-          <button class="filter-pill" data-filter="spicy" type="button">🌶️ Spicy</button>
-          <button class="filter-pill" data-filter="new" type="button">✨ New</button>
-          <button class="filter-pill" data-filter="signature" type="button">⭐ Signature</button>
+          <button class="filter-pill is-active" data-filter="all" id="pillAll" type="button">All Dishes</button>
+          <button class="filter-pill" data-filter="popular" id="pillPopular" type="button">🔥 Popular</button>
+          <button class="filter-pill" data-filter="spicy" id="pillSpicy" type="button">🌶️ Spicy</button>
+          <button class="filter-pill" data-filter="new" id="pillNew" type="button">✨ New</button>
+          <button class="filter-pill" data-filter="signature" id="pillSignature" type="button">⭐ Signature</button>
         </div>
       </div>
     </nav>
@@ -87,12 +115,12 @@
     <div class="tray-bar__info">
       <span class="tray-bar__badge" id="trayCount">0</span>
       <div>
-        <div class="tray-bar__text">Your Table Tray</div>
+        <div class="tray-bar__text" id="trayBarTitle">Your Table Tray</div>
         <div class="tray-bar__total" id="trayTotal">0 ETB</div>
       </div>
     </div>
     <button class="tray-bar__action" id="openTrayBtn" type="button">
-      View Order &rarr;
+      <span id="trayBarBtnText">View Order &rarr;</span>
     </button>
   </aside>
 
@@ -115,7 +143,7 @@
 
         <div style="margin-top:1.2rem">
           <label class="field">
-            <span>Special instructions / allergies</span>
+            <span id="notesLabel">Special instructions / allergies</span>
             <input id="trayNotes" placeholder="e.g. Extra awaze, no onions, less ice" />
           </label>
         </div>
@@ -123,7 +151,7 @@
 
       <div class="drawer__foot">
         <div class="drawer__total-row">
-          <span>Estimated Total:</span>
+          <span id="drawerTotalLabel">Estimated Total:</span>
           <span class="drawer__total-val" id="drawerTotal">0 ETB</span>
         </div>
         <div class="drawer__actions">
@@ -148,7 +176,7 @@
         <strong id="footerCafe" style="font-size:1.15rem;color:var(--text)">Prism Cafe &amp; Bistro</strong><br />
         <span id="footerNote" style="color:var(--muted);font-size:0.88rem">Scan, browse &amp; enjoy. Prepared fresh for your table.</span>
       </div>
-      <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem">
+      <div id="footerHours" style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem">
         Opening Hours: 7:00 AM &ndash; 11:00 PM &bull; Service with Passion &bull; Thank you for visiting!
       </div>
     </div>
@@ -158,11 +186,11 @@
   <div class="modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
     <div class="modal__box">
       <h2 id="qrTitle">Select Your Table</h2>
-      <p>Choose the table number you are seated at:</p>
+      <p id="qrPrompt">Choose the table number you are seated at:</p>
 
       <div style="margin:1rem 0">
         <label class="field" style="max-width:220px;margin:0 auto">
-          <span>Current Table</span>
+          <span id="qrTableLabel">Current Table</span>
           <select id="qrTableSelect">
             <option value="1">Table #1</option>
             <option value="2">Table #2</option>
