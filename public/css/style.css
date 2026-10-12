@@ -634,18 +634,34 @@ button { font: inherit; color: inherit; }
   object-position: center 52%;
 }
 
-.card__video-wrap[data-video-key="coffee"] .card__real-img,
-.card__video-wrap[data-video-key="drinks"] .card__real-img {
+.card__video-wrap[data-video-key="coffee"] .card__real-img {
   object-position: center 50%;
 }
 
-.card__video-wrap[data-video-key="burgers"],
-.card__video-wrap[data-video-key="breakfast"] {
+.card__video-wrap[data-video-key="dessert"] .card__real-img,
+.card__video-wrap[data-video-key="desserts"] .card__real-img {
+  object-position: center 48%;
+}
+
+.card__video-wrap[data-video-key="drink"] .card__real-img,
+.card__video-wrap[data-video-key="drinks"] .card__real-img {
+  object-position: center 45%;
+}
+
+.card__video-wrap[data-video-key="breakfast"] .card__real-img {
+  object-position: center 45%;
+}
+
+.card__video-wrap--dish .card__real-img {
+  object-fit: cover;
+  object-position: center 45%;
+}
+
+.card__video-wrap[data-video-key="burgers"] {
   background: #0e0a07;
 }
 
-.card__video-wrap[data-video-key="burgers"] .card__real-video,
-.card__video-wrap[data-video-key="breakfast"] .card__real-video {
+.card__video-wrap[data-video-key="burgers"] .card__real-video {
   width: 100%;
   height: 100%;
   object-fit: cover;

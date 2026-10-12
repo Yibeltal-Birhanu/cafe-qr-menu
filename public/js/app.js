@@ -700,11 +700,11 @@
 
     state.activeModalItem = item;
 
-    // Set Video Stage for Dish
+    // Set Video / Photo Stage for Dish (individual authentic dish photo)
     if (els.modalDishVideoStage) {
-      els.modalDishVideoStage.innerHTML = window.renderCategoryIcon
-        ? window.renderCategoryIcon(category.id || category.icon)
-        : '';
+      els.modalDishVideoStage.innerHTML = window.renderDishMedia
+        ? window.renderDishMedia(item, category)
+        : (window.renderCategoryIcon ? window.renderCategoryIcon(category.id || category.icon) : '');
     }
 
     // Set Dish Details

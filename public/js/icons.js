@@ -33,29 +33,29 @@
       alt: 'Traditional Ethiopian Buna Coffee Ceremony',
     },
     dessert: {
-      src: '/videos/dessert.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/desserts.jpg',
+      type: 'image',
+      alt: 'Artisan Gourmet Desserts & Cakes',
     },
     desserts: {
-      src: '/videos/dessert.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/desserts.jpg',
+      type: 'image',
+      alt: 'Artisan Gourmet Desserts & Cakes',
     },
     drink: {
-      src: '/images/coffee.jpg',
+      src: '/images/drinks.jpg',
       type: 'image',
-      alt: 'Artisan Beverages & Coffee',
+      alt: 'Refreshing Cold Drinks & Fresh Fruit Juices',
     },
     drinks: {
-      src: '/images/coffee.jpg',
+      src: '/images/drinks.jpg',
       type: 'image',
-      alt: 'Artisan Beverages & Cold Drinks',
+      alt: 'Refreshing Cold Drinks & Fresh Fruit Juices',
     },
     breakfast: {
-      src: '/videos/burger.mp4',
-      type: 'video/mp4',
-      poster: '/videos/burger-poster.jpg',
+      src: '/images/breakfast.jpg',
+      type: 'image',
+      alt: 'Fresh Morning Breakfast & Artisan Brunch',
     },
   };
 
@@ -92,6 +92,25 @@
     `;
   }
 
+  /**
+   * Renders the authentic individual food photo for each specific menu item in the detail modal.
+   */
+  function renderDishMedia(dish, category) {
+    if (!dish) return '';
+    const itemId = dish.id;
+    const catId = category && category.id ? category.id : 'habesha';
+    const catFallback = videoMap[catId] ? videoMap[catId].src : '/images/habesha.jpg';
+    const dishImg = dish.image || `/images/dishes/${itemId}.jpg`;
+
+    return `
+      <div class="card__video-wrap card__video-wrap--dish" data-item-id="${itemId}">
+        <img class="card__real-video card__real-img" src="${dishImg}" alt="${dish.name || itemId}" loading="eager" onerror="this.onerror=null;this.src='${catFallback}';" />
+        <div class="card__video-gradient"></div>
+      </div>
+    `;
+  }
+
   window.renderCategoryIcon = renderCategoryVideo;
+  window.renderDishMedia = renderDishMedia;
   window.categoryVideoMap = videoMap;
 })();
