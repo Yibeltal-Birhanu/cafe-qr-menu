@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Prism Cafe - Modern Luxury Cafe Theme & 4K Animated Video Menu
+   ABOLE Cafe - Modern Luxury Cafe Theme & Real Looping Food Video Menu
    Warm Velvet Espresso, Roasted Mocha, Amber Caramel & Honey Gold Palette
    ========================================================================== */
 
@@ -34,7 +34,7 @@
   --accent-cyan: #06b6d4;      /* Chilled Cyan */
 
   /* Radii & Shadows */
-  --radius: 24px;
+  --radius: 22px;
   --radius-sm: 14px;
   --radius-pill: 999px;
   --shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.88), 0 0 25px -8px rgba(230, 146, 60, 0.14);
@@ -98,7 +98,7 @@ button { font: inherit; color: inherit; }
 .wrap { width: min(1200px, 100% - 2.5rem); margin-inline: auto; }
 
 /* ==========================================================================
-   Topbar & Brand Header
+   Top Bar Navigation
    ========================================================================== */
 
 .topbar {
@@ -107,74 +107,81 @@ button { font: inherit; color: inherit; }
   z-index: 40;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  background: rgba(14, 10, 7, 0.88);
+  background: linear-gradient(rgba(14, 10, 7, 0.94), rgba(14, 10, 7, 0.82));
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
 }
 
 .topbar__inner {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.8rem 0;
+  gap: 1.1rem;
+  padding: 0.85rem 0;
+  flex-wrap: wrap;
 }
 
-.brand { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--text);
+  flex: none;
+}
 
 .brand__logo {
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
-  flex: none;
-  font-size: 1.45rem;
   border-radius: 14px;
-  background: linear-gradient(145deg, var(--accent), var(--accent-2));
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #1a0e05;
-  box-shadow: 0 10px 24px -6px rgba(230, 146, 60, 0.65);
-  animation: logo-pulse 4s ease-in-out infinite;
+  font-size: 1.45rem;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(230, 146, 60, 0.45);
 }
 
-@keyframes logo-pulse {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-3px) rotate(-3deg); }
-}
-
-.brand__text { display: flex; flex-direction: column; min-width: 0; }
 .brand__name {
+  display: block;
   font-family: var(--serif);
   font-size: 1.25rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background: linear-gradient(100deg, #ffffff 40%, var(--accent) 100%);
+  background: linear-gradient(110deg, #ffffff 40%, var(--accent-gold));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.brand__tag { font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Table Badge Indicator */
-.table-pill {
+.brand__tag {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Digital Menu Status Pill */
+.menu-view-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   padding: 0.38rem 0.85rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(230, 146, 60, 0.4);
-  background: rgba(230, 146, 60, 0.12);
+  border: 1px solid rgba(230, 146, 60, 0.35);
+  background: rgba(230, 146, 60, 0.1);
   color: var(--accent-gold);
   font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
-.table-pill:hover {
-  transform: translateY(-2px);
-  background: rgba(230, 146, 60, 0.24);
-  box-shadow: 0 4px 16px -4px rgba(230, 146, 60, 0.45);
+
+.menu-view-badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
 }
 
 .search {
@@ -256,7 +263,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* ==========================================================================
-   Hero Section - Modern Cafe Layout & 4K Animated Food Video Stage
+   Hero Section - Modern Cafe Layout & Real Food Video Showcase
    ========================================================================== */
 
 .hero { padding: 2.5rem 0 1.5rem; }
@@ -299,43 +306,35 @@ button { font: inherit; color: inherit; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  background-size: 200% auto;
-  animation: shine 8s ease-in-out infinite alternate;
-}
-
-@keyframes shine {
-  from { background-position: 0% center; }
-  to   { background-position: 100% center; }
 }
 
 .hero p {
   color: var(--text-secondary);
   font-size: 1.05rem;
-  max-width: 52ch;
-  margin: 0 0 1.5rem;
-  line-height: 1.58;
+  line-height: 1.6;
+  margin: 0 0 1.4rem;
+  max-width: 540px;
 }
 
-/* Free Guest WiFi Card */
+/* Guest WiFi Card */
 .wifi-card {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.55rem 1.1rem;
-  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(230, 146, 60, 0.28);
-  background: rgba(28, 20, 15, 0.85);
+  border: 1px solid var(--border);
+  background: rgba(22, 16, 12, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   font-size: 0.82rem;
-  color: var(--muted);
-  box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.6);
+  color: var(--text-secondary);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
 }
-.wifi-card strong { color: var(--accent-gold); font-weight: 600; }
+.wifi-card strong { color: var(--accent-gold); font-weight: 700; }
 .wifi-card button {
-  background: rgba(230, 146, 60, 0.16);
-  border: 1px solid rgba(230, 146, 60, 0.35);
+  background: rgba(230, 146, 60, 0.18);
+  border: 1px solid rgba(230, 146, 60, 0.4);
   border-radius: var(--radius-pill);
   cursor: pointer;
   color: var(--accent-gold);
@@ -349,7 +348,7 @@ button { font: inherit; color: inherit; }
   color: #1a0e05;
 }
 
-/* Featured 4K Food Video Stage at Hero */
+/* Featured Real Food Video Stage at Hero */
 .hero__video-card {
   position: relative;
   border-radius: var(--radius);
@@ -370,7 +369,7 @@ button { font: inherit; color: inherit; }
   align-items: center;
   gap: 0.6rem;
   padding: 0.75rem 1rem;
-  background: rgba(14, 10, 7, 0.94);
+  background: rgba(14, 10, 7, 0.95);
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
@@ -378,21 +377,26 @@ button { font: inherit; color: inherit; }
 .hero__video-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.68rem;
+  gap: 0.45rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-gold);
 }
 
+.video-sparkle-dot {
+  font-size: 0.85rem;
+}
+
 .hero__video-selector {
   display: flex;
   gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
 .hero__selector-btn {
-  padding: 0.28rem 0.65rem;
+  padding: 0.3rem 0.65rem;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.04);
@@ -417,15 +421,10 @@ button { font: inherit; color: inherit; }
 
 .hero__video-stage {
   position: relative;
+  width: 100%;
+  height: 290px;
   background: #080604;
-  cursor: pointer;
-}
-.hero__video-stage .card__video-inner {
-  border-radius: 0;
-}
-.hero__video-stage svg {
-  width: 195px;
-  height: 195px;
+  overflow: hidden;
 }
 
 /* ==========================================================================
@@ -469,409 +468,155 @@ button { font: inherit; color: inherit; }
 .chip:hover {
   transform: translateY(-2px);
   color: var(--text);
-  border-color: rgba(230, 146, 60, 0.4);
-  background: rgba(28, 20, 15, 0.95);
+  border-color: rgba(230, 146, 60, 0.35);
+  background: rgba(38, 28, 21, 0.85);
 }
 .chip.is-active {
-  color: #1a0e05;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border-color: transparent;
+  color: #1a0e05;
   font-weight: 700;
-  box-shadow: 0 8px 24px -5px rgba(230, 146, 60, 0.55);
-}
-.chip__count {
-  font-size: 0.72rem;
-  opacity: 0.85;
-  padding: 0.05rem 0.45rem;
-  border-radius: 99px;
-  background: rgba(0, 0, 0, 0.25);
+  border-color: transparent;
+  box-shadow: 0 6px 20px -4px rgba(230, 146, 60, 0.5);
 }
 
-/* Secondary Quick Filter Pills */
 .filters-row {
   display: flex;
   gap: 0.5rem;
-  padding-top: 0.55rem;
   overflow-x: auto;
+  margin-top: 0.65rem;
+  padding-bottom: 0.2rem;
   scrollbar-width: none;
 }
+.filters-row::-webkit-scrollbar { display: none; }
+
 .filter-pill {
   flex: none;
-  padding: 0.32rem 0.85rem;
+  padding: 0.35rem 0.85rem;
   border-radius: var(--radius-pill);
-  font-size: 0.78rem;
   border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.03);
   color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 .filter-pill:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.08);
   border-color: rgba(230, 146, 60, 0.3);
 }
 .filter-pill.is-active {
-  border-color: rgba(230, 146, 60, 0.5);
   background: rgba(230, 146, 60, 0.16);
+  border-color: var(--accent);
   color: var(--accent-gold);
-  font-weight: 600;
 }
 
 /* ==========================================================================
-   Category Cards & 4K Live Video Animation Showcases
+   Card Board Grid & Category Cards
    ========================================================================== */
 
-.board { padding: 2.2rem 0 5rem; }
+.board { padding: 2rem 0 4rem; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
-  gap: 2rem;
-  align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.8rem;
 }
 
-/* Cards are visible by default to guarantee rendering */
 .card {
   position: relative;
+  background: var(--surface-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-    var(--bg-2);
   box-shadow: var(--shadow);
   overflow: hidden;
-  opacity: 1 !important;
-  transform: none !important;
-  transition: border-color 0.3s, box-shadow 0.4s, transform 0.3s;
-}
-
-.card:hover {
-  border-color: rgba(230, 146, 60, 0.45);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px) !important;
-}
-
-/* 4K Realistic Video Screen Viewport */
-.card__art {
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  background: #080604;
-  cursor: pointer;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
-
-.card__video-inner {
-  position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  background: #080604;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease;
+  opacity: 0;
+  transform: translateY(22px);
 }
-
-/* Video Monitor Scanline Texture */
-.card__video-inner::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.6) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 3px;
-  pointer-events: none;
-  z-index: 4;
+.card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
-
-/* Top Camera HUD Overlay */
-.video-hud-top {
-  position: absolute;
-  top: 0.8rem;
-  left: 0.85rem;
-  right: 0.85rem;
-  z-index: 5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
-}
-
-.video-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.22rem 0.65rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(14, 10, 7, 0.88);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
-}
-
-.video-live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent-coral);
-  box-shadow: 0 0 8px var(--accent-coral);
-  animation: live-pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.7); }
-}
-
-.video-cam-mode {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #a8988a;
-  background: rgba(14, 10, 7, 0.85);
-  backdrop-filter: blur(8px);
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(230, 146, 60, 0.45);
+  box-shadow: 0 35px 80px -20px rgba(0, 0, 0, 0.95), 0 0 35px -8px rgba(230, 146, 60, 0.35);
 }
 
 /* Category banner pill in upper card */
 .card__tag-pill {
   position: absolute;
-  top: 2.5rem;
-  right: 0.85rem;
+  top: 0.9rem;
+  right: 0.9rem;
   z-index: 5;
-  padding: 0.22rem 0.65rem;
+  padding: 0.26rem 0.75rem;
   border-radius: var(--radius-pill);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   background: rgba(14, 10, 7, 0.88);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(230, 146, 60, 0.35);
   color: var(--accent-gold);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* Video Stage Area */
-.video-screen {
+/* Real Food Video Container */
+.card__art {
+  position: relative;
+  overflow: hidden;
+  background: #080604;
+}
+
+.card__video-wrap {
   position: relative;
   width: 100%;
-  min-height: 200px;
-  display: grid;
-  place-items: center;
-  padding: 2.2rem 0 1.2rem;
+  height: 215px;
   overflow: hidden;
+  background: #080604;
 }
 
-.card__art svg {
-  width: 175px;
-  height: 175px;
-  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.65));
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  z-index: 2;
-}
-.card:hover .card__art svg { transform: scale(1.08) translateY(-4px); }
-
-/* Category Ambient Warm Glows */
-.card[data-category="habesha"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(245, 158, 11, 0.25), transparent 65%),
-              radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.18), transparent 50%), #0e0a07;
-}
-.card[data-category="burgers"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(230, 146, 60, 0.28), transparent 65%),
-              radial-gradient(circle at 80% 20%, rgba(180, 83, 9, 0.18), transparent 50%), #0e0a07;
-}
-.card[data-category="pizza"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(239, 68, 68, 0.25), transparent 65%),
-              radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.18), transparent 50%), #0e0a07;
-}
-.card[data-category="coffee"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(217, 119, 6, 0.28), transparent 65%),
-              radial-gradient(circle at 50% 10%, rgba(146, 64, 14, 0.22), transparent 55%), #0c0805;
-}
-.card[data-category="drinks"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(6, 182, 212, 0.25), transparent 65%),
-              radial-gradient(circle at 20% 30%, rgba(230, 146, 60, 0.15), transparent 50%), #080a0e;
-}
-.card[data-category="desserts"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(236, 72, 153, 0.22), transparent 65%),
-              radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.18), transparent 50%), #0f090d;
-}
-.card[data-category="breakfast"] .video-screen {
-  background: radial-gradient(circle at 50% 120%, rgba(234, 179, 8, 0.25), transparent 65%),
-              radial-gradient(circle at 30% 20%, rgba(230, 146, 60, 0.18), transparent 50%), #0e0b07;
+.hero__video-stage .card__video-wrap {
+  height: 290px;
 }
 
-/* Bottom Video Player Scrubber HUD */
-.video-hud-bottom {
-  position: relative;
-  z-index: 5;
-  padding: 0.5rem 0.85rem;
-  background: rgba(14, 10, 7, 0.94);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.video-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  font-size: 0.68rem;
-}
-
-.video-play-status {
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-
-.video-timeline {
-  flex: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 99px;
-  overflow: hidden;
-  position: relative;
-}
-
-.video-timeline-progress {
+.card__real-video {
+  width: 100%;
   height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-gold));
-  border-radius: 99px;
-  transform-origin: left center;
-  animation: video-scrub 15s linear infinite;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card:hover .card__real-video {
+  transform: scale(1.06);
 }
 
-@keyframes video-scrub {
-  0% { transform: scaleX(0); }
-  100% { transform: scaleX(1); }
-}
-
-.video-timestamp {
-  color: var(--muted);
-  font-family: monospace;
-  font-size: 0.7rem;
-  white-space: nowrap;
-}
-
-.video-badge-hd {
-  color: var(--accent-gold);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 0.05rem 0.35rem;
-  border-radius: 4px;
-  font-size: 0.62rem;
-  font-weight: 700;
+.card__video-gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 10, 7, 0.35) 0%,
+    transparent 40%,
+    rgba(14, 10, 7, 0.88) 100%
+  );
 }
 
 /* ==========================================================================
-   Realistic Food Video Physics Animations
+   Card Body & Dish Rows (View-Only & Clickable)
    ========================================================================== */
 
-/* Rising Aromatic Steam */
-.ill-steam {
-  animation: ill-steam-rise 3.2s ease-out infinite;
-  transform-origin: center bottom;
-}
-.ill-delay-1 { animation-delay: 1.1s !important; }
-.ill-delay-2 { animation-delay: 2.2s !important; }
-
-@keyframes ill-steam-rise {
-  0%   { transform: translateY(0) scaleY(0.7) scaleX(0.8); opacity: 0; }
-  30%  { opacity: 0.85; }
-  100% { transform: translateY(-34px) scaleY(1.3) scaleX(1.4); opacity: 0; }
-}
-
-/* Hot Rising Embers */
-.ill-spark circle {
-  animation: spark-fly 2.4s ease-out infinite;
-}
-.ill-spark circle:nth-child(2) { animation-delay: 0.6s; }
-.ill-spark circle:nth-child(3) { animation-delay: 1.2s; }
-.ill-spark circle:nth-child(4) { animation-delay: 1.8s; }
-
-@keyframes spark-fly {
-  0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
-  100% { transform: translate(-10px, -45px) scale(0.2); opacity: 0; }
-}
-
-/* Simmering Hot Plate / Skillet */
-.ill-simmer {
-  animation: simmer-vibe 0.16s ease-in-out infinite alternate;
-}
-@keyframes simmer-vibe {
-  from { transform: translateY(0) rotate(0); }
-  to   { transform: translateY(-0.8px) rotate(0.4deg); }
-}
-
-/* Sizzling Pan Heat Waves */
-.ill-sizzle {
-  animation: sizzle-glow 3s ease-in-out infinite alternate;
-}
-@keyframes sizzle-glow {
-  0%   { filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.65)); }
-  100% { filter: drop-shadow(0 18px 30px rgba(230, 146, 60, 0.28)); }
-}
-
-/* Melted Cheese / Sauce Drip */
-.ill-drip {
-  animation: drip-pulse 4s ease-in-out infinite alternate;
-}
-@keyframes drip-pulse {
-  0%   { transform: scaleY(1); }
-  100% { transform: scaleY(1.08) translateY(1.5px); }
-}
-
-/* Bobbing Elements */
-.ill-bob {
-  animation: float-bob 4s ease-in-out infinite alternate;
-}
-@keyframes float-bob {
-  0%   { transform: translateY(0); }
-  100% { transform: translateY(-4px); }
-}
-
-/* Effervescent Rising Bubbles */
-.ill-bubble {
-  animation: bubble-up 2.8s ease-in infinite;
-}
-@keyframes bubble-up {
-  0%   { transform: translateY(0); opacity: 0.2; }
-  60%  { opacity: 0.95; }
-  100% { transform: translateY(-48px); opacity: 0; }
-}
-
-/* Fresh Herb Sway */
-.ill-sway {
-  transform-origin: 90px 106px;
-  animation: sway-wind 3.5s ease-in-out infinite alternate;
-}
-@keyframes sway-wind {
-  0%   { transform: rotate(-3deg); }
-  100% { transform: rotate(3deg); }
-}
-
-/* Pop elements */
-.ill-pop {
-  animation: egg-pop 3s ease-in-out infinite alternate;
-}
-@keyframes egg-pop {
-  0%   { transform: scale(1); }
-  100% { transform: scale(1.05); }
-}
-
-/* ==========================================================================
-   Card Body & Dish Rows
-   ========================================================================== */
-
-.card__body { padding: 1rem 1.4rem 1.4rem; }
+.card__body { padding: 1.1rem 1.4rem 1.4rem; }
 
 .card__head {
   display: flex;
@@ -903,15 +648,26 @@ button { font: inherit; color: inherit; }
 
 .item {
   display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
-  padding: 0.85rem 0;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 0.65rem;
+  margin: 0.2rem -0.65rem;
+  border-radius: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.2s;
+  cursor: pointer;
+  transition: background 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s, padding-left 0.22s;
 }
 .item:last-child { border-bottom: 0; }
+.item:hover {
+  background: rgba(230, 146, 60, 0.09);
+  padding-left: 0.95rem;
+}
+.item:focus-visible {
+  outline: 2px solid var(--accent);
+  background: rgba(230, 146, 60, 0.14);
+}
 
-.item__main { flex: 1; min-width: 0; cursor: pointer; }
+.item__main { flex: 1; min-width: 0; }
 .item__top { display: flex; align-items: baseline; gap: 0.5rem; }
 .item__name { font-weight: 600; font-size: 0.98rem; color: var(--text); }
 
@@ -928,33 +684,31 @@ button { font: inherit; color: inherit; }
   font-size: 1.05rem;
   font-weight: 700;
 }
-.item__desc { color: var(--muted); font-size: 0.84rem; margin-top: 0.25rem; line-height: 1.42; }
+.item__desc {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 0.25rem;
+  line-height: 1.42;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
 
-/* Item Add-to-tray Button */
-.item__add-btn {
+.item__arrow {
   flex: none;
-  display: inline-grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  margin-top: 0.1rem;
-  border-radius: 10px;
-  border: 1px solid rgba(230, 146, 60, 0.4);
-  background: rgba(230, 146, 60, 0.14);
+  color: var(--muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  opacity: 0.4;
+  transition: opacity 0.2s, transform 0.2s, color 0.2s;
+}
+.item:hover .item__arrow {
+  opacity: 1;
   color: var(--accent-gold);
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.15rem;
-  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(4px);
 }
-.item__add-btn:hover {
-  transform: scale(1.16);
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #1a0e05;
-  border-color: transparent;
-  box-shadow: 0 4px 16px -2px rgba(230, 146, 60, 0.6);
-}
-.item__add-btn:active { transform: scale(0.92); }
 
 /* Badges */
 .badge {
@@ -971,7 +725,7 @@ button { font: inherit; color: inherit; }
   font-weight: 800;
   box-shadow: 0 0 10px rgba(230, 146, 60, 0.45);
 }
-.badge--hot, .badge--spicy {
+.badge--spicy, .badge--hot {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: #fff;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
@@ -991,201 +745,166 @@ button { font: inherit; color: inherit; }
 }
 
 /* ==========================================================================
-   Floating Order Tray Bottom Bar & Slide-Over Drawer
+   Dish Detail Modal - High-End Luxury Cafe Presentation
    ========================================================================== */
 
-.tray-bar {
-  position: fixed;
-  bottom: 1.4rem;
-  left: 50%;
-  transform: translate(-50%, 80px);
-  z-index: 50;
-  width: min(520px, calc(100% - 2rem));
-  padding: 0.8rem 1.2rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(230, 146, 60, 0.4);
-  background: rgba(22, 16, 12, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 35px -8px rgba(230, 146, 60, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.tray-bar.is-visible {
-  transform: translate(-50%, 0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.tray-bar__info { display: flex; align-items: center; gap: 0.75rem; }
-.tray-bar__badge {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #1a0e05;
-  font-weight: 800;
-  font-size: 0.88rem;
-  box-shadow: 0 0 14px rgba(230, 146, 60, 0.6);
-}
-.tray-bar__text { font-size: 0.88rem; font-weight: 600; color: #ffffff; }
-.tray-bar__total { font-family: var(--serif); color: var(--accent-gold); font-size: 1.08rem; font-weight: 700; }
-
-.tray-bar__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius-pill);
-  border: none;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #1a0e05;
-  font-weight: 700;
-  font-size: 0.86rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.tray-bar__action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 18px -2px rgba(230, 146, 60, 0.6);
-}
-
-/* Tray Slide Drawer */
-.drawer-backdrop {
+.modal {
   position: fixed;
   inset: 0;
-  z-index: 60;
-  background: rgba(14, 10, 7, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 70;
+  background: rgba(10, 7, 5, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
 }
-.drawer-backdrop.is-open { opacity: 1; visibility: visible; }
+.modal.is-open { opacity: 1; visibility: visible; }
 
-.drawer {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 100%);
-  width: min(540px, 100%);
-  max-height: 86vh;
-  z-index: 65;
+.modal__dish-card {
+  position: relative;
+  width: min(540px, 94vw);
+  max-height: 90vh;
+  border-radius: 22px;
+  border: 1px solid rgba(230, 146, 60, 0.35);
   background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: 28px 28px 0 0;
+  box-shadow: var(--shadow-lg), 0 0 50px -10px rgba(230, 146, 60, 0.25);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.9);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
+  animation: modal-pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
-.drawer-backdrop.is-open .drawer { transform: translate(-50%, 0); }
 
-.drawer__head {
-  padding: 1.2rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+@keyframes modal-pop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
-.drawer__title { font-family: var(--serif); font-size: 1.4rem; margin: 0; color: #ffffff; }
-.drawer__close {
-  background: none;
-  border: none;
-  font-size: 1.6rem;
+
+.modal__close-btn {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 10;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(14, 10, 7, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 1.4rem;
   cursor: pointer;
-  color: var(--muted);
-  transition: color 0.2s;
-}
-.drawer__close:hover { color: var(--accent); }
-
-.drawer__body {
-  padding: 1.2rem 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.tray-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.85rem; }
-.tray-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-.tray-row__name { font-weight: 600; font-size: 0.94rem; color: #ffffff; }
-.tray-row__price { font-family: var(--serif); color: var(--accent-gold); font-size: 0.95rem; font-weight: 700; }
-
-.tray-row__controls { display: flex; align-items: center; gap: 0.5rem; }
-.tray-row__btn {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: 1px solid rgba(230, 146, 60, 0.4);
-  background: rgba(230, 146, 60, 0.12);
-  color: var(--accent-gold);
-  cursor: pointer;
-  font-weight: 700;
   transition: all 0.2s;
 }
-.tray-row__btn:hover { background: var(--accent); color: #1a0e05; }
+.modal__close-btn:hover {
+  background: var(--accent);
+  color: #1a0e05;
+  transform: rotate(90deg) scale(1.08);
+}
 
-.tray-row__qty { min-width: 1.4rem; text-align: center; font-weight: 700; font-size: 0.92rem; }
-
-.field { display: grid; gap: 0.4rem; }
-.field span { font-size: 0.78rem; color: var(--muted); }
-.field input, .field select, .field textarea {
+.modal__dish-video-stage {
+  position: relative;
   width: 100%;
-  padding: 0.65rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s;
+  height: 230px;
+  background: #080604;
+  overflow: hidden;
+  flex: none;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
-  border-color: var(--accent);
+.modal__dish-video-stage .card__video-wrap {
+  height: 100%;
 }
 
-.drawer__foot {
-  padding: 1.2rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: grid;
-  gap: 0.8rem;
-  background: rgba(14, 10, 7, 0.95);
+.modal__dish-content {
+  padding: 1.5rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  overflow-y: auto;
 }
 
-.drawer__total-row {
+.modal__dish-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  font-size: 1rem;
+  align-items: flex-start;
+  gap: 1rem;
 }
-.drawer__total-val {
-  font-family: var(--serif);
-  font-size: 1.4rem;
+
+.modal__dish-cat {
+  font-size: 0.76rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.modal__dish-title {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: 0.25rem 0 0;
+  color: #ffffff;
+}
+
+.modal__dish-price {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  white-space: nowrap;
+}
+
+.modal__dish-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: -0.3rem;
+}
+
+.modal__dish-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.modal__dish-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+}
+
+.modal__dish-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.modal__dish-meta-item .meta-label {
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.modal__dish-meta-item strong {
+  font-size: 0.92rem;
   color: var(--accent-gold);
 }
 
-.drawer__actions { display: grid; gap: 0.6rem; }
+.modal__dish-footer {
+  margin-top: 0.5rem;
+}
+.modal__dish-footer .btn {
+  width: 100%;
+}
 
 .btn {
   display: inline-flex;
@@ -1203,15 +922,6 @@ button { font: inherit; color: inherit; }
 }
 .btn:hover { transform: translateY(-2px); }
 
-.btn--whatsapp {
-  background: linear-gradient(135deg, #25d366, #128c7e);
-  color: #ffffff;
-  border-color: transparent;
-  font-weight: 700;
-  box-shadow: 0 8px 24px -4px rgba(37, 211, 102, 0.45);
-}
-.btn--whatsapp:hover { box-shadow: 0 10px 28px -2px rgba(37, 211, 102, 0.6); }
-
 .btn--primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #1a0e05;
@@ -1220,45 +930,6 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 8px 24px -4px rgba(230, 146, 60, 0.45);
 }
 .btn--primary:hover { box-shadow: 0 10px 28px -2px rgba(230, 146, 60, 0.65); }
-
-.btn--ghost {
-  background: transparent;
-  border-color: transparent;
-  color: var(--muted);
-}
-.btn--ghost:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
-
-/* ==========================================================================
-   Modals, Toast & Footer
-   ========================================================================= */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  background: rgba(10, 7, 5, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-}
-.modal.is-open { opacity: 1; visibility: visible; }
-
-.modal__box {
-  width: min(440px, 100%);
-  padding: 2rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--bg-2);
-  box-shadow: var(--shadow-lg);
-  text-align: center;
-}
-.modal__box h2 { font-family: var(--serif); margin: 0 0 0.5rem; color: #ffffff; }
-.modal__box p { color: var(--muted); font-size: 0.9rem; margin: 0 0 1rem; }
 
 /* Notification Toast */
 .toast {
@@ -1310,4 +981,6 @@ button { font: inherit; color: inherit; }
   .grid { grid-template-columns: 1fr; }
   .topbar__inner { gap: 0.6rem; }
   .search { max-width: 170px; }
+  .modal__dish-video-stage { height: 190px; }
+  .hero__video-stage { height: 240px; }
 }

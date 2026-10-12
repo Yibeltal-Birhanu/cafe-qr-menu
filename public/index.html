@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0e0a07" />
   <meta name="description" content="Explore our authentic Habesha specialties, flame-grilled burgers, stone-baked pizzas, specialty coffee, and handcrafted desserts." />
-  <title>Prism Cafe &mdash; Digital QR Menu</title>
+  <title>ABOLE Cafe &mdash; Digital QR Menu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9749;</text></svg>" />
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -16,15 +16,16 @@
       <a class="brand" href="/">
         <span class="brand__logo" id="cafeLogo">&#9749;</span>
         <span class="brand__text">
-          <span class="brand__name" id="cafeName">Prism Cafe</span>
+          <span class="brand__name" id="cafeName">ABOLE Cafe</span>
           <span class="brand__tag" id="cafeTagline">Artisan Bistro &bull; Digital Menu</span>
         </span>
       </a>
 
-      <!-- Table indicator badge -->
-      <button class="table-pill" id="tablePill" type="button" title="Select or change your table">
-        <span id="tablePillIcon">📍</span> <span id="tablePillText">Table #1</span>
-      </button>
+      <!-- Digital Menu View Badge -->
+      <div class="menu-view-badge" id="menuViewBadge">
+        <span class="badge-dot"></span>
+        <span id="menuViewBadgeText">Digital Menu</span>
+      </div>
 
       <label class="search">
         <span class="search__icon" aria-hidden="true">
@@ -51,12 +52,12 @@
   </header>
 
   <main>
-    <!-- ============================================= Modern Cafe Hero with 4K Food Video Showcase -->
+    <!-- ============================================= Modern Cafe Hero with Real Food Video Showcase -->
     <section class="hero wrap">
       <div class="hero__layout">
         <!-- Left Column: Story, Title & Guest Wi-Fi -->
         <div class="hero__content">
-          <span class="eyebrow" id="heroEyebrow">&#10024; LIVE DIGITAL MENU &bull; TABLE ORDERING</span>
+          <span class="eyebrow" id="heroEyebrow">&#10024; ARTISAN BISTRO &bull; DIGITAL MENU</span>
           <h1 id="heroTitle">Culinary Passion &amp; Authentic Flavors</h1>
           <p id="heroText">Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas &amp; single-origin Ethiopian coffee.</p>
 
@@ -68,22 +69,23 @@
           </div>
         </div>
 
-        <!-- Right Column: Interactive 4K Food Video Stage -->
+        <!-- Right Column: Interactive Real Food Video Stage -->
         <div class="hero__video-card" id="heroVideoCard">
           <div class="hero__video-header">
             <div class="hero__video-badge">
-              <span class="video-live-dot"></span>
-              <span id="heroLiveText">4K LIVE SHOWCASE</span>
+              <span class="video-sparkle-dot">&#10024;</span>
+              <span id="heroLiveText">FEATURED SPECIALTIES</span>
             </div>
             <div class="hero__video-selector" id="heroVideoSelector" role="tablist" aria-label="Featured food video">
               <button class="hero__selector-btn is-active" data-hero-video="habesha" type="button">🔥 Tibs</button>
               <button class="hero__selector-btn" data-hero-video="burgers" type="button">🍔 Burger</button>
-              <button class="hero__selector-btn" data-hero-video="coffee" type="button">☕ Buna</button>
               <button class="hero__selector-btn" data-hero-video="pizza" type="button">🍕 Pizza</button>
+              <button class="hero__selector-btn" data-hero-video="coffee" type="button">☕ Buna</button>
+              <button class="hero__selector-btn" data-hero-video="desserts" type="button">🍫 Dessert</button>
             </div>
           </div>
-          <div class="hero__video-stage" id="heroVideoStage" title="Tap to interact with chef's live video">
-            <!-- 4K Animated food video rendered here -->
+          <div class="hero__video-stage" id="heroVideoStage" title="Chef's featured dish video">
+            <!-- Real food video rendered here -->
           </div>
         </div>
       </div>
@@ -110,61 +112,40 @@
     </section>
   </main>
 
-  <!-- ============================================== Floating Order Tray Bar -->
-  <aside class="tray-bar" id="trayBar" aria-label="Order summary">
-    <div class="tray-bar__info">
-      <span class="tray-bar__badge" id="trayCount">0</span>
-      <div>
-        <div class="tray-bar__text" id="trayBarTitle">Your Table Tray</div>
-        <div class="tray-bar__total" id="trayTotal">0 ETB</div>
+  <!-- ============================================= Dish Detail Modal -->
+  <div class="modal" id="dishModal" role="dialog" aria-modal="true" aria-labelledby="modalDishName">
+    <div class="modal__dish-card">
+      <button class="modal__close-btn" id="closeDishModal" type="button" aria-label="Close details">&times;</button>
+      <div class="modal__dish-video-stage" id="modalDishVideoStage">
+        <!-- Real video container injected by app.js -->
       </div>
-    </div>
-    <button class="tray-bar__action" id="openTrayBtn" type="button">
-      <span id="trayBarBtnText">View Order &rarr;</span>
-    </button>
-  </aside>
-
-  <!-- ============================================== Order Tray Slide Drawer -->
-  <div class="drawer-backdrop" id="trayDrawerBackdrop">
-    <div class="drawer" id="trayDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-      <div class="drawer__head">
-        <div>
-          <h2 class="drawer__title" id="drawerTitle">Your Table Order</h2>
-          <span class="hint" id="drawerTableLabel">Table #1 &bull; Dine-In</span>
-        </div>
-        <button class="drawer__close" id="closeTrayBtn" type="button" aria-label="Close tray">&times;</button>
-      </div>
-
-      <div class="drawer__body">
-        <ul class="tray-list" id="trayList"></ul>
-        <div id="trayEmpty" class="hint" style="text-align:center;padding:2rem 0">
-          Your order tray is empty. Tap the &ldquo;+&rdquo; button on any dish to add it!
+      <div class="modal__dish-content">
+        <div class="modal__dish-header">
+          <div>
+            <span class="modal__dish-cat" id="modalDishCategory">Category</span>
+            <h2 class="modal__dish-title" id="modalDishName">Dish Name</h2>
+          </div>
+          <div class="modal__dish-price" id="modalDishPrice">0 ETB</div>
         </div>
 
-        <div style="margin-top:1.2rem">
-          <label class="field">
-            <span id="notesLabel">Special instructions / allergies</span>
-            <input id="trayNotes" placeholder="e.g. Extra awaze, no onions, less ice" />
-          </label>
-        </div>
-      </div>
+        <div class="modal__dish-badges" id="modalDishBadges"></div>
 
-      <div class="drawer__foot">
-        <div class="drawer__total-row">
-          <span id="drawerTotalLabel">Estimated Total:</span>
-          <span class="drawer__total-val" id="drawerTotal">0 ETB</span>
+        <p class="modal__dish-desc" id="modalDishDesc">Mouth-watering dish description...</p>
+
+        <div class="modal__dish-meta">
+          <div class="modal__dish-meta-item" id="modalDishPrepRow">
+            <span class="meta-label" id="modalPrepLabel">Prep Time:</span>
+            <strong id="modalDishPrep">15 min</strong>
+          </div>
+          <div class="modal__dish-meta-item" id="modalDishDietRow">
+            <span class="meta-label" id="modalDietLabel">Dietary:</span>
+            <strong id="modalDishDiet">Freshly Made</strong>
+          </div>
         </div>
-        <div class="drawer__actions">
-          <button class="btn btn--whatsapp" id="sendWhatsappBtn" type="button">
-            📱 Send Order via WhatsApp
-          </button>
-          <button class="btn" id="callWaiterBtn" type="button">
-            🔔 Call Waiter / Bell
-          </button>
+
+        <div class="modal__dish-footer">
+          <button class="btn btn--primary" id="modalDoneBtn" type="button">Back to Menu</button>
         </div>
-        <button class="btn btn--ghost" id="clearTrayBtn" type="button" style="justify-content:center;font-size:0.8rem">
-          Clear Tray
-        </button>
       </div>
     </div>
   </div>
@@ -173,7 +154,7 @@
   <footer class="footer">
     <div class="wrap footer__inner" style="justify-content:center;text-align:center;gap:0.6rem;flex-direction:column">
       <div>
-        <strong id="footerCafe" style="font-size:1.15rem;color:var(--text)">Prism Cafe &amp; Bistro</strong><br />
+        <strong id="footerCafe" style="font-size:1.15rem;color:var(--text)">ABOLE Cafe &amp; Bistro</strong><br />
         <span id="footerNote" style="color:var(--muted);font-size:0.88rem">Scan, browse &amp; enjoy. Prepared fresh for your table.</span>
       </div>
       <div id="footerHours" style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem">
@@ -181,35 +162,6 @@
       </div>
     </div>
   </footer>
-
-  <!-- Table Switcher Modal -->
-  <div class="modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
-    <div class="modal__box">
-      <h2 id="qrTitle">Select Your Table</h2>
-      <p id="qrPrompt">Choose the table number you are seated at:</p>
-
-      <div style="margin:1rem 0">
-        <label class="field" style="max-width:220px;margin:0 auto">
-          <span id="qrTableLabel">Current Table</span>
-          <select id="qrTableSelect">
-            <option value="1">Table #1</option>
-            <option value="2">Table #2</option>
-            <option value="3">Table #3</option>
-            <option value="4">Table #4</option>
-            <option value="5">Table #5</option>
-            <option value="6">Table #6</option>
-            <option value="7">Table #7</option>
-            <option value="8">Table #8</option>
-            <option value="VIP">VIP Lounge</option>
-            <option value="Patio">Patio</option>
-            <option value="Bar">Bar Counter</option>
-          </select>
-        </label>
-      </div>
-
-      <button class="btn btn--primary" id="closeQr" type="button" style="margin-top:0.8rem">Confirm Table</button>
-    </div>
-  </div>
 
   <!-- Notification Toast -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
