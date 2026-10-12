@@ -12,6 +12,11 @@
       type: 'video/webm',
       poster: '',
     },
+    burger: {
+      src: '/videos/burger.mp4',
+      type: 'video/mp4',
+      poster: '/videos/burger-poster.jpg',
+    },
     burgers: {
       src: '/videos/burger.mp4',
       type: 'video/mp4',
@@ -27,8 +32,18 @@
       type: 'video/webm',
       poster: '',
     },
+    dessert: {
+      src: '/videos/dessert.webm',
+      type: 'video/webm',
+      poster: '',
+    },
     desserts: {
       src: '/videos/dessert.webm',
+      type: 'video/webm',
+      poster: '',
+    },
+    drink: {
+      src: '/videos/coffee.webm',
       type: 'video/webm',
       poster: '',
     },
@@ -48,8 +63,13 @@
    * Generates clean HTML5 looping video container with no camera HUDs or live stream tags.
    */
   function renderCategoryVideo(categoryKey) {
-    const key = (categoryKey || '').toLowerCase();
-    const item = videoMap[key] || videoMap.habesha;
+    const rawKey = (categoryKey || '').toLowerCase();
+    let key = rawKey;
+    if (key === 'burger') key = 'burgers';
+    if (key === 'dessert') key = 'desserts';
+    if (key === 'drink') key = 'drinks';
+
+    const item = videoMap[key] || videoMap[rawKey] || videoMap.burgers;
     const posterAttr = item.poster ? ` poster="${item.poster}"` : '';
 
     return `

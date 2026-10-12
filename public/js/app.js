@@ -589,7 +589,7 @@
       <article class="card card--${escapeHtml(category.id)}" id="cat-${escapeHtml(category.id)}" data-category="${escapeHtml(category.id)}">
         <div class="card__art" data-video-key="${escapeHtml(category.id)}">
           <span class="card__tag-pill">${escapeHtml(tag)}</span>
-          ${window.renderCategoryIcon ? window.renderCategoryIcon(category.icon || category.id) : ''}
+          ${window.renderCategoryIcon ? window.renderCategoryIcon(category.id || category.icon) : ''}
         </div>
         <div class="card__body">
           <div class="card__head">
@@ -698,7 +698,7 @@
     // Set Video Stage for Dish
     if (els.modalDishVideoStage) {
       els.modalDishVideoStage.innerHTML = window.renderCategoryIcon
-        ? window.renderCategoryIcon(category.icon || category.id)
+        ? window.renderCategoryIcon(category.id || category.icon)
         : '';
     }
 
