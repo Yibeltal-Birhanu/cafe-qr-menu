@@ -160,21 +160,22 @@
   }
 
   function categoryBannerTag(categoryId) {
-    habesha: 'Sizzling Clay Skillet • Injera',
-    burgers: 'Flame-Grilled • Brioche',
-    pizza: 'Stone-Baked • 30cm',
-    coffee: 'Single Origin • Fresh Buna',
-    drinks: 'Artisan Chilled • Iced',
-    desserts: 'House Baked Daily',
-    breakfast: 'Fresh Mornings',
-    pasta: 'Handcrafted Pasta',
-    fries: 'Crispy Golden',
-    salad: 'Garden Fresh',
-    sandwich: 'Toasted Artisan',
-    tea: 'Steeped Herbal',
-  };
-  return tags[categoryId] || 'Chef Special';
-}
+    const tags = {
+      habesha: 'Sizzling Clay Skillet • Injera',
+      burgers: 'Flame-Grilled • Brioche',
+      pizza: 'Stone-Baked • 30cm',
+      coffee: 'Single Origin • Fresh Buna',
+      drinks: 'Artisan Chilled • Iced',
+      desserts: 'House Baked Daily',
+      breakfast: 'Fresh Mornings',
+      pasta: 'Handcrafted Pasta',
+      fries: 'Crispy Golden',
+      salad: 'Garden Fresh',
+      sandwich: 'Toasted Artisan',
+      tea: 'Steeped Herbal',
+    };
+    return tags[categoryId] || 'Chef Special';
+  }
 
 /* ------------------------------------------------------------- Observer */
 const revealObserver = new IntersectionObserver(
@@ -262,9 +263,9 @@ function renderHeader(menu) {
 
     return `
       <article class="card card--${escapeHtml(category.id)}" id="cat-${escapeHtml(category.id)}" data-category="${escapeHtml(category.id)}">
-        <div class="card__art" data-art-bounce="${escapeHtml(category.id)}" title="Tap for animation!">
+        <div class="card__art" data-art-bounce="${escapeHtml(category.id)}" title="Tap for live animation & sound!">
           <span class="card__tag-pill">${escapeHtml(tag)}</span>
-          ${renderCategoryIcon(category.icon)}
+          ${renderCategoryIcon(category.icon || category.id)}
         </div>
         <div class="card__body">
           <div class="card__head">
@@ -326,6 +327,7 @@ function renderHeader(menu) {
 
     els.grid.querySelectorAll('.card').forEach((card, index) => {
       card.style.transitionDelay = `${Math.min(index * 70, 350)}ms`;
+      card.classList.add('is-visible');
       revealObserver.observe(card);
     });
 
