@@ -30,6 +30,10 @@
   border-radius: 6px;
 }
 
+[hidden], .login[hidden], #loginView[hidden], #dashView[hidden] {
+  display: none !important;
+}
+
 /* -------------------------------------------------------------- Sign in */
 
 .login { display: grid; place-items: center; min-height: 62vh; }

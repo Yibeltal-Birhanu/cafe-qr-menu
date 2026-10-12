@@ -160,68 +160,68 @@
   }
 
   function categoryBannerTag(categoryId) {
-    const tags = {
-      burgers: 'Flame-Grilled • Brioche',
-      pizza: 'Stone-Baked • 30cm',
-      coffee: 'Single Origin • Fresh',
-      drinks: 'Artisan Chilled • Iced',
-      desserts: 'House Baked Daily',
-      breakfast: 'Fresh Mornings',
-      pasta: 'Handcrafted Pasta',
-      fries: 'Crispy Golden',
-      salad: 'Garden Fresh',
-      sandwich: 'Toasted Artisan',
-      tea: 'Steeped Herbal',
-    };
-    return tags[categoryId] || 'Chef Special';
-  }
+    habesha: 'Sizzling Clay Skillet • Injera',
+    burgers: 'Flame-Grilled • Brioche',
+    pizza: 'Stone-Baked • 30cm',
+    coffee: 'Single Origin • Fresh Buna',
+    drinks: 'Artisan Chilled • Iced',
+    desserts: 'House Baked Daily',
+    breakfast: 'Fresh Mornings',
+    pasta: 'Handcrafted Pasta',
+    fries: 'Crispy Golden',
+    salad: 'Garden Fresh',
+    sandwich: 'Toasted Artisan',
+    tea: 'Steeped Herbal',
+  };
+  return tags[categoryId] || 'Chef Special';
+}
 
-  /* ------------------------------------------------------------- Observer */
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        entry.target.querySelectorAll('.item').forEach((item, index) => {
-          item.style.animationDelay = `${Math.min(index * 60, 600)}ms`;
-        });
-        revealObserver.unobserve(entry.target);
+/* ------------------------------------------------------------- Observer */
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      entry.target.querySelectorAll('.item').forEach((item, index) => {
+        item.style.animationDelay = `${Math.min(index * 60, 600)}ms`;
       });
-    },
-    { rootMargin: '0px 0px -40px 0px', threshold: 0.06 }
-  );
+      revealObserver.unobserve(entry.target);
+    });
+  },
+  { rootMargin: '0px 0px -40px 0px', threshold: 0.06 }
+);
 
-  /* ------------------------------------------------------------ Rendering */
-  function renderHeader(menu) {
-    const { cafe } = menu;
-    document.title = `${cafe.name} \u2014 Animated QR Menu`;
-    els.logo.textContent = cafe.logo || '\u2615';
-    els.name.textContent = cafe.name;
-    els.tagline.textContent = cafe.tagline;
-    els.heroTitle.textContent = cafe.name;
-    els.heroText.textContent = cafe.tagline;
-    els.footerCafe.textContent = cafe.name;
-    els.footerNote.textContent = cafe.footer;
+/* ------------------------------------------------------------ Rendering */
+function renderHeader(menu) {
+  const { cafe } = menu;
+  document.title = `${cafe.name} \u2014 Digital QR Menu`;
+  if (els.logo) els.logo.textContent = cafe.logo || '\u2615';
+  if (els.name) els.name.textContent = cafe.name;
+  if (els.tagline) els.tagline.textContent = cafe.tagline;
+  if (els.footerCafe) els.footerCafe.textContent = cafe.name;
+  if (els.footerNote) els.footerNote.textContent = cafe.footer;
 
-    // Table display
-    els.tablePillText.textContent = `Table #${state.table}`;
-    els.drawerTableLabel.textContent = `Table #${state.table} \u2022 Dine-In`;
+  // Table display
+  if (els.tablePillText) els.tablePillText.textContent = `Table #${state.table}`;
+  if (els.drawerTableLabel) els.drawerTableLabel.textContent = `Table #${state.table} \u2022 Dine-In`;
 
-    // WiFi display
+  // WiFi display
+  if (els.wifiCard) {
     if (cafe.wifi_ssid) {
       els.wifiCard.hidden = false;
-      els.wifiSsid.textContent = cafe.wifi_ssid;
-      els.wifiPass.textContent = cafe.wifi_pass || 'No password';
+      if (els.wifiSsid) els.wifiSsid.textContent = cafe.wifi_ssid;
+      if (els.wifiPass) els.wifiPass.textContent = cafe.wifi_pass || 'No password';
     } else {
       els.wifiCard.hidden = true;
     }
-
-    const totalItems = menu.categories.reduce((sum, category) => sum + category.items.length, 0);
-    els.statCategories.textContent = menu.categories.length;
-    els.statItems.textContent = totalItems;
-    els.statCurrency.textContent = cafe.currency || '\u2014';
-    els.heroArt.innerHTML = renderCategoryIcon(menu.categories[0] ? menu.categories[0].icon : 'burger');
   }
+
+  const totalItems = menu.categories.reduce((sum, category) => sum + category.items.length, 0);
+  if (els.statCategories) els.statCategories.textContent = menu.categories.length;
+  if (els.statItems) els.statItems.textContent = totalItems;
+  if (els.statCurrency) els.statCurrency.textContent = cafe.currency || '\u2014';
+  if (els.heroArt) els.heroArt.innerHTML = renderCategoryIcon(menu.categories[0] ? menu.categories[0].icon : 'habesha');
+}
 
   function renderChips(menu) {
     const total = menu.categories.reduce((sum, category) => sum + category.items.length, 0);
@@ -588,21 +588,25 @@
       showToast('Tray cleared');
     });
 
-    // QR modal interactions
-    els.openQr.addEventListener('click', openQrModal);
-    els.closeQr.addEventListener('click', closeQrModal);
-    els.qrModal.addEventListener('click', (e) => {
-      if (e.target === els.qrModal) closeQrModal();
-    });
+    // QR / Table modal interactions
+    if (els.openQr) els.openQr.addEventListener('click', openQrModal);
+    if (els.closeQr) els.closeQr.addEventListener('click', closeQrModal);
+    if (els.qrModal) {
+      els.qrModal.addEventListener('click', (e) => {
+        if (e.target === els.qrModal) closeQrModal();
+      });
+    }
 
-    els.qrTableSelect.addEventListener('change', () => {
-      state.table = els.qrTableSelect.value;
-      els.tablePillText.textContent = `Table #${state.table}`;
-      els.drawerTableLabel.textContent = `Table #${state.table} \u2022 Dine-In`;
-      openQrModal();
-    });
+    if (els.qrTableSelect) {
+      els.qrTableSelect.addEventListener('change', () => {
+        state.table = els.qrTableSelect.value;
+        if (els.tablePillText) els.tablePillText.textContent = `Table #${state.table}`;
+        if (els.drawerTableLabel) els.drawerTableLabel.textContent = `Table #${state.table} \u2022 Dine-In`;
+        openQrModal();
+      });
+    }
 
-    els.printQrBtn.addEventListener('click', () => window.print());
+    if (els.printQrBtn) els.printQrBtn.addEventListener('click', () => window.print());
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {

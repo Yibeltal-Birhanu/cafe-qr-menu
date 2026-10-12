@@ -100,7 +100,9 @@
     state.menu = null;
     localStorage.removeItem(TOKEN_KEY);
     els.dashView.hidden = true;
+    els.dashView.style.display = 'none';
     els.loginView.hidden = false;
+    els.loginView.style.display = 'grid';
     els.logoutBtn.hidden = true;
     setSaveState('Not signed in');
     if (message) toast(message, 'bad');
@@ -108,10 +110,17 @@
 
   async function enterDashboard() {
     els.loginView.hidden = true;
+    els.loginView.style.display = 'none';
     els.dashView.hidden = false;
+    els.dashView.style.display = 'block';
     els.logoutBtn.hidden = false;
     setSaveState('Loading\u2026');
-    await reload();
+    try {
+      await reload();
+    } catch (err) {
+      console.error('Dashboard load error:', err);
+      toast('Failed to load menu: ' + err.message, 'bad');
+    }
   }
 
   /* ------------------------------------------------------------ Rendering */

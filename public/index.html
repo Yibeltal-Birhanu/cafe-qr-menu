@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#120e0c" />
-  <meta name="description" content="Browse our animated digital QR menu - gourmet burgers, stone-baked pizza, specialty coffee, desserts and more." />
-  <title>Loading menu&hellip;</title>
+  <meta name="description" content="Explore our authentic Habesha specialties, flame-grilled burgers, stone-baked pizzas, specialty coffee, and handcrafted desserts." />
+  <title>Prism Cafe &mdash; Digital QR Menu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9749;</text></svg>" />
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -16,8 +16,8 @@
       <a class="brand" href="/">
         <span class="brand__logo" id="cafeLogo">&#9749;</span>
         <span class="brand__text">
-          <span class="brand__name" id="cafeName">Cafe</span>
-          <span class="brand__tag" id="cafeTagline">Digital menu</span>
+          <span class="brand__name" id="cafeName">Prism Cafe</span>
+          <span class="brand__tag" id="cafeTagline">Artisan Bistro &bull; Digital Menu</span>
         </span>
       </a>
 
@@ -32,7 +32,7 @@
             <circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />
           </svg>
         </span>
-        <input id="search" type="search" placeholder="Search burgers, coffee, pizza&hellip;" autocomplete="off" aria-label="Search the menu" />
+        <input id="search" type="search" placeholder="Search tibs, burgers, coffee, pizza&hellip;" autocomplete="off" aria-label="Search the menu" />
       </label>
 
       <div class="topbar-actions">
@@ -40,41 +40,24 @@
         <button class="icon-btn" id="soundBtn" type="button" title="Toggle audio sound effects" aria-label="Toggle sound">
           <span id="soundIcon">🔊</span>
         </button>
-
-        <!-- Admin link -->
-        <a class="icon-btn" href="/admin" title="Admin dashboard" aria-label="Admin dashboard">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 13.6H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V3a2 2 0 1 1 4 0v.1A1.7 1.7 0 0 0 17 4.7l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
-          </svg>
-        </a>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- ============================================================= Hero -->
-    <section class="hero wrap">
-      <div class="hero__inner">
-        <div>
-          <span class="eyebrow">&#9679; Animated QR Menu</span>
-          <h1 id="heroTitle">Welcome to our cafe</h1>
-          <p id="heroText">Handcrafted burgers, stone-baked pizzas, specialty coffee &amp; artisanal treats.</p>
+    <!-- ============================================= Simple Elegant Hero -->
+    <section class="hero hero--clean wrap">
+      <div class="hero__clean-content">
+        <span class="eyebrow">&#9679; Table Digital Menu</span>
+        <h1 id="heroTitle">Culinary Passion &amp; Authentic Flavors</h1>
+        <p id="heroText">Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas &amp; single-origin Ethiopian coffee.</p>
 
-          <!-- Guest WiFi Bar -->
-          <div class="wifi-card" id="wifiCard">
-            <span aria-hidden="true">📶</span>
-            <span>Guest WiFi: <strong id="wifiSsid">Prism-Guest</strong> &bull; Pass: <strong id="wifiPass">coffee123</strong></span>
-            <button type="button" id="copyWifi">Copy</button>
-          </div>
-
-          <div class="hero__stats">
-            <div class="hero__stat"><b id="statCategories">0</b><span>Categories</span></div>
-            <div class="hero__stat"><b id="statItems">0</b><span>Dishes</span></div>
-            <div class="hero__stat"><b id="statCurrency">&ndash;</b><span>Currency</span></div>
-          </div>
+        <!-- Guest WiFi Pill -->
+        <div class="wifi-card" id="wifiCard">
+          <span aria-hidden="true">📶</span>
+          <span>Free Guest WiFi: <strong id="wifiSsid">Prism-Cafe-5G</strong> &bull; Password: <strong id="wifiPass">coffee123</strong></span>
+          <button type="button" id="copyWifi">Copy</button>
         </div>
-        <div class="hero__art" id="heroArt" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -83,7 +66,7 @@
       <div class="wrap">
         <div class="chips__row" id="chips"></div>
         <div class="filters-row" id="filtersRow">
-          <button class="filter-pill is-active" data-filter="all" type="button">All Items</button>
+          <button class="filter-pill is-active" data-filter="all" type="button">All Dishes</button>
           <button class="filter-pill" data-filter="popular" type="button">🔥 Popular</button>
           <button class="filter-pill" data-filter="spicy" type="button">🌶️ Spicy</button>
           <button class="filter-pill" data-filter="new" type="button">✨ New</button>
@@ -119,7 +102,7 @@
       <div class="drawer__head">
         <div>
           <h2 class="drawer__title" id="drawerTitle">Your Table Order</h2>
-          <span class="hint" id="drawerTableLabel">Table #1</span>
+          <span class="hint" id="drawerTableLabel">Table #1 &bull; Dine-In</span>
         </div>
         <button class="drawer__close" id="closeTrayBtn" type="button" aria-label="Close tray">&times;</button>
       </div>
@@ -133,7 +116,7 @@
         <div style="margin-top:1.2rem">
           <label class="field">
             <span>Special instructions / allergies</span>
-            <input id="trayNotes" placeholder="e.g. Extra sauce, no onions, less ice" />
+            <input id="trayNotes" placeholder="e.g. Extra awaze, no onions, less ice" />
           </label>
         </div>
       </div>
@@ -145,7 +128,7 @@
         </div>
         <div class="drawer__actions">
           <button class="btn btn--whatsapp" id="sendWhatsappBtn" type="button">
-            📱 Send to WhatsApp
+            📱 Send Order via WhatsApp
           </button>
           <button class="btn" id="callWaiterBtn" type="button">
             🔔 Call Waiter / Bell
@@ -158,67 +141,46 @@
     </div>
   </div>
 
-  <!-- ============================================================ Footer -->
+  <!-- ============================================================ Clean Footer -->
   <footer class="footer">
-    <div class="wrap footer__inner">
+    <div class="wrap footer__inner" style="justify-content:center;text-align:center;gap:0.6rem;flex-direction:column">
       <div>
-        <strong id="footerCafe">Cafe</strong><br />
-        <span id="footerNote">Scan, browse, enjoy. Ask our staff for today’s special.</span>
+        <strong id="footerCafe" style="font-size:1.15rem;color:var(--text)">Prism Cafe &amp; Bistro</strong><br />
+        <span id="footerNote" style="color:var(--muted);font-size:0.88rem">Scan, browse &amp; enjoy. Prepared fresh for your table.</span>
       </div>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
-        <button class="btn" id="openQr" type="button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-            <rect x="3" y="14" width="7" height="7" rx="1.5" /><path d="M14 14h3v3h-3zM19 19h2v2h-2zM14 20h2v1h-2z" />
-          </svg>
-          Show Table QR
-        </button>
-        <a class="btn" href="/admin">Admin Controller</a>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem">
+        Opening Hours: 7:00 AM &ndash; 11:00 PM &bull; Service with Passion &bull; Thank you for visiting!
       </div>
     </div>
   </footer>
 
-  <!-- ==================================================== Table QR Modal -->
+  <!-- Table Switcher Modal -->
   <div class="modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
     <div class="modal__box">
-      <h2 id="qrTitle">Table QR Code</h2>
-      <p id="qrUrl"></p>
+      <h2 id="qrTitle">Select Your Table</h2>
+      <p>Choose the table number you are seated at:</p>
 
-      <div style="margin-bottom:1rem">
-        <label class="field" style="max-width:200px;margin:0 auto">
-          <span>Select Table Number</span>
+      <div style="margin:1rem 0">
+        <label class="field" style="max-width:220px;margin:0 auto">
+          <span>Current Table</span>
           <select id="qrTableSelect">
-            <option value="1">Table 1</option>
-            <option value="2">Table 2</option>
-            <option value="3">Table 3</option>
-            <option value="4">Table 4</option>
-            <option value="5">Table 5</option>
-            <option value="6">Table 6</option>
-            <option value="7">Table 7</option>
-            <option value="8">Table 8</option>
+            <option value="1">Table #1</option>
+            <option value="2">Table #2</option>
+            <option value="3">Table #3</option>
+            <option value="4">Table #4</option>
+            <option value="5">Table #5</option>
+            <option value="6">Table #6</option>
+            <option value="7">Table #7</option>
+            <option value="8">Table #8</option>
             <option value="VIP">VIP Lounge</option>
             <option value="Patio">Patio</option>
-            <option value="Bar">Bar</option>
+            <option value="Bar">Bar Counter</option>
           </select>
         </label>
       </div>
 
-      <img id="qrImage" alt="QR code linking to this menu" />
-
-      <div style="display:flex;gap:.6rem;justify-content:center;margin-top:1.2rem;flex-wrap:wrap">
-        <button class="btn" id="printQrBtn" type="button">🖨️ Print Stand</button>
-        <button class="btn" id="closeQr" type="button">Close</button>
-      </div>
+      <button class="btn btn--primary" id="closeQr" type="button" style="margin-top:0.8rem">Confirm Table</button>
     </div>
-  </div>
-
-  <!-- ============================================== Printable Table Card -->
-  <div class="print-table-card" style="display:none">
-    <h1 id="printCafeName">Prism Cafe</h1>
-    <h2 id="printTableNum">Table #1</h2>
-    <p>Scan to view our animated menu &amp; order</p>
-    <img id="printQrImg" alt="QR code" />
-    <p id="printWifiInfo" style="margin-top:12px;font-size:14px"></p>
   </div>
 
   <!-- Notification Toast -->

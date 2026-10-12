@@ -67,7 +67,7 @@ test('serves the seed menu and the static pages', async () => {
   const menu = await call('/api/menu');
   assert.equal(menu.status, 200);
   assert.equal(menu.body.cafe.name, 'Prism Cafe');
-  assert.equal(menu.body.categories.length, 6);
+  assert.equal(menu.body.categories.length, 7);
   assert.ok(menu.body.categories.every((category) => category.items.length > 0));
 
   for (const page of ['/', '/admin', '/css/style.css', '/js/admin.js']) {
@@ -182,12 +182,12 @@ test('persists changes to disk and can reset to the sample menu', async () => {
 
   const reset = await call('/api/admin/reset', { method: 'POST' }, token);
   assert.equal(reset.body.menu.cafe.name, 'Prism Cafe');
-  assert.equal(reset.body.menu.categories.length, 6);
+  assert.equal(reset.body.menu.categories.length, 7);
 
   const afterReset = await call('/api/menu');
   assert.equal(afterReset.body.cafe.name, 'Prism Cafe');
   assert.deepEqual(afterReset.body.categories.map((category) => category.id), [
-    'burgers', 'pizza', 'coffee', 'breakfast', 'desserts', 'drinks',
+    'habesha', 'burgers', 'pizza', 'coffee', 'breakfast', 'desserts', 'drinks',
   ]);
 });
 
