@@ -1,0 +1,11 @@
+node_modules/
+npm-debug.log*
+
+# The live menu is generated from server/seed.js on first run.
+data/menu.json
+data/*.tmp
+
+.env
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#14100e" />
+  <meta name="robots" content="noindex" />
+  <title>Admin &mdash; Cafe menu</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9881;</text></svg>" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="/">
+        <span class="brand__logo" id="cafeLogo">&#9881;</span>
+        <span class="brand__text">
+          <span class="brand__name">Menu admin</span>
+          <span class="brand__tag" id="saveState">Not signed in</span>
+        </span>
+      </a>
+      <div class="topbar__actions">
+        <a class="btn btn--ghost" href="/" target="_blank" rel="noreferrer">View menu</a>
+        <button class="btn btn--ghost" id="logoutBtn" type="button" hidden>Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap admin">
+    <!-- ---------------------------------------------------------- Sign in -->
+    <section class="login" id="loginView">
+      <div class="login__box">
+        <h1>Admin sign in</h1>
+        <p>Enter the admin password to manage categories, dishes and prices.</p>
+        <form id="loginForm" autocomplete="on">
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+          </label>
+          <button class="btn btn--primary" type="submit" id="loginBtn">Sign in</button>
+          <p class="hint" id="loginError" hidden></p>
+        </form>
+        <p class="hint">Default password is <code>admin123</code> &mdash; change it with the <code>ADMIN_PASSWORD</code> environment variable.</p>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------- Dashboard -->
+    <section id="dashView" hidden>
+      <div class="admin__head">
+        <div>
+          <h1>Menu manager</h1>
+          <p class="hint">Every change is saved instantly to the live menu.</p>
+        </div>
+        <div class="admin__head-actions">
+          <button class="btn btn--primary" id="addCategoryBtn" type="button">+ Add category</button>
+          <button class="btn btn--ghost" id="refreshBtn" type="button">Reload</button>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="panel">
+        <h2 class="panel__title">Cafe details</h2>
+        <div class="settings">
+          <label class="field"><span>Cafe name</span><input data-cafe="name" type="text" /></label>
+          <label class="field"><span>Tagline</span><input data-cafe="tagline" type="text" /></label>
+          <label class="field"><span>Currency</span><input data-cafe="currency" type="text" placeholder="ETB" /></label>
+          <label class="field"><span>Logo (emoji)</span><input data-cafe="logo" type="text" maxlength="4" /></label>
+          <label class="field field--wide"><span>Footer note</span><input data-cafe="footer" type="text" /></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Categories &amp; dishes</h2>
+        <p class="hint">Edit any field - it saves automatically. Use the arrows to reorder categories.</p>
+        <div class="cats" id="cats"></div>
+        <div id="catsEmpty" class="empty" hidden>
+          <strong>No categories yet</strong>Add your first category to start building the menu.
+        </div>
+      </div>
+
+      <div class="panel panel--danger">
+        <h2 class="panel__title">Danger zone</h2>
+        <p class="hint">Restores the sample menu and deletes everything you added.</p>
+        <button class="btn btn--danger" id="resetBtn" type="button">Reset to sample menu</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ---------------------------------------------------------- Add modal -->
+  <div class="modal" id="formModal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="modal__box modal__box--left">
+      <h2 id="formTitle">Add category</h2>
+      <form id="formBody"></form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
