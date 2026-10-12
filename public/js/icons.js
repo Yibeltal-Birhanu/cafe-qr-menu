@@ -28,9 +28,9 @@
       alt: 'Stone-baked artisan pizza with melting mozzarella cheese stretch',
     },
     coffee: {
-      src: '/videos/coffee.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/coffee.jpg',
+      type: 'image',
+      alt: 'Traditional Ethiopian Buna Coffee Ceremony',
     },
     dessert: {
       src: '/videos/dessert.webm',
@@ -43,14 +43,14 @@
       poster: '',
     },
     drink: {
-      src: '/videos/coffee.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/coffee.jpg',
+      type: 'image',
+      alt: 'Artisan Beverages & Coffee',
     },
     drinks: {
-      src: '/videos/coffee.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/coffee.jpg',
+      type: 'image',
+      alt: 'Artisan Beverages & Cold Drinks',
     },
     breakfast: {
       src: '/videos/burger.mp4',

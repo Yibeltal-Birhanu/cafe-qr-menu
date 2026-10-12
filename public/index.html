@@ -69,23 +69,22 @@
           </div>
         </div>
 
-        <!-- Right Column: Interactive Real Food Video Stage -->
+        <!-- Right Column: Featured Real Food Video Showcase -->
         <div class="hero__video-card" id="heroVideoCard">
           <div class="hero__video-header">
             <div class="hero__video-badge">
               <span class="video-sparkle-dot">&#10024;</span>
-              <span id="heroLiveText">FEATURED SPECIALTIES</span>
+              <span id="heroLiveText">FEATURED FOOD SHOWCASE</span>
             </div>
-            <div class="hero__video-selector" id="heroVideoSelector" role="tablist" aria-label="Featured food video">
-              <button class="hero__selector-btn is-active" data-hero-video="habesha" type="button">🔥 Habesha</button>
-              <button class="hero__selector-btn" data-hero-video="burgers" type="button">🍔 Burger</button>
-              <button class="hero__selector-btn" data-hero-video="pizza" type="button">🍕 Pizza</button>
-              <button class="hero__selector-btn" data-hero-video="coffee" type="button">☕ Buna</button>
-              <button class="hero__selector-btn" data-hero-video="desserts" type="button">🍫 Dessert</button>
-            </div>
+            <span class="hero__video-tag" id="heroVideoTag">&#128293; Sizzling &amp; Fresh</span>
           </div>
-          <div class="hero__video-stage" id="heroVideoStage" title="Chef's featured dish video">
-            <!-- Real food video rendered here -->
+          <div class="hero__video-stage" id="heroVideoStage" title="Featured food video">
+            <div class="card__video-wrap" data-video-key="burgers">
+              <video class="card__real-video" autoplay muted loop playsinline preload="auto" poster="/videos/burger-poster.jpg">
+                <source src="/videos/burger.mp4" type="video/mp4">
+              </video>
+              <div class="card__video-gradient"></div>
+            </div>
           </div>
         </div>
       </div>

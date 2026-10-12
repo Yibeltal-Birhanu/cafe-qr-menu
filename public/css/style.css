@@ -389,6 +389,19 @@ button { font: inherit; color: inherit; }
   font-size: 0.85rem;
 }
 
+.hero__video-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: rgba(230, 146, 60, 0.12);
+  border: 1px solid rgba(230, 146, 60, 0.32);
+  color: var(--accent-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .hero__video-selector {
   display: flex;
   gap: 0.35rem;
@@ -619,6 +632,11 @@ button { font: inherit; color: inherit; }
 
 .card__video-wrap[data-video-key="pizza"] .card__real-img {
   object-position: center 52%;
+}
+
+.card__video-wrap[data-video-key="coffee"] .card__real-img,
+.card__video-wrap[data-video-key="drinks"] .card__real-img {
+  object-position: center 50%;
 }
 
 .card__video-wrap[data-video-key="burgers"],

@@ -18,7 +18,8 @@
       heroEyebrow: '✨ ARTISAN BISTRO • DIGITAL MENU',
       heroTitle: 'Culinary Passion & Authentic Flavors',
       heroText: 'Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas & single-origin Ethiopian coffee.',
-      heroLiveText: 'FEATURED SPECIALTIES',
+      heroLiveText: 'FEATURED FOOD SHOWCASE',
+      heroVideoTag: '🔥 Sizzling & Fresh',
       wifiLabel: 'Free Guest WiFi:',
       wifiPassLabel: 'Password:',
       copyBtn: 'Copy',
@@ -55,7 +56,8 @@
       heroEyebrow: '✨ ልዩ የካፌ እና ምግብ ዝግጅት • ዲጂታል ሜኑ',
       heroTitle: 'ልዩ የጣዕም ምርጫዎች እና ባህላዊ ምግቦች',
       heroText: 'የተመረጡ የሀበሻ ባህላዊ ምግቦች፣ በእሳት የተጠበሱ በርገሮች፣ በምድጃ የተጋገረ ፒዛ እና ትኩስ የኢትዮጵያ ቡና።',
-      heroLiveText: 'የተመረጡ ልዩ ምግቦች',
+      heroLiveText: 'ልዩ የምግብ ቪዲዮ ማሳያ',
+      heroVideoTag: '🔥 ትኩስና በእሳት የተጠበሰ',
       wifiLabel: 'የእንግዳ ዋይፋይ:',
       wifiPassLabel: 'የይለፍ ቃል:',
       copyBtn: 'ገልብጥ',
@@ -320,6 +322,7 @@
     heroTitle: document.getElementById('heroTitle'),
     heroText: document.getElementById('heroText'),
     heroLiveText: document.getElementById('heroLiveText'),
+    heroVideoTag: document.getElementById('heroVideoTag'),
     heroVideoStage: document.getElementById('heroVideoStage'),
     heroVideoSelector: document.getElementById('heroVideoSelector'),
     wifiCard: document.getElementById('wifiCard'),
@@ -462,14 +465,15 @@
   /* --------------------------------------------------- Hero Food Video Showcase */
   function renderHeroVideo() {
     if (!els.heroVideoStage) return;
-    const key = state.heroVideoKey || 'habesha';
-    els.heroVideoStage.innerHTML = window.renderCategoryIcon ? window.renderCategoryIcon(key) : '';
-
-    if (els.heroVideoSelector) {
-      els.heroVideoSelector.querySelectorAll('.hero__selector-btn').forEach((btn) => {
-        btn.classList.toggle('is-active', btn.dataset.heroVideo === key);
-      });
-    }
+    // Feature 1 dedicated animated food video in the hero section showcase
+    els.heroVideoStage.innerHTML = `
+      <div class="card__video-wrap" data-video-key="burgers">
+        <video class="card__real-video" autoplay muted loop playsinline preload="auto" poster="/videos/burger-poster.jpg">
+          <source src="/videos/burger.mp4" type="video/mp4">
+        </video>
+        <div class="card__video-gradient"></div>
+      </div>
+    `;
   }
 
   /* ------------------------------------------------------------- Observer */
@@ -500,6 +504,7 @@
     if (els.heroTitle) els.heroTitle.textContent = t('heroTitle');
     if (els.heroText) els.heroText.textContent = t('heroText');
     if (els.heroLiveText) els.heroLiveText.textContent = t('heroLiveText');
+    if (els.heroVideoTag) els.heroVideoTag.textContent = t('heroVideoTag');
     if (els.wifiLabel) els.wifiLabel.textContent = t('wifiLabel');
     if (els.wifiPassLabel) els.wifiPassLabel.textContent = t('wifiPassLabel');
     if (els.copyWifi) els.copyWifi.textContent = t('copyBtn');
@@ -762,16 +767,7 @@
       });
     }
 
-    // Hero video selector buttons
-    if (els.heroVideoSelector) {
-      els.heroVideoSelector.addEventListener('click', (event) => {
-        const btn = event.target.closest('[data-hero-video]');
-        if (!btn) return;
-        playPop();
-        state.heroVideoKey = btn.dataset.heroVideo;
-        renderHeroVideo();
-      });
-    }
+
 
     // Search input
     els.search.addEventListener('input', (event) => {
