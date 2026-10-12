@@ -1,16 +1,16 @@
 'use strict';
 
 /**
- * Real Food Video Player for Cafe QR Menu.
- * Pure real looping food video clips with clean modern cafe presentation.
- * No cartoon illustrations, and no fake camera HUDs / live streaming badges.
+ * Real Food Media Player for Cafe QR Menu.
+ * High-definition looping video clips & authentic food photography
+ * with clean modern cafe presentation.
  */
 (function () {
   const videoMap = {
     habesha: {
-      src: '/videos/tibs.webm',
-      type: 'video/webm',
-      poster: '',
+      src: '/images/habesha.jpg',
+      type: 'image',
+      alt: 'Habesha Specials - Authentic Ethiopian Platter with Teff Injera',
     },
     burger: {
       src: '/videos/burger.mp4',
@@ -60,7 +60,7 @@
   };
 
   /**
-   * Generates clean HTML5 looping video container with no camera HUDs or live stream tags.
+   * Generates clean HTML5 media container (video or image) with no camera HUDs or live stream tags.
    */
   function renderCategoryVideo(categoryKey) {
     const rawKey = (categoryKey || '').toLowerCase();
@@ -69,7 +69,17 @@
     if (key === 'dessert') key = 'desserts';
     if (key === 'drink') key = 'drinks';
 
-    const item = videoMap[key] || videoMap[rawKey] || videoMap.burgers;
+    const item = videoMap[key] || videoMap[rawKey] || videoMap.habesha;
+
+    if (item.type === 'image') {
+      return `
+        <div class="card__video-wrap" data-video-key="${key}">
+          <img class="card__real-video card__real-img" src="${item.src}" alt="${item.alt || key}" loading="eager" />
+          <div class="card__video-gradient"></div>
+        </div>
+      `;
+    }
+
     const posterAttr = item.poster ? ` poster="${item.poster}"` : '';
 
     return `

@@ -599,7 +599,8 @@ button { font: inherit; color: inherit; }
   height: 270px;
 }
 
-.card__real-video {
+.card__real-video,
+.card__real-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -607,8 +608,13 @@ button { font: inherit; color: inherit; }
   display: block;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.card:hover .card__real-video {
+.card:hover .card__real-video,
+.card:hover .card__real-img {
   transform: scale(1.04);
+}
+
+.card__video-wrap[data-video-key="habesha"] .card__real-img {
+  object-position: center 48%;
 }
 
 .card__video-wrap[data-video-key="burgers"],
