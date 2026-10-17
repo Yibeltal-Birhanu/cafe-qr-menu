@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import AdminTopbar from './AdminTopbar.jsx';
-import AdminLogin from './AdminLogin.jsx';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import AdminSidebar from './AdminSidebar.jsx';
+import AdminHeader from './AdminHeader.jsx';
+import AdminStatsRow from './AdminStatsRow.jsx';
+import AdminAnalyticsRow from './AdminAnalyticsRow.jsx';
+import AdminItemsTable from './AdminItemsTable.jsx';
+import AdminRightSidebar from './AdminRightSidebar.jsx';
+import QrTemplatesView from './QrTemplatesView.jsx';
 import VenueSettings from './VenueSettings.jsx';
-import TableQrStudio from './TableQrStudio.jsx';
 import CategoryDishManager from './CategoryDishManager.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
+import AdminLogin from './AdminLogin.jsx';
+import { CalendarIcon, PlusIcon } from './AdminIcons.jsx';
 
 const TOKEN_KEY = 'cafe-menu-admin-token';
 
@@ -19,10 +25,10 @@ export default function AdminApp() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [menu, setMenu] = useState(null);
-  const [saveState, setSaveState] = useState('Checking session...');
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'items' | 'categories' | 'templates' | 'settings'
+  const [globalSearch, setGlobalSearch] = useState('');
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
-  const debounceTimers = useRef({});
 
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,7 +44,7 @@ export default function AdminApp() {
     }, 2800);
   }, []);
 
-  // API Client Helper
+  // API Helper
   const apiCall = useCallback(
     async (path, options = {}) => {
       const config = {
@@ -60,7 +66,6 @@ export default function AdminApp() {
         try {
           localStorage.removeItem(TOKEN_KEY);
         } catch {}
-        setSaveState('Session expired');
         showToast('Session expired. Please sign in again.', true);
         throw new Error('Unauthorized');
       }
@@ -78,21 +83,18 @@ export default function AdminApp() {
   // Load Menu
   const loadMenu = useCallback(async () => {
     try {
-      setSaveState('Loading...');
       const data = await apiCall('/api/menu');
       setMenu(data);
-      setSaveState('All changes saved');
     } catch (err) {
       console.error('Menu load error:', err);
       showToast('Failed to load menu: ' + err.message, true);
     }
   }, [apiCall, showToast]);
 
-  // Verify Session on initial load or token change
+  // Verify Session
   useEffect(() => {
     if (!token) {
       setIsAuthenticated(false);
-      setSaveState('Not signed in');
       return;
     }
 
@@ -107,312 +109,398 @@ export default function AdminApp() {
         try {
           localStorage.removeItem(TOKEN_KEY);
         } catch {}
-        setSaveState('Not signed in');
       });
   }, [token, apiCall, loadMenu]);
 
-  // Sign In Handler
-  const handleSignIn = async (password) => {
-    const data = await apiCall('/api/admin/login', {
-      method: 'POST',
-      body: { password },
-      noAuthRedirect: true,
-    });
-    setToken(data.token);
+  // Login handler
+  const handleLogin = async (password) => {
     try {
-      localStorage.setItem(TOKEN_KEY, data.token);
-    } catch {}
-    setIsAuthenticated(true);
-    showToast('Signed in successfully!');
-  };
-
-  // Sign Out Handler
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
-    setToken('');
-    setMenu(null);
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-    } catch {}
-    setSaveState('Not signed in');
-    showToast('Signed out');
-  };
-
-  // Auto-save Cafe Profile
-  const handleSaveCafe = async (updatedCafe) => {
-    setSaveState('Saving cafe profile...');
-    try {
-      const data = await apiCall('/api/admin/cafe', {
-        method: 'PUT',
-        body: updatedCafe,
+      const data = await apiCall('/api/admin/login', {
+        method: 'POST',
+        body: { password },
+        noAuthRedirect: true,
       });
-      setMenu((prev) => (prev ? { ...prev, cafe: data.cafe } : prev));
-      setSaveState('All changes saved');
+
+      if (data.token) {
+        setToken(data.token);
+        try {
+          localStorage.setItem(TOKEN_KEY, data.token);
+        } catch {}
+        setIsAuthenticated(true);
+        showToast('Welcome back, Admin!');
+        await loadMenu();
+      }
     } catch (err) {
-      setSaveState('Save failed');
       showToast(err.message, true);
+      throw err;
     }
   };
 
-  // Category Actions
-  const handleAddCategoryClick = () => {
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setToken('');
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {}
+    showToast('Signed out successfully.');
+  };
+
+  const cafe = menu?.cafe || {
+    name: 'CafeMenu',
+    tagline: 'Good Food • Great Moments',
+    currency: 'ETB',
+  };
+
+  const categories = menu?.categories || [];
+
+  // Flatten all items for items table and analytics
+  const allDishes = useMemo(() => {
+    const list = [];
+    categories.forEach((cat) => {
+      (cat.items || []).forEach((item) => {
+        list.push({
+          ...item,
+          categoryId: cat.id,
+          categoryName: cat.name,
+        });
+      });
+    });
+    return list;
+  }, [categories]);
+
+  const totalItems = allDishes.length;
+
+  // Top dishes for ranked analytics
+  const topDishes = useMemo(() => {
+    return allDishes.slice(0, 5).map((dish, i) => ({
+      id: dish.id,
+      name: dish.name,
+      count: 42 - i * 4,
+      max: 50,
+      image: dish.image,
+    }));
+  }, [allDishes]);
+
+  // CRUD Handlers
+  const handleOpenAddDish = (categoryId = '') => {
+    setModalMode('addDish');
+    setModalData(null);
+    setTargetCategoryId(categoryId || categories[0]?.id || '');
+    setModalOpen(true);
+  };
+
+  const handleOpenEditDish = (dish) => {
+    setModalMode('editDish');
+    setModalData(dish);
+    setTargetCategoryId(dish.categoryId || '');
+    setModalOpen(true);
+  };
+
+  const handleOpenAddCategory = () => {
     setModalMode('addCategory');
     setModalData(null);
     setModalOpen(true);
   };
 
-  const handleUpdateCategory = (categoryId, fields) => {
-    // Optimistic UI update
-    setMenu((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        categories: prev.categories.map((c) => (c.id === categoryId ? { ...c, ...fields } : c)),
-      };
-    });
-
-    const timerKey = `cat-${categoryId}`;
-    if (debounceTimers.current[timerKey]) clearTimeout(debounceTimers.current[timerKey]);
-
-    setSaveState('Saving...');
-    debounceTimers.current[timerKey] = setTimeout(async () => {
-      try {
-        await apiCall(`/api/admin/categories/${categoryId}`, {
-          method: 'PUT',
-          body: fields,
-        });
-        setSaveState('All changes saved');
-      } catch (err) {
-        setSaveState('Save failed');
-        showToast(err.message, true);
-      }
-    }, 400);
-  };
-
-  const handleDeleteCategory = async (categoryId) => {
-    setSaveState('Deleting category...');
-    try {
-      await apiCall(`/api/admin/categories/${categoryId}`, { method: 'DELETE' });
-      await loadMenu();
-      showToast('Category deleted');
-    } catch (err) {
-      showToast(err.message, true);
-    }
-  };
-
-  const handleReorderCategories = async (order) => {
-    setSaveState('Reordering categories...');
-    try {
-      await apiCall('/api/admin/categories/reorder', {
-        method: 'POST',
-        body: { order },
-      });
-      await loadMenu();
-      showToast('Categories reordered');
-    } catch (err) {
-      showToast(err.message, true);
-    }
-  };
-
-  // Dish Actions
-  const handleAddDishClick = (categoryId) => {
-    setModalMode('addDish');
-    setModalData(null);
-    setTargetCategoryId(categoryId);
+  const handleOpenEditCategory = (cat) => {
+    setModalMode('editCategory');
+    setModalData(cat);
     setModalOpen(true);
   };
 
-  const handleUpdateDish = (dishId, fields) => {
-    // Optimistic UI update
-    setMenu((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        categories: prev.categories.map((c) => ({
-          ...c,
-          items: c.items.map((item) => (item.id === dishId ? { ...item, ...fields } : item)),
-        })),
-      };
-    });
-
-    const timerKey = `item-${dishId}`;
-    if (debounceTimers.current[timerKey]) clearTimeout(debounceTimers.current[timerKey]);
-
-    setSaveState('Saving...');
-    debounceTimers.current[timerKey] = setTimeout(async () => {
-      try {
-        await apiCall(`/api/admin/items/${dishId}`, {
-          method: 'PUT',
-          body: fields,
-        });
-        setSaveState('All changes saved');
-        // If category changed, reload menu to re-bucket item
-        if (fields.categoryId) {
-          await loadMenu();
-        }
-      } catch (err) {
-        setSaveState('Save failed');
-        showToast(err.message, true);
-      }
-    }, 450);
-  };
-
-  const handleDeleteDish = async (dishId) => {
-    setSaveState('Deleting dish...');
+  const handleDeleteDish = async (dish) => {
+    if (!window.confirm(`Delete "${dish.name}" from menu?`)) return;
     try {
-      await apiCall(`/api/admin/items/${dishId}`, { method: 'DELETE' });
+      await apiCall(`/api/admin/items/${dish.id}`, { method: 'DELETE' });
+      showToast(`Deleted "${dish.name}"`);
       await loadMenu();
-      showToast('Dish removed');
     } catch (err) {
-      showToast(err.message, true);
+      showToast('Failed to delete item: ' + err.message, true);
     }
   };
 
-  // Reset to Sample Menu
-  const handleResetSampleMenu = async () => {
-    if (!window.confirm('Are you sure you want to restore the default sample menu? This will replace your customized categories and dishes.')) {
-      return;
+  const handleDeleteCategory = async (cat) => {
+    if (!window.confirm(`Delete category "${cat.name}" and all its dishes?`)) return;
+    try {
+      await apiCall(`/api/admin/categories/${cat.id}`, { method: 'DELETE' });
+      showToast(`Deleted category "${cat.name}"`);
+      await loadMenu();
+    } catch (err) {
+      showToast('Failed to delete category: ' + err.message, true);
     }
-    setSaveState('Resetting menu...');
+  };
+
+  const handleReorderCategories = async (newOrder) => {
+    try {
+      await apiCall('/api/admin/categories/reorder', {
+        method: 'POST',
+        body: { order: newOrder },
+      });
+      showToast('Category order saved');
+      await loadMenu();
+    } catch (err) {
+      showToast('Failed to reorder categories: ' + err.message, true);
+    }
+  };
+
+  const handleSaveCafe = async (patch) => {
+    try {
+      await apiCall('/api/admin/cafe', { method: 'PUT', body: patch });
+      showToast('Cafe settings updated');
+      await loadMenu();
+    } catch (err) {
+      showToast('Failed to update cafe: ' + err.message, true);
+    }
+  };
+
+  const handleResetSampleMenu = async () => {
+    if (!window.confirm('Reset all categories and dishes to sample defaults? Any custom items will be overwritten.')) return;
     try {
       await apiCall('/api/admin/reset', { method: 'POST' });
+      showToast('Restored default sample menu');
       await loadMenu();
-      showToast('Menu successfully reset to sample data');
     } catch (err) {
-      showToast(err.message, true);
+      showToast('Failed to reset: ' + err.message, true);
     }
   };
 
-  // Modal Submit Dispatcher
   const handleModalSubmit = async (formData) => {
-    setSaveState('Saving changes...');
     try {
       if (modalMode === 'addCategory') {
         await apiCall('/api/admin/categories', {
           method: 'POST',
-          body: formData,
+          body: { name: formData.name, icon: formData.icon },
         });
-        showToast('Category created');
+        showToast(`Category "${formData.name}" added`);
+      } else if (modalMode === 'editCategory') {
+        await apiCall(`/api/admin/categories/${modalData.id}`, {
+          method: 'PUT',
+          body: { name: formData.name, icon: formData.icon },
+        });
+        showToast(`Category "${formData.name}" updated`);
       } else if (modalMode === 'addDish') {
         await apiCall(`/api/admin/categories/${formData.categoryId}/items`, {
           method: 'POST',
-          body: formData,
+          body: {
+            name: formData.name,
+            description: formData.description,
+            price: formData.price,
+            badge: formData.badge,
+            dietary: formData.dietary,
+            prepTime: formData.prepTime,
+          },
         });
-        showToast('Dish added');
+        showToast(`Dish "${formData.name}" added`);
+      } else if (modalMode === 'editDish') {
+        await apiCall(`/api/admin/items/${modalData.id}`, {
+          method: 'PUT',
+          body: {
+            name: formData.name,
+            description: formData.description,
+            price: formData.price,
+            badge: formData.badge,
+            dietary: formData.dietary,
+            prepTime: formData.prepTime,
+            categoryId: formData.categoryId,
+          },
+        });
+        showToast(`Dish "${formData.name}" updated`);
       }
       setModalOpen(false);
       await loadMenu();
     } catch (err) {
       showToast(err.message, true);
+      throw err;
     }
   };
 
-  const cafe = menu?.cafe || { name: 'Cafe', currency: 'ETB' };
-  const categories = menu?.categories || [];
+  // If not signed in, show clean modern login view
+  if (!isAuthenticated) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <AdminLogin onLogin={handleLogin} />
+        {toast && (
+          <div class={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
+            {toast.text}
+          </div>
+        )}
+      </div>
+    );
+  }
 
-  // Stats
-  const totalItems = categories.reduce((sum, cat) => sum + (cat.items?.length || 0), 0);
-  const allPrices = categories.flatMap((cat) => (cat.items || []).map((i) => Number(i.price) || 0));
-  const avgPrice = allPrices.length ? Math.round(allPrices.reduce((a, b) => a + b, 0) / allPrices.length) : 0;
+  // Get current date string for welcome banner
+  const todayDateString = new Date().toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  // Page title mapping
+  const titles = {
+    dashboard: 'Dashboard',
+    items: 'Menu Items',
+    categories: 'Categories',
+    templates: 'QR Menu Templates',
+    settings: 'Venue Settings',
+  };
 
   return (
-    <>
-      <AdminTopbar
-        isAuthenticated={isAuthenticated}
-        saveState={saveState}
-        onSignOut={handleSignOut}
-      />
+    <div class="ad-layout">
+      {/* 1. Left Sidebar */}
+      <AdminSidebar activeTab={activeTab} onSelectTab={setActiveTab} />
 
-      <main className="wrap admin">
-        {!isAuthenticated ? (
-          <AdminLogin onSignIn={handleSignIn} />
-        ) : (
-          <section id="dashView">
-            <div className="admin__head">
-              <div>
-                <h1>Cafe Menu Controller</h1>
-                <p className="hint">
-                  All changes save instantly and update the live QR menu in real-time.
-                </p>
+      {/* 2. Main Content Container */}
+      <main class="ad-main">
+        {/* Top Header */}
+        <AdminHeader
+          title={titles[activeTab] || 'Dashboard'}
+          searchQuery={globalSearch}
+          onSearchChange={activeTab === 'templates' ? null : setGlobalSearch}
+          searchPlaceholder={activeTab === 'templates' ? 'Search templates...' : 'Search menu items, categories...'}
+          onLogout={handleLogout}
+        />
+
+        {/* Tab Views */}
+        {activeTab === 'dashboard' && (
+          <div class="ad-content-wrapper">
+            {/* Left Main Dashboard Column */}
+            <div class="ad-content-left">
+              {/* Hero Welcome Card */}
+              <div class="ad-hero-card">
+                <h2 class="ad-hero-title">Welcome back, Admin!</h2>
+                <p class="ad-hero-sub">Here&rsquo;s what&rsquo;s happening with your cafe today.</p>
+                <div class="ad-hero-date">
+                  <CalendarIcon size={14} />
+                  <span>{todayDateString}</span>
+                </div>
               </div>
-              <div className="admin__head-actions">
-                <button
-                  className="btn btn--primary"
-                  id="addCategoryBtn"
-                  type="button"
-                  onClick={handleAddCategoryClick}
-                >
-                  + Add Category
-                </button>
-                <button
-                  className="btn btn--ghost"
-                  id="refreshBtn"
-                  type="button"
-                  onClick={loadMenu}
-                >
-                  Reload Menu
-                </button>
-              </div>
+
+              {/* 4 Stat Cards */}
+              <AdminStatsRow totalItems={totalItems} totalCategories={categories.length} />
+
+              {/* Traffic Chart & Top Viewed Items */}
+              <AdminAnalyticsRow topItems={topDishes} />
+
+              {/* Menu Items Table */}
+              <AdminItemsTable
+                dishes={allDishes}
+                currency={cafe.currency || 'ETB'}
+                onAddItem={() => handleOpenAddDish()}
+                onEditDish={handleOpenEditDish}
+                onDeleteDish={handleDeleteDish}
+              />
             </div>
 
-            {/* Quick Stats Bar */}
-            <div className="stats" id="stats">
-              <div className="stat">
-                <b>{categories.length}</b>
-                <span>Categories</span>
-              </div>
-              <div className="stat">
-                <b>{totalItems}</b>
-                <span>Dishes</span>
-              </div>
-              <div className="stat">
-                <b>{avgPrice}</b>
-                <span>Avg. price ({cafe.currency || 'ETB'})</span>
-              </div>
-              <div className="stat">
-                <b>{cafe.currency || 'ETB'}</b>
-                <span>Currency</span>
-              </div>
-            </div>
-
-            {/* Venue Profile Settings */}
-            <VenueSettings cafe={cafe} onSaveCafe={handleSaveCafe} />
-
-            {/* Table QR Studio */}
-            <TableQrStudio cafeName={cafe.name} />
-
-            {/* Categories & Dish Manager */}
-            <CategoryDishManager
-              categories={categories}
-              currency={cafe.currency || 'ETB'}
-              onUpdateCategory={handleUpdateCategory}
-              onDeleteCategory={handleDeleteCategory}
-              onReorderCategories={handleReorderCategories}
-              onAddDish={handleAddDishClick}
-              onUpdateDish={handleUpdateDish}
-              onDeleteDish={handleDeleteDish}
+            {/* Right Dashboard Column */}
+            <AdminRightSidebar
+              onAddDish={() => handleOpenAddDish()}
+              onManageCategories={() => setActiveTab('categories')}
+              onOpenQrTemplates={() => setActiveTab('templates')}
             />
+          </div>
+        )}
 
-            {/* Danger Zone: Reset to sample */}
-            <div className="panel panel--danger">
-              <h2 className="panel__title">Danger Zone</h2>
-              <p className="hint">
-                Restores the default sample menu (Burgers, Pizza, Coffee, Breakfast, Desserts, Drinks) and clears modifications.
-              </p>
-              <button
-                className="btn btn--danger"
-                id="resetBtn"
-                type="button"
-                onClick={handleResetSampleMenu}
-              >
-                Reset to Sample Menu
-              </button>
+        {/* QR Menu Templates View */}
+        {activeTab === 'templates' && (
+          <QrTemplatesView
+            cafeName={cafe.name || 'CafeMenu'}
+            onShowToast={showToast}
+          />
+        )}
+
+        {/* Dedicated Menu Items View */}
+        {activeTab === 'items' && (
+          <div class="ad-content-wrapper">
+            <div class="ad-content-left">
+              <AdminItemsTable
+                dishes={allDishes}
+                currency={cafe.currency || 'ETB'}
+                onAddItem={() => handleOpenAddDish()}
+                onEditDish={handleOpenEditDish}
+                onDeleteDish={handleDeleteDish}
+              />
             </div>
-          </section>
+            <AdminRightSidebar
+              onAddDish={() => handleOpenAddDish()}
+              onManageCategories={() => setActiveTab('categories')}
+              onOpenQrTemplates={() => setActiveTab('templates')}
+            />
+          </div>
+        )}
+
+        {/* Dedicated Categories View */}
+        {activeTab === 'categories' && (
+          <div class="ad-content-wrapper">
+            <div class="ad-content-left">
+              <div class="ad-panel-card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 class="ad-card-title">Manage Categories</h3>
+                  <p class="ad-card-sub">Create, rename, reorder, or remove food categories</p>
+                </div>
+                <button
+                  type="button"
+                  class="ad-btn-add"
+                  onClick={handleOpenAddCategory}
+                >
+                  <PlusIcon size={16} />
+                  <span>Add Category</span>
+                </button>
+              </div>
+
+              <CategoryDishManager
+                categories={categories}
+                currency={cafe.currency || 'ETB'}
+                onUpdateCategory={handleOpenEditCategory}
+                onDeleteCategory={handleDeleteCategory}
+                onReorderCategories={handleReorderCategories}
+                onAddDish={(catId) => handleOpenAddDish(catId)}
+                onUpdateDish={handleOpenEditDish}
+                onDeleteDish={handleDeleteDish}
+              />
+            </div>
+            <AdminRightSidebar
+              onAddDish={() => handleOpenAddDish()}
+              onManageCategories={() => setActiveTab('categories')}
+              onOpenQrTemplates={() => setActiveTab('templates')}
+            />
+          </div>
+        )}
+
+        {/* Dedicated Settings View */}
+        {activeTab === 'settings' && (
+          <div class="ad-content-wrapper">
+            <div class="ad-content-left">
+              <div class="ad-panel-card" style={{ marginBottom: '1.5rem' }}>
+                <VenueSettings cafe={cafe} onSaveCafe={handleSaveCafe} />
+              </div>
+
+              <div class="ad-panel-card" style={{ borderLeft: '4px solid #ef4444' }}>
+                <h3 class="ad-card-title" style={{ color: '#ef4444' }}>Danger Zone</h3>
+                <p class="ad-card-sub" style={{ marginBottom: '1rem' }}>
+                  Restores the default sample menu (Burgers, Pizza, Coffee, Breakfast, Desserts, Drinks) and clears modifications.
+                </p>
+                <button
+                  type="button"
+                  class="ad-btn-action-primary"
+                  id="resetBtn"
+                  onClick={handleResetSampleMenu}
+                  style={{ background: '#ef4444', maxWidth: '240px' }}
+                >
+                  Reset to Sample Menu
+                </button>
+              </div>
+            </div>
+            <AdminRightSidebar
+              onAddDish={() => handleOpenAddDish()}
+              onManageCategories={() => setActiveTab('categories')}
+              onOpenQrTemplates={() => setActiveTab('templates')}
+            />
+          </div>
         )}
       </main>
 
-      {/* Add Category & Dish Modal */}
+      {/* Add / Edit Dish & Category Modal */}
       <AdminDishModal
         isOpen={modalOpen}
         mode={modalMode}
@@ -423,15 +511,32 @@ export default function AdminApp() {
         onSubmit={handleModalSubmit}
       />
 
-      {/* Floating Toast Notification */}
-      <div
-        className={`toast ${toast ? `is-on ${toast.isBad ? 'is-bad' : ''}` : ''}`}
-        id="toast"
-        role="status"
-        aria-live="polite"
-      >
-        {toast?.text}
-      </div>
-    </>
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            background: toast.isBad ? '#ef4444' : '#13221e',
+            color: '#ffffff',
+            padding: '0.85rem 1.4rem',
+            borderRadius: '12px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            animation: 'cmFadeIn 0.2s ease',
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          <span>{toast.text}</span>
+        </div>
+      )}
+    </div>
   );
 }
