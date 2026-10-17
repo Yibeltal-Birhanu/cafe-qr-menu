@@ -5,13 +5,28 @@ const express = require('express');
 const QRCode = require('qrcode');
 
 const store = require('./store');
-const auth = require('./auth');
+const {
+  auth,
+  toNodeHandler,
+  requireAuth,
+  requireSuperAdmin,
+  checkPassword,
+  createToken,
+  createManagerUser,
+  bootstrapSuperAdmin,
+} = require('./auth');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 app.use(express.json({ limit: '256kb' }));
+
+/* ------------------------------------------------------------------ *
+ * Better Auth API Handlers
+ * ------------------------------------------------------------------ */
+
+app.all('/api/auth/*', toNodeHandler(auth.handler));
 
 /* ------------------------------------------------------------------ *
  * Page Routes
@@ -22,8 +37,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
 });
 
-/** Live demo Cafe digital menu (supports both /cafe and /abol-cafe) */
-app.get(['/cafe', '/abol-cafe'], (req, res) => {
+/** Live demo Cafe digital menu (supports both /cafe, /cafe/:slug, and /abol-cafe) */
+app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
 });
 
@@ -43,11 +58,19 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, uptime: Math.round(process.uptime()) });
 });
 
+/** Default menu endpoint for backward compatibility */
 app.get('/api/menu', (req, res) => {
-  res.json(store.get());
+  const tenant = req.query.cafe || 'abol-cafe';
+  res.json(store.get(tenant));
 });
 
-/** PNG QR code the cafe can print: /qr.png?url=https://example.com/abol-cafe */
+/** Multi-tenant scoped public menu */
+app.get('/api/:cafeSlug/menu', (req, res, next) => {
+  if (['auth', 'admin', 'superadmin', 'health', 'menu'].includes(req.params.cafeSlug)) return next();
+  res.json(store.get(req.params.cafeSlug));
+});
+
+/** PNG QR code default */
 app.get('/qr.png', async (req, res) => {
   const target = req.query.url || `${req.protocol}://${req.get('host')}/abol-cafe`;
   try {
@@ -63,32 +86,185 @@ app.get('/qr.png', async (req, res) => {
   }
 });
 
+/** Multi-tenant PNG QR code: /api/:cafeSlug/qr.png */
+app.get('/api/:cafeSlug/qr.png', async (req, res, next) => {
+  if (['auth', 'admin', 'superadmin'].includes(req.params.cafeSlug)) return next();
+  const slug = req.params.cafeSlug;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${slug}`;
+  try {
+    const png = await QRCode.toBuffer(String(target), {
+      type: 'png',
+      width: Number(req.query.size) || 512,
+      margin: 2,
+      color: { dark: '#2b1810ff', light: '#fffaf4ff' },
+    });
+    res.type('png').set('Cache-Control', 'public, max-age=3600').send(png);
+  } catch (error) {
+    res.status(400).json({ error: `Could not build a QR code: ${error.message}` });
+  }
+});
+
 /* ------------------------------------------------------------------ *
- * Admin: session
+ * Super Admin Management API
+ * ------------------------------------------------------------------ */
+
+app.use('/api/superadmin', requireSuperAdmin);
+
+/** List all platform cafes with their managers and dish counts */
+app.get('/api/superadmin/cafes', async (req, res) => {
+  const cafes = await store.listAllCafesWithManagers();
+  res.json({ cafes });
+});
+
+/** Create a new cafe AND its manager user simultaneously */
+app.post('/api/superadmin/cafes', async (req, res) => {
+  const body = req.body || {};
+  if (!body.name || !body.slug) {
+    return res.status(400).json({ error: 'Cafe name and slug are required.' });
+  }
+
+  try {
+    let manager = null;
+    if (body.managerEmail && body.managerPassword) {
+      manager = await createManagerUser({
+        email: body.managerEmail,
+        password: body.managerPassword,
+        name: body.managerName || `${body.name} Manager`,
+      });
+    }
+
+    const created = await store.createCafe({
+      slug: body.slug,
+      name: body.name,
+      tagline: body.tagline || '',
+      currency: body.currency || 'ETB',
+      ownerId: manager ? manager.id : null,
+      phone: body.phone || '',
+      wifi_ssid: body.wifi_ssid || '',
+      wifi_pass: body.wifi_pass || '',
+      status: body.status || 'active',
+      template: body.template || 'seed',
+    });
+
+    res.status(201).json({
+      cafe: created.cafe,
+      manager: manager
+        ? { id: manager.id, email: manager.email, name: manager.name, role: manager.role }
+        : null,
+    });
+  } catch (err) {
+    res.status(400).json({ error: `Could not create cafe: ${err.message}` });
+  }
+});
+
+/** Update cafe status (active / suspended) */
+app.put('/api/superadmin/cafes/:id/status', async (req, res) => {
+  const status = req.body && req.body.status;
+  if (!status || !['active', 'suspended'].includes(status)) {
+    return res.status(400).json({ error: 'Status must be "active" or "suspended".' });
+  }
+  const cafe = await store.updateCafeStatus(req.params.id, status);
+  if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+  res.json({ cafe });
+});
+
+/** Reassign manager or provision new manager credentials for an existing cafe */
+app.put('/api/superadmin/cafes/:id/manager', async (req, res) => {
+  const body = req.body || {};
+  if (!body.managerEmail || !body.managerPassword) {
+    return res.status(400).json({ error: 'managerEmail and managerPassword are required.' });
+  }
+  try {
+    const manager = await createManagerUser({
+      email: body.managerEmail,
+      password: body.managerPassword,
+      name: body.managerName || 'Cafe Manager',
+    });
+    const cafe = await store.updateCafeManager(req.params.id, manager.id);
+    if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+    res.json({ cafe, manager: { id: manager.id, email: manager.email, name: manager.name, role: manager.role } });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Delete a cafe and its menu items */
+app.delete('/api/superadmin/cafes/:id', async (req, res) => {
+  const cafe = await store.deleteCafe(req.params.id);
+  if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+  res.json({ deleted: cafe });
+});
+
+/* ------------------------------------------------------------------ *
+ * Admin: session & auth
  * ------------------------------------------------------------------ */
 
 app.post('/api/admin/login', (req, res) => {
-  if (!auth.checkPassword(req.body && req.body.password)) {
+  if (!checkPassword(req.body && req.body.password)) {
     return res.status(401).json({ error: 'Incorrect password.' });
   }
-  return res.json({ token: auth.createToken() });
+  const cafeSlug = req.body && req.body.cafeSlug ? String(req.body.cafeSlug) : 'abol-cafe';
+  return res.json({ token: createToken({ cafeSlug }) });
 });
 
-/* Everything below requires a valid session token. */
-app.use('/api/admin', auth.requireAuth);
+/* Everything below requires a valid session token (Better Auth or Legacy). */
+app.use('/api/admin', requireAuth);
+
+/** Helper to identify tenant for admin requests */
+function resolveTenant(req) {
+  return req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
+}
 
 /** Lets the dashboard check whether a stored token is still valid. */
 app.get('/api/admin/session', (req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, user: req.user || null });
+});
+
+/** List cafes owned by user or all cafes for legacy admin */
+app.get('/api/admin/cafes', async (req, res) => {
+  const ownerId = req.user && req.user.id !== 'legacy-admin' ? req.user.id : null;
+  const cafes = await store.listCafes(ownerId);
+  res.json({ cafes });
+});
+
+/** Create a new cafe tenant */
+app.post('/api/admin/cafes', async (req, res) => {
+  const body = req.body || {};
+  if (!body.name || !body.slug) {
+    return res.status(400).json({ error: 'Cafe name and slug are required.' });
+  }
+  const ownerId = req.user && req.user.id !== 'legacy-admin' ? req.user.id : null;
+  try {
+    const created = await store.createCafe({
+      slug: body.slug,
+      name: body.name,
+      tagline: body.tagline || '',
+      currency: body.currency || 'ETB',
+      ownerId,
+      phone: body.phone || '',
+      wifi_ssid: body.wifi_ssid || '',
+      wifi_pass: body.wifi_pass || '',
+      template: body.template || 'empty',
+    });
+    res.status(201).json({ cafe: created.cafe });
+  } catch (err) {
+    res.status(400).json({ error: `Could not create cafe: ${err.message}` });
+  }
 });
 
 /* ------------------------------------------------------------------ *
  * Admin: cafe profile
  * ------------------------------------------------------------------ */
 
+app.get('/api/admin/cafe', (req, res) => {
+  const tenant = resolveTenant(req);
+  res.json({ cafe: store.get(tenant).cafe });
+});
+
 app.put('/api/admin/cafe', (req, res) => {
   const body = req.body || {};
-  const cafe = store.update((data) => {
+  const tenant = resolveTenant(req);
+  const cafe = store.update(tenant, (data) => {
     for (const key of ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass']) {
       if (typeof body[key] === 'string' && body[key].trim()) data.cafe[key] = body[key].trim();
     }
@@ -103,10 +279,11 @@ app.put('/api/admin/cafe', (req, res) => {
 
 app.post('/api/admin/categories', (req, res) => {
   const body = req.body || {};
+  const tenant = resolveTenant(req);
   if (!body.name || !String(body.name).trim()) {
     return res.status(400).json({ error: 'A category name is required.' });
   }
-  const category = store.update((data) => {
+  const category = store.update(tenant, (data) => {
     const taken = new Set(data.categories.map((entry) => entry.id));
     const created = {
       id: store.newId(body.name, taken),
@@ -123,7 +300,8 @@ app.post('/api/admin/categories', (req, res) => {
 
 app.put('/api/admin/categories/:id', (req, res) => {
   const body = req.body || {};
-  const category = store.update((data) => {
+  const tenant = resolveTenant(req);
+  const category = store.update(tenant, (data) => {
     const target = store.findCategory(data, req.params.id);
     if (!target) return null;
     if (typeof body.name === 'string' && body.name.trim()) target.name = body.name.trim();
@@ -136,7 +314,8 @@ app.put('/api/admin/categories/:id', (req, res) => {
 });
 
 app.delete('/api/admin/categories/:id', (req, res) => {
-  const removed = store.update((data) => {
+  const tenant = resolveTenant(req);
+  const removed = store.update(tenant, (data) => {
     const index = data.categories.findIndex((entry) => entry.id === req.params.id);
     if (index === -1) return null;
     return data.categories.splice(index, 1)[0];
@@ -145,11 +324,12 @@ app.delete('/api/admin/categories/:id', (req, res) => {
   return res.json({ removed });
 });
 
-/** Reorder the whole board: { order: ["burgers", "pizza", ...] } */
+/** Reorder categories */
 app.post('/api/admin/categories/reorder', (req, res) => {
   const order = Array.isArray(req.body && req.body.order) ? req.body.order : null;
+  const tenant = resolveTenant(req);
   if (!order) return res.status(400).json({ error: 'Send { order: [categoryId, ...] }.' });
-  const categories = store.update((data) => {
+  const categories = store.update(tenant, (data) => {
     const ranked = [...data.categories].sort((a, b) => {
       const ai = order.indexOf(a.id);
       const bi = order.indexOf(b.id);
@@ -167,10 +347,11 @@ app.post('/api/admin/categories/reorder', (req, res) => {
 
 app.post('/api/admin/categories/:id/items', (req, res) => {
   const body = req.body || {};
+  const tenant = resolveTenant(req);
   if (!body.name || !String(body.name).trim()) {
     return res.status(400).json({ error: 'An item name is required.' });
   }
-  const item = store.update((data) => {
+  const item = store.update(tenant, (data) => {
     const category = store.findCategory(data, req.params.id);
     if (!category) return null;
     const taken = new Set(data.categories.flatMap((entry) => entry.items.map((it) => it.id)));
@@ -193,7 +374,8 @@ app.post('/api/admin/categories/:id/items', (req, res) => {
 
 app.put('/api/admin/items/:id', (req, res) => {
   const body = req.body || {};
-  const item = store.update((data) => {
+  const tenant = resolveTenant(req);
+  const item = store.update(tenant, (data) => {
     const found = store.findItem(data, req.params.id);
     if (!found) return null;
     if (typeof body.name === 'string' && body.name.trim()) found.item.name = body.name.trim();
@@ -217,7 +399,8 @@ app.put('/api/admin/items/:id', (req, res) => {
 });
 
 app.delete('/api/admin/items/:id', (req, res) => {
-  const removed = store.update((data) => {
+  const tenant = resolveTenant(req);
+  const removed = store.update(tenant, (data) => {
     for (const category of data.categories) {
       const index = category.items.findIndex((entry) => entry.id === req.params.id);
       if (index !== -1) return category.items.splice(index, 1)[0];
@@ -233,7 +416,8 @@ app.delete('/api/admin/items/:id', (req, res) => {
  * ------------------------------------------------------------------ */
 
 app.post('/api/admin/reset', (req, res) => {
-  res.json({ menu: store.reset() });
+  const tenant = resolveTenant(req);
+  res.json({ menu: store.reset(tenant) });
 });
 
 /* ------------------------------------------------------------------ */
@@ -288,11 +472,18 @@ app.use((error, req, res, next) => {
   return res.status(500).json({ error: 'Something went wrong on the server.' });
 });
 
-store.load();
-app.listen(PORT, () => {
-  console.log(`\n     CafeMenu Digital Platform`);
-  console.log(`     Landing    http://localhost:${PORT}/`);
-  console.log(`     Abol Cafe  http://localhost:${PORT}/abol-cafe`);
-  console.log(`     Admin      http://localhost:${PORT}/admin`);
-  console.log(`     Data       ${store.MENU_FILE}\n`);
-});
+store.load('abol-cafe');
+bootstrapSuperAdmin();
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n     CafeMenu Multi-Tenant Digital Platform`);
+    console.log(`     Landing      http://localhost:${PORT}/`);
+    console.log(`     Abol Cafe    http://localhost:${PORT}/abol-cafe`);
+    console.log(`     Admin        http://localhost:${PORT}/admin`);
+    console.log(`     Super Admin  http://localhost:${PORT}/api/superadmin/cafes`);
+    console.log(`     Better Auth  http://localhost:${PORT}/api/auth/ok\n`);
+  });
+}
+
+module.exports = app;

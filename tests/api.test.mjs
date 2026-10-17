@@ -20,7 +20,7 @@ async function call(pathname, options = {}, bearer) {
   const response = await fetch(BASE + pathname, {
     method: options.method || 'GET',
     headers: Object.assign(
-      { 'Content-Type': 'application/json' },
+      { 'Content-Type': 'application/json', Origin: BASE },
       bearer ? { Authorization: `Bearer ${bearer}` } : {}
     ),
     body: options.body ? JSON.stringify(options.body) : undefined,
@@ -233,6 +233,97 @@ test('persists changes to disk and can reset to the sample menu', async () => {
   assert.deepEqual(afterReset.body.categories.map((category) => category.id), [
     'habesha', 'burgers', 'pizza', 'coffee', 'breakfast', 'desserts', 'drinks',
   ]);
+});
+
+test('Better Auth API responds on /api/auth/ok', async () => {
+  const res = await call('/api/auth/ok');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.ok, true);
+});
+
+test('multi-tenant: fetches scoped menu and generated QR code for specific cafe', async () => {
+  const uniqueSlug = `test-roasters-${Date.now()}`;
+  const createRes = await call(
+    '/api/admin/cafes',
+    {
+      method: 'POST',
+      body: { slug: uniqueSlug, name: 'Test Roasters', currency: 'USD' },
+    },
+    token
+  );
+  assert.equal(createRes.status, 201);
+  const cafeSlug = createRes.body.cafe.slug;
+  assert.equal(createRes.body.cafe.name, 'Test Roasters');
+
+  // Verify public multi-tenant menu route
+  const menuRes = await call(`/api/${cafeSlug}/menu`);
+  assert.equal(menuRes.status, 200);
+  assert.equal(menuRes.body.cafe.name, 'Test Roasters');
+  assert.equal(menuRes.body.cafe.currency, 'USD');
+
+  // Verify multi-tenant QR code route
+  const qrRes = await fetch(`${BASE}/api/${cafeSlug}/qr.png`);
+  assert.equal(qrRes.status, 200);
+  assert.equal(qrRes.headers.get('content-type'), 'image/png');
+
+  // Verify cafe shows in admin list
+  const listRes = await call('/api/admin/cafes', {}, token);
+  assert.equal(listRes.status, 200);
+  assert.ok(Array.isArray(listRes.body.cafes));
+  assert.ok(listRes.body.cafes.some((c) => c.slug === cafeSlug));
+});
+
+test('Super Admin: creates a cafe and provisions its manager user', async () => {
+  const timestamp = Date.now();
+  const slug = `skyline-cafe-${timestamp}`;
+  const managerEmail = `manager-${timestamp}@skyline.com`;
+  const managerPassword = 'managerPassword123!';
+
+  // 1. Super Admin creates cafe with manager credentials
+  const res = await call(
+    '/api/superadmin/cafes',
+    {
+      method: 'POST',
+      body: {
+        slug,
+        name: 'Skyline Cafe & Bakery',
+        currency: 'EUR',
+        managerEmail,
+        managerPassword,
+        managerName: 'Skyline Boss',
+      },
+    },
+    token
+  );
+
+  assert.equal(res.status, 201);
+  assert.equal(res.body.cafe.name, 'Skyline Cafe & Bakery');
+  assert.equal(res.body.manager.email, managerEmail);
+  assert.equal(res.body.manager.role, 'manager');
+
+  // 2. Super Admin lists all platform cafes and sees manager info
+  const list = await call('/api/superadmin/cafes', {}, token);
+  assert.equal(list.status, 200);
+  const found = list.body.cafes.find((c) => c.slug === res.body.cafe.slug);
+  assert.ok(found);
+  assert.equal(found.managerEmail, managerEmail);
+
+  // 3. The new manager logs in via Better Auth email and password
+  const loginRes = await call('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: {
+      email: managerEmail,
+      password: managerPassword,
+    },
+  });
+
+  assert.equal(loginRes.status, 200);
+  assert.ok(loginRes.body.token);
+  assert.equal(loginRes.body.user.email, managerEmail);
+
+  // 4. Non-superadmin cannot access Super Admin endpoints
+  const forbiddenRes = await call('/api/superadmin/cafes', {}, loginRes.body.token);
+  assert.equal(forbiddenRes.status, 403);
 });
 
 test('rejects unknown API routes with JSON', async () => {
