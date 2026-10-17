@@ -186,7 +186,7 @@ export default function MenuApp() {
                       key={dish.id}
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
-                      currency={dish.currency || '$'}
+                      currency={dish.currency || 'ETB'}
                     />
                   ))
                 ) : (
@@ -284,7 +284,7 @@ export default function MenuApp() {
                       key={dish.id}
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
-                      currency={dish.currency || '$'}
+                      currency={dish.currency || 'ETB'}
                     />
                   ))
                 ) : (
@@ -317,7 +317,7 @@ export default function MenuApp() {
             dish={selectedDish}
             onClose={() => setSelectedDish(null)}
             onToast={showToast}
-            currency={selectedDish.currency || '$'}
+            currency={selectedDish.currency || 'ETB'}
           />
         )}
 

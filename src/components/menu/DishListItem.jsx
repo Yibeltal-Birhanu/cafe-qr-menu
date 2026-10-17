@@ -1,11 +1,8 @@
 import React from 'react';
 import { ChevronRightIcon } from '../common/Icons.jsx';
 
-export default function DishListItem({ dish, onSelect, currency = '$' }) {
-  const formattedPrice =
-    typeof dish.price === 'number'
-      ? `${dish.currency || currency}${dish.price.toFixed(2)}`
-      : `${dish.price} ${dish.currency || currency}`;
+export default function DishListItem({ dish, onSelect, currency = 'ETB' }) {
+  const formattedPrice = `${dish.price} ${dish.currency || currency || 'ETB'}`;
 
   return (
     <article

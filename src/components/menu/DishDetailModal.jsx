@@ -7,15 +7,12 @@ import {
   XIcon,
 } from '../common/Icons.jsx';
 
-export default function DishDetailModal({ dish, onClose, currency = '$', onToast }) {
+export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToast }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   if (!dish) return null;
 
-  const formattedPrice =
-    typeof dish.price === 'number'
-      ? `${dish.currency || currency}${dish.price.toFixed(2)}`
-      : `${dish.price} ${dish.currency || currency}`;
+  const formattedPrice = `${dish.price} ${dish.currency || currency || 'ETB'}`;
 
   const rating = dish.rating || 4.8;
   const reviews = dish.reviews || 120;
