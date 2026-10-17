@@ -113,4 +113,5 @@
   window.renderCategoryIcon = renderCategoryVideo;
   window.renderDishMedia = renderDishMedia;
   window.categoryVideoMap = videoMap;
+  window.CategoryIconKeys = ['habesha', 'burgers', 'pizza', 'coffee', 'desserts', 'drinks', 'breakfast'];
 })();

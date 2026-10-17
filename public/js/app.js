@@ -15,21 +15,21 @@
       menuViewBadge: 'Digital Menu • View Only',
       searchPlaceholder: 'Search tibs, burgers, coffee, pizza…',
       langLabel: 'አማርኛ',
-      heroEyebrow: '✨ ARTISAN BISTRO • DIGITAL MENU',
+      heroEyebrow: 'ARTISAN BISTRO • DIGITAL MENU',
       heroTitle: 'Culinary Passion & Authentic Flavors',
       heroText: 'Handcrafted Habesha specialties, flame-grilled burgers, stone-baked pizzas & single-origin Ethiopian coffee.',
       heroLiveText: 'FEATURED FOOD SHOWCASE',
-      heroVideoTag: '🔥 Sizzling & Fresh',
+      heroVideoTag: 'Sizzling & Fresh',
       wifiLabel: 'Free Guest WiFi:',
       wifiPassLabel: 'Password:',
       copyBtn: 'Copy',
       copiedText: 'Copied!',
       allCategories: 'All Categories',
       allDishes: 'All Dishes',
-      filterPopular: '🔥 Popular',
-      filterSpicy: '🌶️ Spicy',
-      filterNew: '✨ New',
-      filterSignature: '⭐ Signature',
+      filterPopular: 'Popular',
+      filterSpicy: 'Spicy',
+      filterNew: 'New',
+      filterSignature: 'Signature',
       dishesCount: 'dishes',
       prepLabel: 'Prep Time:',
       dietLabel: 'Category Style:',
@@ -53,21 +53,21 @@
       menuViewBadge: 'ዲጂታል ሜኑ • እይታ ብቻ',
       searchPlaceholder: 'ጥብስ፣ በርገር፣ ቡና፣ ፒዛ ይፈልጉ...',
       langLabel: 'English',
-      heroEyebrow: '✨ ልዩ የካፌ እና ምግብ ዝግጅት • ዲጂታል ሜኑ',
+      heroEyebrow: 'ልዩ የካፌ እና ምግብ ዝግጅት • ዲጂታል ሜኑ',
       heroTitle: 'ልዩ የጣዕም ምርጫዎች እና ባህላዊ ምግቦች',
       heroText: 'የተመረጡ የሀበሻ ባህላዊ ምግቦች፣ በእሳት የተጠበሱ በርገሮች፣ በምድጃ የተጋገረ ፒዛ እና ትኩስ የኢትዮጵያ ቡና።',
       heroLiveText: 'ልዩ የምግብ ቪዲዮ ማሳያ',
-      heroVideoTag: '🔥 ትኩስና በእሳት የተጠበሰ',
+      heroVideoTag: 'ትኩስና በእሳት የተጠበሰ',
       wifiLabel: 'የእንግዳ ዋይፋይ:',
       wifiPassLabel: 'የይለፍ ቃል:',
       copyBtn: 'ገልብጥ',
       copiedText: 'ተቀድቷል!',
       allCategories: 'ሁሉም ምግቦች',
       allDishes: 'ሁሉም',
-      filterPopular: '🔥 ተወዳጅ',
-      filterSpicy: '🌶️ የሚያቃጥል',
-      filterNew: '✨ አዲስ',
-      filterSignature: '⭐ የሼፍ ምርጥ',
+      filterPopular: 'ተወዳጅ',
+      filterSpicy: 'የሚያቃጥል',
+      filterNew: 'አዲስ',
+      filterSignature: 'የሼፍ ምርጥ',
       dishesCount: 'ምግቦች',
       prepLabel: 'የዝግጅት ጊዜ:',
       dietLabel: 'የምግብ ዘውግ:',
@@ -526,14 +526,25 @@
   function renderHeader(menu) {
     if (!menu) return;
     const cafe = menu.cafe;
-    els.cafeLogo.textContent = cafe.logo || '☕';
-    els.cafeName.textContent = cafe.name || 'ABOLE Cafe';
-    if (els.footerCafe) els.footerCafe.textContent = `${cafe.name || 'ABOLE Cafe'} & Bistro`;
+    els.cafeLogo.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>`;
+    els.cafeName.textContent = cafe.name || 'Cafe';
+    if (els.footerCafe) els.footerCafe.textContent = `${cafe.name || 'Cafe'} & Bistro`;
     if (cafe.wifi_ssid) els.wifiSsid.textContent = cafe.wifi_ssid;
     if (cafe.wifi_pass) els.wifiPass.textContent = cafe.wifi_pass;
     updateStaticLabels();
     renderHeroVideo();
   }
+
+  const categorySvgIcons = {
+    all: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+    habesha: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    burgers: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 0 1 16 0"/><line x1="3" y1="15" x2="21" y2="15"/><rect x="3" y="18" width="18" height="3" rx="1.5"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`,
+    pizza: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 20a14.2 14.2 0 0 0 20 0L12 2z"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="16" r="1.2" fill="currentColor"/><circle cx="15" cy="16" r="1.2" fill="currentColor"/></svg>`,
+    coffee: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>`,
+    desserts: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s2-1 4-1 4 1 4 1 2-1 4-1 4 1 4 1"/><circle cx="12" cy="7" r="2"/><line x1="12" y1="3" x2="12" y2="5"/></svg>`,
+    drinks: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21h10"/><path d="M12 21v-8"/><path d="M5 3l7 10 7-10H5z"/></svg>`,
+    breakfast: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>`
+  };
 
   function renderChips(menu) {
     if (!menu || !menu.categories) return;
@@ -541,19 +552,16 @@
 
     const chipsHtml = [
       `<button class="chip ${state.activeCategory === 'all' ? 'is-active' : ''}" data-category="all" type="button">` +
-        `<span class="chip__icon">✨</span><span class="chip__label">${escapeHtml(allLabel)}</span></button>`,
+        `<span class="chip__icon">${categorySvgIcons.all}</span><span class="chip__label">${escapeHtml(allLabel)}</span></button>`,
     ];
 
     menu.categories.forEach((cat) => {
       const loc = getLocalizedCategory(cat);
-      const iconEmoji =
-        { habesha: '🔥', burgers: '🍔', pizza: '🍕', coffee: '☕', desserts: '🍫', drinks: '🍹', breakfast: '🍳' }[
-          cat.id
-        ] || '🍽️';
+      const iconSvg = categorySvgIcons[cat.id] || `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
       chipsHtml.push(
         `<button class="chip ${state.activeCategory === cat.id ? 'is-active' : ''}" data-category="${escapeHtml(cat.id)}" type="button">` +
-          `<span class="chip__icon">${iconEmoji}</span><span class="chip__label">${escapeHtml(loc.name)}</span></button>`
+          `<span class="chip__icon">${iconSvg}</span><span class="chip__label">${escapeHtml(loc.name)}</span></button>`
       );
     });
 
@@ -566,7 +574,7 @@
     const badge = badgeText ? `<span class="${badgeClass(rawItem.badge)}">${escapeHtml(badgeText)}</span>` : '';
     const desc = item.description ? `<div class="item__desc">${escapeHtml(item.description)}</div>` : '';
     const prep = item.prepTime
-      ? `<span class="item__prep" style="font-size:0.75rem;color:var(--accent);margin-left:0.4rem">\u23F1 ${escapeHtml(item.prepTime)}</span>`
+      ? `<span class="item__prep" style="font-size:0.75rem;color:var(--accent);margin-left:0.4rem;display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${escapeHtml(item.prepTime)}</span>`
       : '';
 
     return `
@@ -779,7 +787,9 @@
     els.soundBtn.addEventListener('click', () => {
       state.sound = !state.sound;
       localStorage.setItem(SOUND_KEY, state.sound ? 'true' : 'false');
-      els.soundIcon.textContent = state.sound ? '\uD83D\uDD0A' : '\uD83D\uDD07';
+      els.soundIcon.innerHTML = state.sound
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`
+        : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
       if (state.sound) playPop();
       showToast(state.sound ? 'Sound enabled' : 'Sound muted');
     });
@@ -852,7 +862,9 @@
 
   /* --------------------------------------------------------------- Boot */
   async function boot() {
-    els.soundIcon.textContent = state.sound ? '\uD83D\uDD0A' : '\uD83D\uDD07';
+    els.soundIcon.innerHTML = state.sound
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
     bindEvents();
     try {
       const response = await fetch('/api/menu');

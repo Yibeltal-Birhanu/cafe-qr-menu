@@ -11,7 +11,7 @@ module.exports = {
     tagline: 'Freshly brewed, freshly grilled',
     currency: 'ETB',
     footer: 'Scan, browse, enjoy. Ask our staff for today\u2019s special.',
-    logo: '\u2615',
+    logo: 'coffee',
     phone: '+251 91 123 4567',
     wifi_ssid: 'Prism-Cafe-5G',
     wifi_pass: 'coffee123',

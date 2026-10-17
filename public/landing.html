@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f291e" />
+  <meta name="description" content="CafeMenu — Modern, camera-first digital QR menus for cafes, bistros, and restaurants. Beautiful food photography, zero reprint costs, and instant bilingual menus." />
+  <title>CafeMenu &mdash; Beautiful Digital QR Menus for Modern Cafes</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 8h1a4 4 0 0 1 0 8h-1'/><path d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/><line x1='6' y1='2' x2='6' y2='4'/><line x1='10' y1='2' x2='10' y2='4'/><line x1='14' y1='2' x2='14' y2='4'/></svg>" />
+
+  <!-- Typography: Editorial Serif (Playfair Display) + Modern Grotesk (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Landing Page Stylesheet -->
+  <link rel="stylesheet" href="/css/landing.css" />
+</head>
+<body>
+  <!-- ========================================================================
+       1. Navigation Header
+       ======================================================================== -->
+  <header class="l-header" id="top">
+    <div class="l-wrap l-nav">
+      <!-- Brand Wordmark -->
+      <a class="l-brand" href="/" aria-label="CafeMenu Home">
+        <span class="l-brand__badge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+            <line x1="6" y1="2" x2="6" y2="4"/>
+            <line x1="10" y1="2" x2="10" y2="4"/>
+            <line x1="14" y1="2" x2="14" y2="4"/>
+          </svg>
+        </span>
+        <span class="l-brand__name">CafeMenu<span class="l-brand__dot">.</span></span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <ul class="l-nav__links">
+        <li><a href="#features" class="l-nav__link">Features</a></li>
+        <li><a href="#demo" class="l-nav__link">Live Demo</a></li>
+        <li><a href="#designs" class="l-nav__link">Design Showcase</a></li>
+        <li><a href="#how-it-works" class="l-nav__link">How It Works</a></li>
+        <li><a href="#contact" class="l-nav__link">Contact</a></li>
+      </ul>
+
+      <!-- Action Buttons -->
+      <div class="l-nav__actions">
+        <a href="/cafe" class="l-btn l-btn--secondary" title="View live digital menu">
+          <span>Cafe Demo</span>
+          <span aria-hidden="true">&#8599;</span>
+        </a>
+        <a href="#contact" class="l-btn l-btn--primary">
+          <span>Get Your Cafe Online</span>
+        </a>
+        <!-- Mobile Drawer Toggle -->
+        <button class="l-menu-toggle" id="menuToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileDrawer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6" id="navLine1" />
+            <line x1="3" y1="12" x2="21" y2="12" id="navLine2" />
+            <line x1="3" y1="18" x2="21" y2="18" id="navLine3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="l-mobile-drawer" id="mobileDrawer" aria-hidden="true">
+    <a href="#features" class="mobile-nav-item">Features</a>
+    <a href="#demo" class="mobile-nav-item">Live Demo</a>
+    <a href="#designs" class="mobile-nav-item">Design Showcase</a>
+    <a href="#how-it-works" class="mobile-nav-item">How It Works</a>
+    <a href="#contact" class="mobile-nav-item">Contact &amp; Onboarding</a>
+    <a href="/cafe" class="mobile-nav-item" style="color: var(--c-amber); font-weight: 800;">
+      Cafe Live Menu &#8599;
+    </a>
+    <a href="/admin" class="mobile-nav-item" style="color: var(--c-text-muted); font-size: 0.95rem;">
+      Cafe Owner Sign In &rarr;
+    </a>
+    <div style="margin-top: 1rem;">
+      <a href="#contact" class="l-btn l-btn--primary" style="width: 100%; text-align: center; justify-content: center;">
+        Get Your Cafe Online
+      </a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ========================================================================
+         2. Hero Section
+         ======================================================================== -->
+    <section class="hero-sec">
+      <div class="l-wrap hero-sec__grid">
+        <!-- Left Column: Copy & CTAs -->
+        <div>
+          <span class="hero-sec__eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px;margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> NEXT-GENERATION DIGITAL QR MENUS
+          </span>
+          <h1 class="hero-sec__title">
+            Turn Every Table into an <em>Instant Digital Experience.</em>
+          </h1>
+          <p class="hero-sec__lead">
+            Elevate your dining atmosphere with lightning-fast, camera-first QR menus. Update prices in seconds, showcase appetizing photography, and delight your guests &mdash; all without reprinting paper.
+          </p>
+          <div class="hero-sec__ctas">
+            <a href="#contact" class="l-btn l-btn--primary">
+              <span>Get Your Cafe Online</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a href="/cafe" class="l-btn l-btn--secondary">
+              <span>Explore Demo Menu</span>
+              <span aria-hidden="true">&#8599;</span>
+            </a>
+          </div>
+
+          <!-- Trust / Key Metrics -->
+          <div class="hero-sec__trust">
+            <div class="trust-item">
+              <strong>$0 Re-prints</strong>
+              <span>Instant price &amp; menu edits</span>
+            </div>
+            <div class="trust-item">
+              <strong>No App Needed</strong>
+              <span>Works directly in camera</span>
+            </div>
+            <div class="trust-item">
+              <strong>100% Mobile</strong>
+              <span>Fast load on any connection</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Flagship Smartphone Mockup & Floating Glass QR -->
+        <div class="hero-sec__visual">
+          <div class="phone-mockup" aria-label="Smartphone displaying Cafe digital menu preview">
+            <!-- Sleek Status Bar -->
+            <div class="phone-mockup__status" aria-hidden="true">
+              <span>9:41</span>
+              <div class="phone-mockup__island"></div>
+              <span style="display:inline-flex;align-items:center;gap:4px;">5G <svg width="16" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg></span>
+            </div>
+
+            <!-- Screen Viewport -->
+            <div class="phone-mockup__screen">
+              <div class="phone-mockup__header">
+                <span class="phone-mockup__logo" style="display:inline-flex;align-items:center;gap:4px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                  Cafe
+                </span>
+                <span class="phone-mockup__lang" style="display:inline-flex;align-items:center;gap:3px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  AM / EN
+                </span>
+              </div>
+              <div class="phone-mockup__dish-card">
+                <div class="phone-mockup__img-wrap">
+                  <img src="/images/dishes/special-beef-tibs.jpg" alt="Special Sizzling Beef Tibs" class="phone-mockup__img" loading="eager" width="330" height="165" />
+                  <span class="phone-mockup__tag" style="display:inline-flex;align-items:center;gap:3px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Most Popular
+                  </span>
+                </div>
+                <div class="phone-mockup__details">
+                  <h3 class="phone-mockup__title">Special Sizzling Beef Tibs</h3>
+                  <div class="phone-mockup__price">480 ETB</div>
+                </div>
+              </div>
+              <div class="phone-mockup__subitem">
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 700;">Traditional Buna Ceremony</div>
+                  <div style="font-size: 0.72rem; color: #fbbf24;">150 ETB &bull; Signature Roast</div>
+                </div>
+                <span style="display:inline-flex;align-items:center;color:#e6923c;" aria-hidden="true">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Glass QR Badge -->
+          <a href="/cafe" class="hero-sec__qr-card" title="Scan or click to view live Cafe menu">
+            <img src="/qr.png" alt="Cafe QR Code" class="hero-sec__qr-img" id="heroQrImg" width="60" height="60" />
+            <div class="hero-sec__qr-text">
+              <strong>Cafe Demo</strong>
+              <span>Scan with phone camera</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         3. Live Demo Section
+         ======================================================================== -->
+    <section class="demo-sec" id="demo">
+      <div class="l-wrap">
+        <div class="sec-head">
+          <span class="sec-head__pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px;margin-right:3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            INTERACTIVE LIVE DEMO
+          </span>
+          <h2 class="sec-head__title">Experience the Digital Cafe Menu</h2>
+          <p class="sec-head__desc">
+            Touch, explore, and scan. See how guests experience your cafe's digital menu in real time from their smartphone camera.
+          </p>
+        </div>
+
+        <!-- Interactive Category Switcher Tabs -->
+        <div class="demo-tabs" role="tablist" aria-label="Demo menu category switcher">
+          <button type="button" class="demo-tab is-active" data-demo-cat="specials" role="tab" aria-selected="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Specials</span>
+          </button>
+          <button type="button" class="demo-tab" data-demo-cat="burgers" role="tab" aria-selected="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 0 1 16 0"/><line x1="3" y1="15" x2="21" y2="15"/><rect x="3" y="18" width="18" height="3" rx="1.5"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+            <span>Burgers</span>
+          </button>
+          <button type="button" class="demo-tab" data-demo-cat="coffee" role="tab" aria-selected="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+            <span>Specialty Coffee</span>
+          </button>
+          <button type="button" class="demo-tab" data-demo-cat="pizza" role="tab" aria-selected="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 20a14.2 14.2 0 0 0 20 0L12 2z"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="16" r="1.2" fill="currentColor"/><circle cx="15" cy="16" r="1.2" fill="currentColor"/></svg>
+            <span>Artisan Pizza</span>
+          </button>
+        </div>
+
+        <div class="demo-sec__card">
+          <!-- Left: Story & Interactive Dish Preview -->
+          <div class="demo-sec__left">
+            <div class="live-pulse-badge">
+              <span class="live-pulse-dot" aria-hidden="true"></span>
+              <span>Live Demonstration &bull; Table #04 Active</span>
+            </div>
+            <h3 class="demo-sec__cafe-name">Cafe</h3>
+            <div class="demo-sec__tagline">Artisan Bistro &bull; Digital QR Menu</div>
+
+            <!-- Dynamic Live Dish Card (Interactively switched via tabs) -->
+            <div class="demo-active-dish" id="demoActiveDishCard" aria-live="polite">
+              <div class="demo-active-dish__img-wrap">
+                <img src="/images/dishes/special-beef-tibs.jpg" alt="Special Sizzling Beef Tibs" id="demoDishImg" class="demo-active-dish__img" width="120" height="120" />
+              </div>
+              <div class="demo-active-dish__info">
+                <div class="demo-active-dish__top">
+                  <span class="demo-active-dish__tag" id="demoDishTag" style="display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span id="demoDishTagText">Most Popular</span>
+                  </span>
+                  <span class="demo-active-dish__price" id="demoDishPrice">480 ETB</span>
+                </div>
+                <h4 class="demo-active-dish__title" id="demoDishTitle">Special Sizzling Beef Tibs</h4>
+                <p class="demo-active-dish__desc" id="demoDishDesc">Tender prime beef cubes sautéed in spiced niter kibbeh with rosemary, jalapeños, and warm teff injera.</p>
+                <div class="demo-active-dish__meta" style="display:inline-flex;align-items:center;gap:4px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span id="demoDishMeta">15 min &bull; Sizzling Clay Skillet</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-sec__feature-list">
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>English &amp; Amharic (&#4779;&#4757;&#4765;&#4755;)</span>
+              </div>
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Instant 86 Item Toggling</span>
+              </div>
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>High-Definition Photography</span>
+              </div>
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Table QR Code Studio</span>
+              </div>
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Guest Wi-Fi Auto Connect</span>
+              </div>
+              <div class="demo-sec__feature-item">
+                <span class="demo-sec__feature-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Lightning-Fast 0s Loading</span>
+              </div>
+            </div>
+            <div>
+              <a href="/cafe" class="l-btn l-btn--primary">
+                <span>Open Full Live Menu</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Luxury Restaurant Acrylic QR Stand with Animated Scanner -->
+          <div class="demo-sec__right">
+            <div class="acrylic-qr-stand">
+              <div class="acrylic-qr-stand__header">
+                <span style="display:inline-flex;align-items:center;gap:5px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                  Cafe
+                </span>
+                <span class="acrylic-qr-stand__table-pill">Table #04</span>
+              </div>
+              <div class="qr-scan-container">
+                <img src="/qr.png" alt="Cafe Live Menu QR Code" class="qr-box__img" id="demoQrImg" width="180" height="180" />
+                <div class="qr-scan-line" aria-hidden="true"></div>
+              </div>
+              <div class="acrylic-qr-stand__footer">
+                TABLE 04 &bull; SCAN WITH PHONE CAMERA
+              </div>
+            </div>
+            <h4 class="demo-sec__scan-prompt">Point your camera to test live</h4>
+            <p class="demo-sec__scan-sub">
+              Instantly opens the full Cafe digital menu on your phone screen. Zero app download required.
+            </p>
+            <a href="/cafe" class="demo-sec__direct-link">
+              <span>Open in New Tab</span>
+              <span aria-hidden="true">&#8599;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         4. Benefits Section (Bento Style with Crisp SVGs)
+         ======================================================================== -->
+    <section class="benefits-sec" id="features">
+      <div class="l-wrap">
+        <div class="sec-head">
+          <span class="sec-head__pill">WHY CAFEMENU</span>
+          <h2 class="sec-head__title">Engineered for Cafe Owners, Loved by Guests</h2>
+          <p class="sec-head__desc">
+            Replace dirty, outdated laminated menus with an interactive digital presentation that increases average check size and simplifies daily service.
+          </p>
+        </div>
+
+        <div class="benefits-grid">
+          <!-- Card 1: Zero Reprint Costs -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Zero Reprint Costs</h3>
+            <p class="benefit-card__desc">
+              Change prices, adjust seasonal menus, and correct typos on the fly from your admin screen without waiting on expensive print shop turnarounds.
+            </p>
+          </div>
+
+          <!-- Card 2: Camera-First Access -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="17" r="1"/><path d="M9 6h6"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Camera-First QR Access</h3>
+            <p class="benefit-card__desc">
+              Guests scan with their native iPhone or Android camera app. Zero app downloads, zero account logins, and zero friction to ordering.
+            </p>
+          </div>
+
+          <!-- Card 3: Mouth-Watering Visuals -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Mouth-Watering Visuals</h3>
+            <p class="benefit-card__desc">
+              Diners eat with their eyes first. Showcase appetizing photography, spice tags, and prep times that boost side orders and desserts.
+            </p>
+          </div>
+
+          <!-- Card 4: Bilingual Dual-Language -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Bilingual Dual-Language</h3>
+            <p class="benefit-card__desc">
+              Serve both local patrons and international tourists seamlessly with one-tap switching between English and Amharic (&#4779;&#4757;&#4765;&#4755;).
+            </p>
+          </div>
+
+          <!-- Card 5: Table QR Studio -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Table QR Studio</h3>
+            <p class="benefit-card__desc">
+              Generate custom branded table QR stands with table numbers, venue Wi-Fi credentials, and crisp vectors ready for print.
+            </p>
+          </div>
+
+          <!-- Card 6: Real-Time Availability -->
+          <div class="benefit-card">
+            <div class="benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3 class="benefit-card__title">Real-Time Availability</h3>
+            <p class="benefit-card__desc">
+              Instantly toggle 86'd items with a single switch. Keep guests informed and stop your waitstaff from taking orders for sold-out dishes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         5. Design Showcase Section
+         ======================================================================== -->
+    <section class="showcase-sec" id="designs">
+      <div class="l-wrap">
+        <div class="sec-head">
+          <span class="sec-head__pill">TAILORED IDENTITIES</span>
+          <h2 class="sec-head__title">A Digital Menu That Reflects Your Atmosphere</h2>
+          <p class="sec-head__desc">
+            CafeMenu is architected to give each venue its own distinctive brand identity &mdash; from artisan bistros to specialty roasteries and rustic pizzerias.
+          </p>
+        </div>
+
+        <div class="showcase-grid">
+          <!-- Card 1: The Cafe (Live Sample) -->
+          <div class="showcase-card">
+            <div class="showcase-card__art">
+              <img src="/images/dishes/traditional-buna-ceremony.jpg" alt="The Cafe" class="showcase-card__img" loading="lazy" width="400" height="220" />
+              <span class="showcase-card__badge showcase-card__badge--live">&bull; Live Sample</span>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">The Cafe</h3>
+              <div class="showcase-card__theme-tag">Warm Hearth &amp; Artisan Heritage</div>
+              <p class="showcase-card__desc">
+                Rich roasted-coffee tones, amber highlights, and dual-script Amharic typography honoring authentic culinary hospitality.
+              </p>
+              <a href="/cafe" class="showcase-card__link">
+                <span>Open Live Menu</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 2: Verdant Botanical Roastery (Concept) -->
+          <div class="showcase-card">
+            <div class="showcase-card__art">
+              <img src="/images/dishes/ethiopian-pour-over.jpg" alt="Verdant Botanical Roastery" class="showcase-card__img" loading="lazy" width="400" height="220" />
+              <span class="showcase-card__badge showcase-card__badge--concept">Design Concept</span>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">Verdant Roastery</h3>
+              <div class="showcase-card__theme-tag">Minimalist Nordic &amp; Specialty Brew</div>
+              <p class="showcase-card__desc">
+                Clean sage tones, understated serif typography, and origin tasting notes designed for modern third-wave espresso bars.
+              </p>
+              <span class="showcase-card__link" style="color: var(--c-text-muted); cursor: default;">
+                <span>Concept Mockup</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Card 3: Fiore Neapolitan Pizzeria (Concept) -->
+          <div class="showcase-card">
+            <div class="showcase-card__art">
+              <img src="/images/dishes/margherita.jpg" alt="Fiore Neapolitan Pizzeria" class="showcase-card__img" loading="lazy" width="400" height="220" />
+              <span class="showcase-card__badge showcase-card__badge--concept">Design Concept</span>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">Fiore Pizzeria</h3>
+              <div class="showcase-card__theme-tag">Rustic Wood-Fired Kitchen</div>
+              <p class="showcase-card__desc">
+                Warm terracotta accents, bold Italian typography, and wood-fired crust highlights crafted for lively evening trattorias.
+              </p>
+              <span class="showcase-card__link" style="color: var(--c-text-muted); cursor: default;">
+                <span>Concept Mockup</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         6. How It Works Section
+         ======================================================================== -->
+    <section class="how-sec" id="how-it-works">
+      <div class="l-wrap">
+        <div class="sec-head">
+          <span class="sec-head__pill">HOW IT WORKS</span>
+          <h2 class="sec-head__title">From Kitchen to Smartphone in 3 Steps</h2>
+          <p class="sec-head__desc">
+            Getting your cafe live on CafeMenu is simple, fast, and requires zero technical experience.
+          </p>
+        </div>
+
+        <div class="how-steps">
+          <div class="step-card">
+            <div class="step-card__num">01</div>
+            <h3 class="step-card__title">Configure Your Menu</h3>
+            <p class="step-card__desc">
+              Add your categories, dish descriptions, prices, dietary tags, and photography using our straightforward cafe administration dashboard.
+            </p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-card__num">02</div>
+            <h3 class="step-card__title">Print QR Table Stands</h3>
+            <p class="step-card__desc">
+              Download high-resolution table QR codes with table numbering and Wi-Fi credentials pre-configured for your dining room.
+            </p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-card__num">03</div>
+            <h3 class="step-card__title">Guests Scan &amp; Enjoy</h3>
+            <p class="step-card__desc">
+              Customers point their smartphone camera at the table QR code to browse your menu in high resolution and discover your best dishes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         7. Contact & Onboarding Prototype Section
+         ======================================================================== -->
+    <section class="contact-sec" id="contact">
+      <div class="l-wrap contact-sec__grid">
+        <!-- Left Column: Copy & Onboarding Info -->
+        <div class="contact-sec__left">
+          <h2>Ready to modernise your cafe's menu?</h2>
+          <p>
+            Join forward-thinking cafes and restaurants delivering a premium digital menu experience. Submit your venue details to explore how CafeMenu fits your dining room.
+          </p>
+
+          <div class="contact-sec__direct-card">
+            <strong>Direct Partner Inquiries</strong>
+            <span>Looking for multi-branch rollouts, enterprise white-labeling, or specialized hardware stands? Contact our onboarding team through the form or review the live Cafe reference implementation.</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Lead Capture Form -->
+        <div class="lead-form-box">
+          <div id="formContainer">
+            <h3>Request Cafe Setup</h3>
+            <p>Tell us about your cafe to receive a customized digital menu preview.</p>
+
+            <form id="leadForm" novalidate>
+              <!-- Accessible Inline Error Banner -->
+              <div class="form-error-banner" id="formErrorBanner" role="alert" aria-live="polite" hidden>
+                <span class="form-error-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span id="formErrorMessage"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="cafeNameInput" class="form-label">Cafe or Restaurant Name *</label>
+                <input type="text" id="cafeNameInput" class="form-input" placeholder="e.g. Blue Nile Roasters" required />
+              </div>
+
+              <div class="form-group">
+                <label for="ownerNameInput" class="form-label">Your Name *</label>
+                <input type="text" id="ownerNameInput" class="form-input" placeholder="e.g. Sara Tekle" required />
+              </div>
+
+              <div class="form-group">
+                <label for="contactInput" class="form-label">Email or Phone Number *</label>
+                <input type="text" id="contactInput" class="form-input" placeholder="e.g. sara@bluenile.com or 0911234567" required />
+              </div>
+
+              <div class="form-group">
+                <label for="tablesInput" class="form-label">Approximate Number of Tables</label>
+                <select id="tablesInput" class="form-select">
+                  <option value="1-10">1 &ndash; 10 tables (Boutique / Coffee Bar)</option>
+                  <option value="11-25" selected>11 &ndash; 25 tables (Mid-size Cafe / Bistro)</option>
+                  <option value="26-50">26 &ndash; 50 tables (Full Restaurant)</option>
+                  <option value="50+">50+ tables (Multi-zone / Chain)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="notesInput" class="form-label">Special Requirements or Notes (Optional)</label>
+                <textarea id="notesInput" class="form-textarea" placeholder="e.g. We need English &amp; Amharic, plus high-res photo photography setup."></textarea>
+              </div>
+
+              <button type="submit" class="l-btn l-btn--primary form-btn-submit" id="submitLeadBtn">
+                <span>Submit Setup Request</span>
+                <span aria-hidden="true">&rarr;</span>
+              </button>
+
+              <div class="form-notice">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Prototype Preview: This is a client-side prototype demonstration. No information is transmitted to a server or saved to external databases.
+              </div>
+            </form>
+          </div>
+
+          <!-- Honest, Privacy-Aware Confirmation Feedback Box -->
+          <div class="form-success-box" id="leadSuccess" aria-live="polite">
+            <div class="form-success-box__icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h4>Prototype Preview Confirmed</h4>
+            <p>
+              Thank you for exploring the demo setup for <strong id="leadSuccessCafe"></strong>!
+            </p>
+            <div style="background: rgba(22, 78, 56, 0.06); border: 1px solid var(--b-border); border-radius: var(--r-sm); padding: 0.85rem 1rem; margin: 1rem 0; text-align: left; font-size: 0.85rem; color: var(--c-text); line-height: 1.5;">
+              <strong style="color: var(--c-forest); display: flex; align-items: center; gap: 6px; margin-bottom: 0.25rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Client-Side Prototype Notice:
+              </strong>
+              <span>This demonstration was validated locally in your browser. Your request was <strong>NOT</strong> transmitted to CafeMenu or logged on a remote server, and no personal contact details were retained. In the production release, this workflow will submit your venue onboarding inquiry directly to the CafeMenu onboarding team.</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--c-text-muted); margin-top: 0.5rem;">
+              Tour the working Cafe reference menu to experience our camera-first digital dining presentation.
+            </p>
+            <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
+              <a href="/cafe" class="l-btn l-btn--primary">
+                <span>Open Cafe Demo</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+              <button type="button" class="l-btn l-btn--secondary" id="resetFormBtn">
+                <span>Test Another Venue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       8. Footer
+       ======================================================================== -->
+  <footer class="l-footer">
+    <div class="l-wrap">
+      <div class="l-footer__grid">
+        <!-- Brand Info -->
+        <div>
+          <a class="l-footer__brand" href="/">
+            <span aria-hidden="true" style="display:inline-flex;align-items:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                <line x1="6" y1="2" x2="6" y2="4"/>
+                <line x1="10" y1="2" x2="10" y2="4"/>
+                <line x1="14" y1="2" x2="14" y2="4"/>
+              </svg>
+            </span>
+            <span style="font-family: var(--font-serif); font-weight: 700;">CafeMenu.</span>
+          </a>
+          <p class="l-footer__desc">
+            The next-generation digital menu platform empowering cafes, bistros, and restaurants with contactless, visual smartphone menus.
+          </p>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="l-footer__col">
+          <h4>Platform</h4>
+          <ul class="l-footer__links">
+            <li><a href="#features">Platform Features</a></li>
+            <li><a href="/cafe">Cafe Live Demo &#8599;</a></li>
+            <li><a href="#designs">Design Showcase</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#contact">Contact &amp; Onboarding</a></li>
+          </ul>
+        </div>
+
+        <!-- Venue Management -->
+        <div class="l-footer__col">
+          <h4>Cafe Management</h4>
+          <ul class="l-footer__links">
+            <li><a href="/admin">Cafe Owner Dashboard &rarr;</a></li>
+            <li><a href="/admin">Table QR Code Studio &rarr;</a></li>
+            <li><a href="/cafe">Customer Menu View &rarr;</a></li>
+            <li><span style="color: #10b981; font-size: 0.82rem; font-weight: 700;">&#9679; Platform Status: Operational</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="l-footer__bottom">
+        <div>&copy; 2026 CafeMenu Platform. All rights reserved.</div>
+        <div>
+          <span>Preserving culinary tradition through modern digital craft.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Landing Page Script -->
+  <script src="/js/landing.js"></script>
+</body>
+</html>

@@ -63,7 +63,8 @@
   }
 
   function iconOptions(selected) {
-    return window.CategoryIconKeys
+    const keys = window.CategoryIconKeys || (window.categoryVideoMap ? Object.keys(window.categoryVideoMap) : ['coffee']);
+    return keys
       .map((key) => `<option value="${key}"${key === selected ? ' selected' : ''}>${key}</option>`)
       .join('');
   }
@@ -157,7 +158,7 @@
   function updateTableQrStudio() {
     if (!els.adminQrPreview) return;
     const table = els.adminTableSelect ? els.adminTableSelect.value : state.selectedTable;
-    const url = `${window.location.origin}/?table=${encodeURIComponent(table)}`;
+    const url = `${window.location.origin}/abol-cafe?table=${encodeURIComponent(table)}`;
     els.adminQrPreview.src = `/qr.png?url=${encodeURIComponent(url)}&size=300`;
     if (els.adminQrUrl) els.adminQrUrl.textContent = url;
   }
@@ -340,11 +341,11 @@
          <label class="field"><span>Badge</span>
            <select name="badge">
              <option value="">None</option>
-             <option value="Popular">Popular 🔥</option>
-             <option value="Spicy">Spicy 🌶️</option>
-             <option value="New">New ✨</option>
-             <option value="Signature">Signature ⭐</option>
-             <option value="Veg">Vegetarian 🌱</option>
+             <option value="Popular">Popular</option>
+             <option value="Spicy">Spicy</option>
+             <option value="New">New</option>
+             <option value="Signature">Signature</option>
+             <option value="Veg">Vegetarian</option>
            </select>
          </label>
        </div>
@@ -419,7 +420,7 @@
     if (els.adminPrintTableBtn) {
       els.adminPrintTableBtn.addEventListener('click', () => {
         const table = els.adminTableSelect ? els.adminTableSelect.value : state.selectedTable;
-        window.open(`/?table=${encodeURIComponent(table)}`, '_blank');
+        window.open(`/abol-cafe?table=${encodeURIComponent(table)}`, '_blank');
       });
     }
 

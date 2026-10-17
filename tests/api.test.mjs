@@ -70,10 +70,54 @@ test('serves the seed menu and the static pages', async () => {
   assert.equal(menu.body.categories.length, 7);
   assert.ok(menu.body.categories.every((category) => category.items.length > 0));
 
-  for (const page of ['/', '/admin', '/css/style.css', '/js/admin.js']) {
+  for (const page of ['/', '/abol-cafe', '/admin', '/css/style.css', '/js/admin.js', '/css/landing.css', '/js/landing.js']) {
     const response = await fetch(BASE + page);
     assert.equal(response.status, 200, `${page} should be served`);
   }
+});
+
+test('serves the CafeMenu central landing page at /', async () => {
+  const response = await fetch(`${BASE}/`);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.ok(html.includes('CafeMenu'), 'Page should include CafeMenu wordmark');
+  assert.ok(html.includes('Turn Every Table into an'), 'Page should include hero title');
+  assert.ok(html.includes('Experience the Digital Cafe Menu') || html.includes('Digital Cafe Menu'), 'Page should include live demo section');
+});
+
+test('serves the customer menu at /abol-cafe', async () => {
+  const response = await fetch(`${BASE}/abol-cafe`);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.ok(html.includes('id="cafeName"'), 'Page should render cafe header');
+  assert.ok(html.includes('menu-view-badge'), 'Page should render digital menu view badge');
+});
+
+test('redirects legacy /index and /index.html to /abol-cafe', async () => {
+  for (const path of ['/index', '/index.html']) {
+    const response = await fetch(`${BASE}${path}`, { redirect: 'manual' });
+    assert.equal(response.status, 301, `${path} should return 301 redirect`);
+    assert.equal(response.headers.get('location'), '/abol-cafe');
+  }
+});
+
+test('returns HTTP 404 and branded page for unknown cafe routes', async () => {
+  const response = await fetch(`${BASE}/cafe9`, {
+    headers: { Accept: 'text/html' },
+  });
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  assert.ok(html.includes('Cafe Not Found'), 'Page should state Cafe Not Found');
+  assert.ok(html.includes('Return to CafeMenu'), 'Page should link back to landing page');
+});
+
+test('builds a default QR code pointing to /abol-cafe when no url query is passed', async () => {
+  const response = await fetch(`${BASE}/qr.png`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /image\/png/);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  assert.ok(bytes.length > 500);
+  assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
 });
 
 test('keeps the menu data file private', async () => {

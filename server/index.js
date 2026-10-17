@@ -12,7 +12,28 @@ const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 app.use(express.json({ limit: '256kb' }));
-app.use(express.static(PUBLIC_DIR, { extensions: ['html'] }));
+
+/* ------------------------------------------------------------------ *
+ * Page Routes
+ * ------------------------------------------------------------------ */
+
+/** Central CafeMenu marketing landing page */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
+});
+
+/** Live demo Cafe digital menu (supports both /cafe and /abol-cafe) */
+app.get(['/cafe', '/abol-cafe'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+});
+
+/** Redirect legacy /index or /index.html aliases to the preserved Abol Cafe menu */
+app.get(['/index', '/index.html'], (req, res) => {
+  res.redirect(301, '/abol-cafe');
+});
+
+// Static assets (css, js, images, videos, admin.html)
+app.use(express.static(PUBLIC_DIR, { index: false, extensions: ['html'] }));
 
 /* ------------------------------------------------------------------ *
  * Public API
@@ -26,9 +47,9 @@ app.get('/api/menu', (req, res) => {
   res.json(store.get());
 });
 
-/** PNG QR code the cafe can print: /qr.png?url=https://example.com */
+/** PNG QR code the cafe can print: /qr.png?url=https://example.com/abol-cafe */
 app.get('/qr.png', async (req, res) => {
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/abol-cafe`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -219,6 +240,48 @@ app.post('/api/admin/reset', (req, res) => {
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Unknown API route.' }));
 
+/** Unknown cafe / page routes return 404 without serving landing page as if cafe exists */
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.accepts('html')) {
+    return res.status(404).send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Cafe Not Found &mdash; CafeMenu</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+          body { display: grid; place-items: center; min-height: 100vh; text-align: center; background: #0e0a07; color: #fff8f0; font-family: sans-serif; }
+          .error-box { max-width: 460px; margin: 2rem; padding: 2.5rem; background: #17110c; border: 1px solid rgba(230,146,60,0.3); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+          h1 { color: #fbbf24; margin-top: 0; font-size: 1.8rem; }
+          p { color: #a8988a; line-height: 1.6; font-size: 0.95rem; }
+          .btn { display: inline-block; margin-top: 1rem; padding: 0.65rem 1.4rem; background: #e6923c; color: #1a0e05; border-radius: 999px; font-weight: 700; text-decoration: none; }
+          .btn:hover { background: #f59e0b; }
+        </style>
+      </head>
+      <body>
+        <div class="error-box">
+          <div style="margin-bottom: 1rem; color: #fbbf24;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin: 0 auto; display: block;">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="2" x2="6" y2="4"/>
+              <line x1="10" y1="2" x2="10" y2="4"/>
+              <line x1="14" y1="2" x2="14" y2="4"/>
+            </svg>
+          </div>
+          <h1>Cafe Not Found</h1>
+          <p>The cafe digital menu you requested does not exist or has not been configured yet.</p>
+          <a class="btn" href="/">Return to CafeMenu</a>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+  return res.status(404).send('Not found');
+});
+
 app.use((error, req, res, next) => {
   console.error('[server]', error);
   if (res.headersSent) return next(error);
@@ -227,8 +290,9 @@ app.use((error, req, res, next) => {
 
 store.load();
 app.listen(PORT, () => {
-  console.log(`\n  \u2615  Prism Cafe QR menu`);
-  console.log(`     Menu    http://localhost:${PORT}/`);
-  console.log(`     Admin   http://localhost:${PORT}/admin`);
-  console.log(`     Data    ${store.MENU_FILE}\n`);
+  console.log(`\n     CafeMenu Digital Platform`);
+  console.log(`     Landing    http://localhost:${PORT}/`);
+  console.log(`     Abol Cafe  http://localhost:${PORT}/abol-cafe`);
+  console.log(`     Admin      http://localhost:${PORT}/admin`);
+  console.log(`     Data       ${store.MENU_FILE}\n`);
 });
