@@ -3,29 +3,30 @@ import {
   ChevronLeftIcon,
   HeartIcon,
   StarIcon,
-  PlusIcon,
-  MinusIcon,
-  ShoppingBagIcon,
   FlameIcon,
+  XIcon,
 } from '../common/Icons.jsx';
 
-export default function DishDetailModal({ dish, onClose, onAddToOrder, currency = '$' }) {
-  const [quantity, setQuantity] = useState(1);
+export default function DishDetailModal({ dish, onClose, currency = '$', onToast }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   if (!dish) return null;
 
   const formattedPrice =
     typeof dish.price === 'number'
-      ? `${dish.currency || currency}${(dish.price * quantity).toFixed(2)}`
+      ? `${dish.currency || currency}${dish.price.toFixed(2)}`
       : `${dish.price} ${dish.currency || currency}`;
 
   const rating = dish.rating || 4.8;
   const reviews = dish.reviews || 120;
   const tags = dish.tags && dish.tags.length > 0 ? dish.tags : ['Chef Special', 'Freshly Prepared'];
 
-  const handleOrder = () => {
-    onAddToOrder(dish, quantity);
+  const toggleFavorite = () => {
+    const nextFav = !isFavorite;
+    setIsFavorite(nextFav);
+    if (onToast) {
+      onToast(nextFav ? `Saved ${dish.name} to favorites` : `Removed ${dish.name} from favorites`);
+    }
   };
 
   return (
@@ -54,15 +55,15 @@ export default function DishDetailModal({ dish, onClose, onAddToOrder, currency 
               type="button"
               class="cm-circle-btn"
               onClick={onClose}
-              aria-label="Go back"
+              aria-label="Close details"
             >
               <ChevronLeftIcon size={20} />
             </button>
             <button
               type="button"
               class="cm-circle-btn"
-              onClick={() => setIsFavorite(!isFavorite)}
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              onClick={toggleFavorite}
+              aria-label={isFavorite ? 'Remove from favorites' : 'Save to favorites'}
               style={{ color: isFavorite ? '#ef4444' : '#ffffff' }}
             >
               <HeartIcon size={18} filled={isFavorite} />
@@ -102,39 +103,17 @@ export default function DishDetailModal({ dish, onClose, onAddToOrder, currency 
             ))}
           </div>
 
-          {/* Quantity Stepper */}
-          <div class="cm-modal-quantity-row">
-            <span class="cm-quantity-label">Quantity</span>
-            <div class="cm-stepper">
-              <button
-                type="button"
-                class="cm-stepper-btn"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                aria-label="Decrease quantity"
-              >
-                <MinusIcon size={14} />
-              </button>
-              <span class="cm-stepper-value">{quantity}</span>
-              <button
-                type="button"
-                class="cm-stepper-btn"
-                onClick={() => setQuantity(quantity + 1)}
-                aria-label="Increase quantity"
-              >
-                <PlusIcon size={14} />
-              </button>
-            </div>
+          {/* View-only Close / Back action */}
+          <div style={{ marginTop: '1.2rem', paddingTop: '0.8rem' }}>
+            <button
+              type="button"
+              class="cm-btn-order"
+              onClick={onClose}
+              aria-label="Back to menu"
+            >
+              <span>Back to Menu</span>
+            </button>
           </div>
-
-          {/* Add to Order Button */}
-          <button
-            type="button"
-            class="cm-btn-order"
-            onClick={handleOrder}
-          >
-            <ShoppingBagIcon size={18} />
-            <span>Add to Order &bull; {formattedPrice}</span>
-          </button>
         </div>
       </div>
     </div>

@@ -47,30 +47,21 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Mobile Viewport Container */
+/* Mobile Viewport Container - Base Phone Experience (< 768px) */
 .cm-viewport {
   width: 100%;
-  max-width: 440px;
+  max-width: 100%;
   min-height: 100vh;
   background-color: #ffffff;
   position: relative;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-@media (min-width: 480px) {
-  .cm-app {
-    padding: 1.5rem 0;
-    background: #0d0f12 radial-gradient(circle at top, rgba(230, 146, 60, 0.08), transparent 60%);
-  }
-  .cm-viewport {
-    border-radius: 36px;
-    border: 8px solid #1a1c20;
-    min-height: 880px;
-    height: 92vh;
-  }
+/* Desktop navigation hidden on mobile phone */
+.cm-desktop-nav {
+  display: none;
 }
 
 /* iOS Status Bar */
@@ -867,3 +858,391 @@
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* ==========================================================================
+   11. Tablet Responsive Layout (768px - 1023px)
+   Does NOT alter the mobile phone experience (< 768px)
+   ========================================================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cm-app {
+    background-color: #f1f3f5;
+    padding: 1.5rem 1rem;
+    align-items: center;
+  }
+
+  .cm-viewport {
+    max-width: 760px;
+    border-radius: 24px;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08);
+    min-height: 90vh;
+    border: 1px solid var(--cm-border-strong);
+  }
+
+  /* Hide iOS Phone Status Bar on Tablet */
+  .cm-status-bar {
+    display: none !important;
+  }
+
+  /* Header & Desktop Nav */
+  .cm-header,
+  .cm-category-nav-header {
+    padding: 1.1rem 1.8rem;
+    border-bottom: 1px solid var(--cm-border);
+  }
+
+  .cm-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cm-desktop-nav-link {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #4b5563;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--cm-radius-pill);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .cm-desktop-nav-link:hover {
+    color: #111827;
+    background: #f3f4f6;
+  }
+
+  .cm-desktop-nav-link.is-active {
+    color: #ffffff;
+    background: var(--cm-btn-dark);
+  }
+
+  /* Hero Banner */
+  .cm-hero-banner {
+    margin: 1.2rem 1.8rem 1.4rem;
+    min-height: 170px;
+    border-radius: 20px;
+  }
+  .cm-hero-banner-content {
+    padding: 1.8rem;
+  }
+  .cm-hero-banner-title {
+    font-size: 1.85rem;
+  }
+  .cm-hero-banner-sub {
+    font-size: 0.92rem;
+  }
+
+  /* Search Container */
+  .cm-search-container {
+    padding: 0 1.8rem 1.2rem;
+  }
+  .cm-search-box {
+    padding: 0.65rem 1.2rem;
+  }
+
+  /* Category Filter Pills */
+  .cm-category-pills {
+    padding: 0 1.8rem 1.3rem;
+    gap: 0.65rem;
+  }
+  .cm-pill {
+    padding: 0.55rem 1.35rem;
+    font-size: 0.88rem;
+  }
+
+  /* Section Head */
+  .cm-section-head {
+    padding: 0.4rem 1.8rem 1rem;
+  }
+  .cm-section-title {
+    font-size: 1.25rem;
+  }
+
+  /* 2-COLUMN DISH GRID ON TABLET */
+  .cm-dish-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 1.8rem 2.5rem;
+  }
+
+  .cm-dish-card {
+    padding: 0.85rem;
+  }
+  .cm-dish-thumb {
+    width: 82px;
+    height: 82px;
+  }
+  .cm-dish-name {
+    font-size: 1rem;
+  }
+
+  /* Category View on Tablet */
+  .cm-category-banner {
+    margin: 0.8rem 1.8rem 1.4rem;
+    height: 150px;
+    border-radius: 20px;
+  }
+  .cm-category-banner-title {
+    font-size: 1.9rem;
+  }
+  .cm-subcategories {
+    padding: 0 1.8rem 1.2rem;
+    gap: 0.5rem;
+  }
+
+  /* Centered Lightbox Modal on Tablet */
+  .cm-modal-backdrop {
+    position: fixed;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .cm-modal-sheet {
+    max-width: 520px;
+    width: 100%;
+    border-radius: 24px;
+    max-height: 88vh;
+    animation: cmFadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cm-modal-hero {
+    height: 270px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  /* Bottom Nav */
+  .cm-bottom-nav {
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+/* ==========================================================================
+   12. PC / Desktop Responsive Layout (>= 1024px)
+   Does NOT alter the mobile phone experience (< 768px)
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .cm-app {
+    background-color: #f3f4f6;
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 24px 24px;
+    padding: 2.5rem 1.5rem;
+    align-items: center;
+  }
+
+  .cm-viewport {
+    max-width: 1140px;
+    margin: 0 auto;
+    border-radius: 28px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+    min-height: 90vh;
+    border: 1px solid var(--cm-border-strong);
+  }
+
+  /* Hide iOS Phone Status Bar on PC */
+  .cm-status-bar {
+    display: none !important;
+  }
+
+  /* Header & Desktop Nav */
+  .cm-header,
+  .cm-category-nav-header {
+    padding: 1.3rem 2.4rem;
+    border-bottom: 1px solid var(--cm-border);
+  }
+
+  .cm-brand-name {
+    font-size: 1.55rem;
+  }
+
+  .cm-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .cm-desktop-nav-link {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #4b5563;
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--cm-radius-pill);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .cm-desktop-nav-link:hover {
+    color: #111827;
+    background: #f3f4f6;
+  }
+
+  .cm-desktop-nav-link.is-active {
+    color: #ffffff;
+    background: var(--cm-btn-dark);
+  }
+
+  /* Desktop Screen Content */
+  .cm-screen-content {
+    padding-bottom: 3rem; /* No floating mobile bottom nav needed on PC */
+  }
+
+  /* Hero Banner */
+  .cm-hero-banner {
+    margin: 1.6rem 2.4rem 1.8rem;
+    min-height: 210px;
+    border-radius: 24px;
+  }
+  .cm-hero-banner-content {
+    padding: 2.4rem 2.8rem;
+  }
+  .cm-hero-banner-title {
+    font-size: 2.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .cm-hero-banner-sub {
+    font-size: 1.05rem;
+  }
+
+  /* Search Container */
+  .cm-search-container {
+    padding: 0 2.4rem 1.4rem;
+  }
+  .cm-search-box {
+    max-width: 520px;
+    padding: 0.75rem 1.3rem;
+  }
+  .cm-search-input {
+    font-size: 0.95rem;
+  }
+
+  /* Category Filter Pills */
+  .cm-category-pills {
+    padding: 0 2.4rem 1.6rem;
+    gap: 0.8rem;
+  }
+  .cm-pill {
+    padding: 0.65rem 1.6rem;
+    font-size: 0.92rem;
+  }
+
+  /* Section Head */
+  .cm-section-head {
+    padding: 0.5rem 2.4rem 1.2rem;
+  }
+  .cm-section-title {
+    font-size: 1.4rem;
+  }
+  .cm-section-link {
+    font-size: 0.92rem;
+  }
+
+  /* 3-COLUMN DISH GRID ON PC / DESKTOP */
+  .cm-dish-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    padding: 0 2.4rem 3.5rem;
+  }
+
+  .cm-dish-card {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+  .cm-dish-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+  }
+  .cm-dish-thumb {
+    width: 86px;
+    height: 86px;
+  }
+  .cm-dish-name {
+    font-size: 1.05rem;
+  }
+  .cm-dish-desc {
+    font-size: 0.82rem;
+  }
+  .cm-dish-price {
+    font-size: 1rem;
+  }
+
+  /* Category View on PC */
+  .cm-category-banner {
+    margin: 1.2rem 2.4rem 1.6rem;
+    height: 180px;
+    border-radius: 24px;
+    padding: 2rem;
+  }
+  .cm-category-banner-title {
+    font-size: 2.2rem;
+  }
+  .cm-category-banner-sub {
+    font-size: 1.05rem;
+  }
+  .cm-subcategories {
+    padding: 0 2.4rem 1.5rem;
+    gap: 0.65rem;
+  }
+  .cm-sub-pill {
+    padding: 0.45rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  /* Centered Lightbox Modal on PC */
+  .cm-modal-backdrop {
+    position: fixed;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+
+  .cm-modal-sheet {
+    max-width: 580px;
+    width: 100%;
+    border-radius: 26px;
+    max-height: 86vh;
+    animation: cmFadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cm-modal-hero {
+    height: 290px;
+    border-radius: 26px 26px 0 0;
+  }
+
+  .cm-modal-body {
+    padding: 1.8rem 2rem 2.2rem;
+  }
+
+  .cm-modal-title {
+    font-size: 1.7rem;
+  }
+  .cm-modal-price {
+    font-size: 1.55rem;
+  }
+
+  /* Hide Bottom Nav on PC as Top Header handles it */
+  .cm-bottom-nav {
+    display: none;
+  }
+}
+
+/* Modal Scale-in Animation for Tablet & PC */
+@keyframes cmFadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+

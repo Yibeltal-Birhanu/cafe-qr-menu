@@ -16,7 +16,6 @@ export default function MenuApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDish, setSelectedDish] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-  const [orderCount, setOrderCount] = useState(0);
   const [apiMenu, setApiMenu] = useState(null);
   const toastTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -103,12 +102,6 @@ export default function MenuApp() {
     setActiveTab('home');
   };
 
-  const handleAddToOrder = (dish, qty) => {
-    setOrderCount((prev) => prev + qty);
-    setSelectedDish(null);
-    showToast(`Added ${qty}x ${dish.name} to order!`);
-  };
-
   const focusSearch = () => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
@@ -130,6 +123,16 @@ export default function MenuApp() {
         <MenuHeader
           cafeName={cafeName}
           activeCategory={activeCategory}
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'home') {
+              setActiveCategory(null);
+              setSearchQuery('');
+            } else if (tab === 'menu' && !activeCategory) {
+              setActiveCategory(categories[0]);
+            }
+          }}
           onBack={handleBackToHome}
           onSearchClick={focusSearch}
           tableNumber="04"
@@ -313,7 +316,7 @@ export default function MenuApp() {
           <DishDetailModal
             dish={selectedDish}
             onClose={() => setSelectedDish(null)}
-            onAddToOrder={handleAddToOrder}
+            onToast={showToast}
             currency={selectedDish.currency || '$'}
           />
         )}
