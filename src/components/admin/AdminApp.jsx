@@ -7,7 +7,7 @@ import AdminItemsTable from './AdminItemsTable.jsx';
 import AdminRightSidebar from './AdminRightSidebar.jsx';
 import QrTemplatesView from './QrTemplatesView.jsx';
 import VenueSettings from './VenueSettings.jsx';
-import CategoryDishManager from './CategoryDishManager.jsx';
+import CategoryManagerView from './CategoryManagerView.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
 import AdminLogin from './AdminLogin.jsx';
 import { CalendarIcon, PlusIcon } from './AdminIcons.jsx';
@@ -433,30 +433,14 @@ export default function AdminApp() {
         {activeTab === 'categories' && (
           <div class="ad-content-wrapper">
             <div class="ad-content-left">
-              <div class="ad-panel-card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 class="ad-card-title">Manage Categories</h3>
-                  <p class="ad-card-sub">Create, rename, reorder, or remove food categories</p>
-                </div>
-                <button
-                  type="button"
-                  class="ad-btn-add"
-                  onClick={handleOpenAddCategory}
-                >
-                  <PlusIcon size={16} />
-                  <span>Add Category</span>
-                </button>
-              </div>
-
-              <CategoryDishManager
+              <CategoryManagerView
                 categories={categories}
                 currency={cafe.currency || 'ETB'}
-                onUpdateCategory={handleOpenEditCategory}
+                onAddCategory={handleOpenAddCategory}
+                onEditCategory={handleOpenEditCategory}
                 onDeleteCategory={handleDeleteCategory}
                 onReorderCategories={handleReorderCategories}
                 onAddDish={(catId) => handleOpenAddDish(catId)}
-                onUpdateDish={handleOpenEditDish}
-                onDeleteDish={handleDeleteDish}
               />
             </div>
             <AdminRightSidebar
