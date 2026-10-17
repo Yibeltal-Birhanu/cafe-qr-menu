@@ -454,32 +454,14 @@ export default function AdminApp() {
         {/* Dedicated Settings View */}
         {activeTab === 'settings' && (
           <div class="ad-content-wrapper">
-            <div class="ad-content-left">
-              <div class="ad-panel-card" style={{ marginBottom: '1.5rem' }}>
-                <VenueSettings cafe={cafe} onSaveCafe={handleSaveCafe} />
-              </div>
-
-              <div class="ad-panel-card" style={{ borderLeft: '4px solid #ef4444' }}>
-                <h3 class="ad-card-title" style={{ color: '#ef4444' }}>Danger Zone</h3>
-                <p class="ad-card-sub" style={{ marginBottom: '1rem' }}>
-                  Restores the default sample menu (Burgers, Pizza, Coffee, Breakfast, Desserts, Drinks) and clears modifications.
-                </p>
-                <button
-                  type="button"
-                  class="ad-btn-action-primary"
-                  id="resetBtn"
-                  onClick={handleResetSampleMenu}
-                  style={{ background: '#ef4444', maxWidth: '240px' }}
-                >
-                  Reset to Sample Menu
-                </button>
-              </div>
+            <div class="ad-content-left" style={{ flex: 1, width: '100%' }}>
+              <VenueSettings
+                cafe={cafe}
+                onSaveCafe={handleSaveCafe}
+                onResetSampleMenu={handleResetSampleMenu}
+                onShowToast={showToast}
+              />
             </div>
-            <AdminRightSidebar
-              onAddDish={() => handleOpenAddDish()}
-              onManageCategories={() => setActiveTab('categories')}
-              onOpenQrTemplates={() => setActiveTab('templates')}
-            />
           </div>
         )}
       </main>
