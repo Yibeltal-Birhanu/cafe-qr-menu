@@ -195,8 +195,66 @@ async function loadAllFromMySQL() {
   }
 }
 
+
+async function loadCafeFromMySQL(slug) {
+  try {
+
+    const [cafes] = await pool.query('SELECT * FROM cafes WHERE slug = ?', [slug]);
+    if (cafes.length === 0) return null;
+    const cafe = cafes[0];
+    const [categories] = await pool.query('SELECT * FROM categories WHERE cafeId = ? ORDER BY sortOrder ASC', [cafe.id]);
+    const [items] = await pool.query('SELECT * FROM items WHERE cafeId = ? ORDER BY sortOrder ASC', [cafe.id]);
+    const catMap = categories.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      icon: cat.icon,
+      description: cat.description,
+      items: items
+        .filter((it) => it.categoryId === cat.id)
+        .map((it) => ({
+          id: it.id,
+          name: it.name,
+          description: it.description,
+          image: it.image || '',
+          price: Number(it.price) || 0,
+          badge: it.badge || '',
+          prepTime: it.prepTime || '',
+          dietary: it.dietary || '',
+          available: Boolean(it.available),
+        })),
+    }));
+    const shaped = ensureShape({
+      cafe: {
+        id: cafe.id,
+        slug: cafe.slug,
+        name: cafe.name,
+        tagline: cafe.tagline,
+        currency: cafe.currency,
+        footer: cafe.footer,
+        logo: cafe.logo,
+        phone: cafe.phone,
+        wifi_ssid: cafe.wifi_ssid,
+        wifi_pass: cafe.wifi_pass,
+        status: cafe.status,
+        theme: cafe.theme
+          ? typeof cafe.theme === 'string'
+            ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()
+            : cafe.theme
+          : null,
+      },
+      categories: catMap,
+    });
+    menus.set(slug, shaped);
+    return shaped;
+  } catch (err) {
+    console.warn(`[store] Could not load cafe ${slug} from DB:`, err.message);
+    return null;
+  }
+}
+
 function load(slug = 'abol-cafe') {
   loadAllFromMySQL().catch(() => {});
+
   if (slug === 'abol-cafe') {
     try {
       const raw = fs.readFileSync(MENU_FILE, 'utf8');
@@ -381,6 +439,8 @@ module.exports = {
   save,
   update,
   reset,
+  loadAllFromMySQL,
+  loadCafeFromMySQL,
   findCategory,
   findItem,
   newId,
@@ -396,3 +456,4 @@ module.exports = {
   deleteCafe,
   MENU_FILE,
 };
+

@@ -46,6 +46,10 @@ export default function AdminApp() {
     }, 2800);
   }, []);
 
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedCafeSlug, setSelectedCafeSlug] = useState('abol-cafe');
+  const [availableCafes, setAvailableCafes] = useState([]);
+
   // API Helper
   const apiCall = useCallback(
     async (path, options = {}) => {
@@ -54,6 +58,7 @@ export default function AdminApp() {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(selectedCafeSlug ? { 'x-cafe-slug': selectedCafeSlug } : {}),
           ...options.headers,
         },
       };
@@ -79,25 +84,24 @@ export default function AdminApp() {
       }
       return data;
     },
-    [token, showToast]
+    [token, selectedCafeSlug, showToast]
   );
-
-  const [currentUser, setCurrentUser] = useState(null);
-  const [selectedCafeSlug, setSelectedCafeSlug] = useState('abol-cafe');
-  const [availableCafes, setAvailableCafes] = useState([]);
 
   // Load Menu for designated tenant cafe
   const loadMenu = useCallback(async (slug = '') => {
     try {
       const activeSlug = slug || selectedCafeSlug;
       const query = activeSlug ? `?cafe=${encodeURIComponent(activeSlug)}` : '';
-      const data = await apiCall(`/api/admin/menu${query}`);
+      const data = await apiCall(`/api/admin/menu${query}`, {
+        headers: activeSlug ? { 'x-cafe-slug': activeSlug } : {},
+      });
       setMenu(data);
     } catch (err) {
       console.error('Menu load error:', err);
       showToast('Failed to load menu: ' + err.message, true);
     }
   }, [apiCall, selectedCafeSlug, showToast]);
+
 
   // Verify Session & Resolve Scoped Cafe
   const verifySession = useCallback(async (customToken = null) => {
@@ -204,10 +208,13 @@ export default function AdminApp() {
   };
 
   const handleSwitchCafe = async (newSlug) => {
+    if (!newSlug) return;
     setSelectedCafeSlug(newSlug);
     await loadMenu(newSlug);
+    setActiveTab('dashboard');
     showToast(`Switched venue to ${newSlug}`);
   };
+
 
   const cafe = menu?.cafe || {
     name: 'CafeMenu',

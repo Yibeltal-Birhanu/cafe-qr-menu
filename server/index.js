@@ -60,16 +60,27 @@ app.get('/api/health', (req, res) => {
 });
 
 /** Default menu endpoint for backward compatibility */
-app.get('/api/menu', (req, res) => {
+app.get('/api/menu', async (req, res) => {
   const tenant = req.query.cafe || 'abol-cafe';
-  res.json(store.get(tenant));
+  let data = store.get(tenant);
+  if (!data || (data.categories.length === 0 && tenant !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(tenant);
+    if (dbData) data = dbData;
+  }
+  res.json(data);
 });
 
 /** Multi-tenant scoped public menu */
-app.get('/api/:cafeSlug/menu', (req, res, next) => {
+app.get('/api/:cafeSlug/menu', async (req, res, next) => {
   if (['auth', 'admin', 'superadmin', 'health', 'menu'].includes(req.params.cafeSlug)) return next();
-  res.json(store.get(req.params.cafeSlug));
+  let data = store.get(req.params.cafeSlug);
+  if (!data || (data.categories.length === 0 && req.params.cafeSlug !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(req.params.cafeSlug);
+    if (dbData) data = dbData;
+  }
+  res.json(data);
 });
+
 
 /** PNG QR code default (supports optional ?table=N query parameter) */
 app.get('/qr.png', async (req, res) => {
@@ -219,7 +230,11 @@ async function resolveAdminTenant(req, res, next) {
   // Super Administrator or legacy test token
   if (req.user && (req.user.role === 'superadmin' || req.user.id === 'legacy-admin')) {
     req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
-    const data = store.get(req.cafeSlug);
+    let data = store.get(req.cafeSlug);
+    if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
+      const dbData = await store.loadCafeFromMySQL(req.cafeSlug);
+      if (dbData) data = dbData;
+    }
     req.cafe = data ? data.cafe : null;
     return next();
   }
@@ -236,16 +251,26 @@ async function resolveAdminTenant(req, res, next) {
       return res.status(403).json({ error: 'You do not have permission to manage this cafe.' });
     }
 
+    let data = store.get(userCafe.slug);
+    if (!data || (data.categories.length === 0 && userCafe.slug !== 'abol-cafe')) {
+      const dbData = await store.loadCafeFromMySQL(userCafe.slug);
+      if (dbData) data = dbData;
+    }
     req.cafe = userCafe;
     req.cafeSlug = userCafe.slug;
     return next();
   }
 
   req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
-  const data = store.get(req.cafeSlug);
+  let data = store.get(req.cafeSlug);
+  if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(req.cafeSlug);
+    if (dbData) data = dbData;
+  }
   req.cafe = data ? data.cafe : null;
   return next();
 }
+
 
 /* Everything below requires a valid session token (Better Auth or Legacy). */
 app.use('/api/admin', requireAuth, resolveAdminTenant);
@@ -546,7 +571,9 @@ app.use((error, req, res, next) => {
 });
 
 store.load('abol-cafe');
+store.loadAllFromMySQL().catch((e) => console.warn('[boot] loadAllFromMySQL notice:', e.message));
 bootstrapSuperAdmin();
+
 
 if (require.main === module) {
   app.listen(PORT, () => {
