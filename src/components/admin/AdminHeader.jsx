@@ -20,7 +20,7 @@ export default function AdminHeader({
   const displayRole = user?.role === 'superadmin' ? 'Super Admin' : (user?.role === 'manager' ? 'Cafe Manager' : 'Administrator');
   const avatarInitial = displayName.charAt(0).toUpperCase();
   const currentSlug = cafeSlug || cafe?.slug || 'abol-cafe';
-  const liveMenuUrl = `/${currentSlug}`;
+  const liveMenuUrl = currentSlug === 'abol-cafe' ? '/abol-cafe' : `/cafe/${currentSlug}`;
 
   return (
     <header className="ad-topbar">

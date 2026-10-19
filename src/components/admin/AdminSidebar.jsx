@@ -1,14 +1,20 @@
 import React from 'react';
-import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon } from './AdminIcons.jsx';
+import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon, ShieldIcon } from './AdminIcons.jsx';
 
-export default function AdminSidebar({ activeTab, onSelectTab, cafe }) {
+export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser }) {
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+
   const navItems = [
+    ...(isSuperAdmin
+      ? [{ id: 'platform', label: 'Platform Hub', icon: <ShieldIcon size={18} /> }]
+      : []),
     { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon size={18} /> },
     { id: 'items', label: 'Menu Items', icon: <BookOpenIcon size={18} /> },
     { id: 'categories', label: 'Categories', icon: <GridIcon size={18} /> },
     { id: 'templates', label: 'QR Templates', icon: <QrCodeIcon size={18} /> },
     { id: 'settings', label: 'Settings', icon: <SettingsIcon size={18} /> },
   ];
+
 
   return (
     <aside class="ad-sidebar" aria-label="Admin Navigation">

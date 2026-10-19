@@ -10,7 +10,9 @@ import VenueSettings from './VenueSettings.jsx';
 import CategoryManagerView from './CategoryManagerView.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
 import AdminLogin from './AdminLogin.jsx';
+import SuperAdminDashboard from './SuperAdminDashboard.jsx';
 import { CalendarIcon, PlusIcon } from './AdminIcons.jsx';
+
 
 const TOKEN_KEY = 'cafe-menu-admin-token';
 
@@ -120,9 +122,11 @@ export default function AdminApp() {
             const cafesRes = await apiCall('/api/admin/cafes');
             setAvailableCafes(cafesRes.cafes || []);
           } catch (_) {}
+          setActiveTab((prev) => (prev === 'dashboard' ? 'platform' : prev));
         }
 
         await loadMenu(tenantSlug);
+
       }
     } catch {
       setIsAuthenticated(false);
@@ -418,6 +422,7 @@ export default function AdminApp() {
 
   // Page title mapping
   const titles = {
+    platform: 'Platform Hub',
     dashboard: 'Dashboard',
     items: 'Menu Items',
     categories: 'Categories',
@@ -426,12 +431,17 @@ export default function AdminApp() {
   };
 
   return (
-    <div class="ad-layout">
+    <div className="ad-layout">
       {/* 1. Left Sidebar */}
-      <AdminSidebar activeTab={activeTab} onSelectTab={setActiveTab} cafe={cafe} />
+      <AdminSidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        cafe={cafe}
+        currentUser={currentUser}
+      />
 
       {/* 2. Main Content Container */}
-      <main class="ad-main">
+      <main className="ad-main">
         {/* Top Header */}
         <AdminHeader
           title={titles[activeTab] || 'Dashboard'}
@@ -446,8 +456,26 @@ export default function AdminApp() {
           onLogout={handleLogout}
         />
 
+        {/* Dedicated Super Admin Platform View */}
+        {activeTab === 'platform' && currentUser?.role === 'superadmin' && (
+          <div className="ad-content-wrapper">
+            <div className="ad-content-left" style={{ flex: 1, width: '100%' }}>
+              <SuperAdminDashboard
+                currentUser={currentUser}
+                onSwitchCafe={(slug) => {
+                  handleSwitchCafe(slug);
+                  setActiveTab('dashboard');
+                }}
+                onShowToast={showToast}
+                apiCall={apiCall}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Tab Views */}
         {activeTab === 'dashboard' && (
+
           <div class="ad-content-wrapper">
             {/* Left Main Dashboard Column */}
             <div class="ad-content-left">
