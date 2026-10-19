@@ -5,6 +5,19 @@
 
 export const THEME_PRESETS = [
   {
+    id: 'showcase',
+    name: 'Classic Showcase (Default)',
+    tagline: 'Modern crisp white, deep pine slate & caramel amber. Clean app showcase.',
+    previewColors: ['#f8f9fa', '#1c2826', '#e6923c'],
+    primaryColor: '#1c2826',
+    accentColor: '#e6923c',
+    backgroundColor: '#f8f9fa',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#111827',
+    fontFamily: 'Plus Jakarta Sans',
+  },
+  {
     id: 'espresso',
     name: 'Roasted Espresso & Amber',
     tagline: 'Velvet mocha, toasted caramel & honey gold.',
@@ -159,6 +172,21 @@ export function applyThemeToDocument(theme) {
     root.style.setProperty('--cm-text-muted', '#a8988a');
     root.style.setProperty('--cm-border', `${effective.primaryColor || '#ffffff'}22`);
     root.style.setProperty('--cm-border-strong', `${effective.primaryColor || '#ffffff'}40`);
+  }
+
+  // Exact classic showcase theme variable mapping
+  if (effective.preset === 'showcase') {
+    root.style.setProperty('--cm-amber', '#e6923c');
+    root.style.setProperty('--cm-star', '#f59e0b');
+    root.style.setProperty('--cm-accent-green', '#10b981');
+    root.style.setProperty('--cm-btn-dark', '#1c2826');
+    root.style.setProperty('--cm-btn-dark-hover', '#273835');
+    root.style.setProperty('--cm-text-dark', '#111827');
+    root.style.setProperty('--cm-text-muted', '#6b7280');
+    root.style.setProperty('--cm-border', '#f0f0f2');
+    root.style.setProperty('--cm-border-strong', '#e5e7eb');
+    root.style.setProperty('--cm-bg', '#f8f9fa');
+    root.style.setProperty('--cm-card-bg', '#ffffff');
   }
 }
 

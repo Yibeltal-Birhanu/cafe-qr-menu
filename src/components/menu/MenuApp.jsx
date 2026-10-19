@@ -196,30 +196,39 @@ export default function MenuApp() {
   };
 
   const cafeLogo = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return 'coffee';
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro') return 'pizza';
     if (slug === 'artisan-patisserie') return 'cake';
     if (slug === 'skyline-lounge') return 'flame';
     return apiMenu?.cafe?.logo || 'coffee';
-  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.logo]);
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.logo, apiMenu?.cafe?.theme?.preset]);
 
   const cafeCoverImage = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/coffee.jpg';
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
     if (slug === 'artisan-patisserie') return '/images/desserts.jpg';
     if (slug === 'skyline-lounge') return '/images/habesha.jpg';
     return categories[0]?.bannerImg || '/images/coffee.jpg';
-  }, [apiMenu?.cafe?.slug, categories]);
+  }, [apiMenu?.cafe?.slug, categories, apiMenu?.cafe?.theme?.preset]);
 
   const heroImage = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/dishes/classic-beef-burger.jpg';
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
     if (slug === 'artisan-patisserie') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
     if (slug === 'skyline-lounge') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
-  }, [apiMenu?.cafe?.slug, allItems]);
+  }, [apiMenu?.cafe?.slug, allItems, apiMenu?.cafe?.theme?.preset]);
 
   const { heroTitle, heroSub } = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') {
+      return {
+        heroTitle: 'Fresh Flavors Every Day',
+        heroSub: 'Quality ingredients, Great taste.',
+      };
+    }
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro') {
       return {
@@ -243,7 +252,7 @@ export default function MenuApp() {
       heroTitle: 'Authentic Habesha & Specialty Roasts',
       heroSub: apiMenu?.cafe?.tagline || 'Direct highland beans & sizzling dining.',
     };
-  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline]);
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline, apiMenu?.cafe?.theme?.preset]);
 
   return (
     <div class="cm-app">
