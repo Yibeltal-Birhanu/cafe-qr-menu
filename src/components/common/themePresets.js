@@ -123,10 +123,42 @@ export function applyThemeToDocument(theme) {
     }
   }
   if (effective.fontFamily) {
+    const isSerif = effective.fontFamily === 'Playfair Display' || effective.fontFamily.toLowerCase().includes('serif');
     root.style.setProperty('--font', `"${effective.fontFamily}", "Plus Jakarta Sans", sans-serif`);
-    if (effective.fontFamily === 'Playfair Display' || effective.fontFamily.toLowerCase().includes('serif')) {
+    if (isSerif) {
       root.style.setProperty('--serif', `"${effective.fontFamily}", Georgia, serif`);
+      root.style.setProperty('--cm-font-serif', `"${effective.fontFamily}", Georgia, serif`);
+    } else {
+      root.style.setProperty('--cm-font-sans', `"${effective.fontFamily}", -apple-system, sans-serif`);
     }
+  }
+
+  // Bind showcase mobile variables so whole customer experience dynamically adapts
+  root.style.setProperty('--cm-bg', effective.backgroundColor || '#0e0a07');
+  if (effective.primaryColor) {
+    root.style.setProperty('--cm-amber', effective.primaryColor);
+    root.style.setProperty('--cm-btn-dark', effective.primaryColor);
+    root.style.setProperty('--cm-btn-dark-hover', effective.accentColor || effective.primaryColor);
+  }
+  if (effective.accentColor) {
+    root.style.setProperty('--cm-star', effective.accentColor);
+    root.style.setProperty('--cm-accent-green', effective.accentColor);
+  }
+
+  if (effective.backgroundMode === 'light') {
+    root.style.setProperty('--cm-card-bg', '#ffffff');
+    root.style.setProperty('--cm-surface-dark', '#18181b');
+    root.style.setProperty('--cm-text-dark', effective.textColor || '#18181b');
+    root.style.setProperty('--cm-text-muted', '#71717a');
+    root.style.setProperty('--cm-border', '#f0f0f2');
+    root.style.setProperty('--cm-border-strong', '#e5e7eb');
+  } else {
+    root.style.setProperty('--cm-card-bg', effective.surfaceColor || 'rgba(28, 20, 15, 0.95)');
+    root.style.setProperty('--cm-surface-dark', effective.backgroundColor || '#0e0a07');
+    root.style.setProperty('--cm-text-dark', effective.textColor || '#fff8f0');
+    root.style.setProperty('--cm-text-muted', '#a8988a');
+    root.style.setProperty('--cm-border', `${effective.primaryColor || '#ffffff'}22`);
+    root.style.setProperty('--cm-border-strong', `${effective.primaryColor || '#ffffff'}40`);
   }
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, SearchIcon, ChevronLeftIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, SearchIcon, ChevronLeftIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
 
 export default function MenuHeader({
   cafeName = 'CafeMenu',
@@ -9,7 +9,23 @@ export default function MenuHeader({
   onBack = null,
   onSearchClick = null,
   tableNumber = '04',
+  logo = 'coffee',
+  theme = null,
 }) {
+  const renderLogo = () => {
+    switch (logo) {
+      case 'pizza':
+        return <PizzaIcon size={24} />;
+      case 'cake':
+      case 'dessert':
+        return <CakeIcon size={24} />;
+      case 'flame':
+      case 'lounge':
+        return <FlameIcon size={24} />;
+      default:
+        return <CoffeeIcon size={24} />;
+    }
+  };
   return (
     <>
       {/* iOS Status Bar (Visible only on native phone screen) */}
@@ -75,8 +91,12 @@ export default function MenuHeader({
         /* Home Header: Logo + CafeMenu + Table / Badge + Desktop Nav */
         <header class="cm-header">
           <div class="cm-brand-group">
-            <span class="cm-welcome-logo" style={{ color: '#111827' }} aria-hidden="true">
-              <CoffeeIcon size={24} />
+            <span
+              class="cm-welcome-logo"
+              style={{ color: theme?.primaryColor || 'var(--cm-amber)' }}
+              aria-hidden="true"
+            >
+              {renderLogo()}
             </span>
             <span class="cm-brand-name" id="cafeName">{cafeName}</span>
           </div>
