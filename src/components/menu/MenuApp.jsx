@@ -7,7 +7,7 @@ import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
-import { applyThemeToDocument } from '../common/themePresets.js';
+import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
 
 export default function MenuApp() {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -256,7 +256,11 @@ export default function MenuApp() {
 
   return (
     <div class="cm-app">
-      <div class="cm-viewport">
+      <div
+        class="cm-viewport"
+        data-theme-layout={apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento'}
+        data-theme-preset={apiMenu?.cafe?.theme?.preset || 'showcase'}
+      >
         {/* 1. Welcome Splash / Cover Screen (dismissible) */}
         {showWelcome && (
           <WelcomeCover

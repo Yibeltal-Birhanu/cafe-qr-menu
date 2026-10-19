@@ -223,6 +223,10 @@ export default function SuperAdminDashboard({
     try {
       const themePayload = {
         preset: preset.id,
+        layout: preset.layout,
+        cardStyle: preset.cardStyle,
+        navStyle: preset.navStyle,
+        landingStyle: preset.landingStyle,
         primaryColor: preset.primaryColor,
         accentColor: preset.accentColor,
         backgroundColor: preset.backgroundColor,
@@ -1117,75 +1121,158 @@ export default function SuperAdminDashboard({
           <div
             className="ad-panel-card"
             style={{
-              width: '92%',
-              maxWidth: '560px',
+              width: '94%',
+              maxWidth: '820px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               padding: '1.8rem',
               boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.4rem' }}>
               <div>
-                <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.2rem' }}>
-                  Change Theme: {themeModalCafe.name}
+                <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.25rem' }}>
+                  Select Theme Architecture: {themeModalCafe.name}
                 </h3>
-                <p className="ad-card-sub" style={{ margin: '4px 0 0' }}>
-                  Instantly rebrand this venue with any of the platform themes.
+                <p className="ad-card-sub" style={{ margin: '4px 0 0', maxWidth: '640px' }}>
+                  Choose from 4 fundamentally distinct UX architectures featuring custom card layouts, specialized navigation headers, and immersive customer cover screens.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setThemeModalCafe(null)}
-                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#9ca3af' }}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#9ca3af', lineHeight: 1 }}
               >
                 &times;
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.8rem' }}>
-              {THEME_PRESETS.map((preset) => (
-                <div
-                  key={preset.id}
-                  onClick={() => handleSelectQuickTheme(preset)}
-                  style={{
-                    padding: '0.9rem',
-                    borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
-                    background: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#e6923c';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(230, 146, 60, 0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '5px', marginBottom: '0.4rem' }}>
-                    {preset.previewColors.map((c, i) => (
-                      <span
-                        key={i}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1rem' }}>
+              {THEME_PRESETS.map((preset) => {
+                const isActive = (themeModalCafe.theme?.preset === preset.id) ||
+                  (!themeModalCafe.theme?.preset && preset.id === 'showcase');
+                return (
+                  <div
+                    key={preset.id}
+                    onClick={() => handleSelectQuickTheme(preset)}
+                    style={{
+                      padding: '1.1rem',
+                      borderRadius: '14px',
+                      border: isActive ? '2px solid #e6923c' : '1px solid #e5e7eb',
+                      background: isActive ? 'rgba(230, 146, 60, 0.04)' : '#ffffff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.18s ease',
+                      boxShadow: isActive ? '0 6px 20px rgba(230, 146, 60, 0.14)' : '0 2px 6px rgba(0,0,0,0.03)',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.07)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)';
+                      }
+                    }}
+                  >
+                    <div>
+                      {/* Top Row: Palette + Active Badge */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          {preset.previewColors.map((c, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '50%',
+                                background: c,
+                                display: 'inline-block',
+                                border: '1px solid rgba(0,0,0,0.12)',
+                              }}
+                            />
+                          ))}
+                        </div>
+                        {isActive ? (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              background: '#e6923c',
+                              color: '#ffffff',
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                            }}
+                          >
+                            Active Theme
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: '0.68rem',
+                              fontWeight: 600,
+                              color: '#6b7280',
+                              background: '#f3f4f6',
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                            }}
+                          >
+                            {preset.archetype}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Title & Tagline */}
+                      <h4 style={{ margin: '0 0 4px', fontSize: '0.98rem', fontWeight: 800, color: '#111827' }}>
+                        {preset.name}
+                      </h4>
+                      <p style={{ margin: '0 0 0.8rem', fontSize: '0.78rem', color: '#6b7280', lineHeight: 1.35 }}>
+                        {preset.tagline}
+                      </p>
+
+                      {/* Structural Architectural Specifications */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', background: '#f8fafc', padding: '0.7rem 0.8rem', borderRadius: '8px', fontSize: '0.74rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
+                          <span style={{ fontWeight: 700, minWidth: '46px', color: '#64748b' }}>Cards:</span>
+                          <span style={{ fontWeight: 600 }}>{preset.cardStyle}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
+                          <span style={{ fontWeight: 700, minWidth: '46px', color: '#64748b' }}>Nav Bar:</span>
+                          <span style={{ fontWeight: 600 }}>{preset.navStyle}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
+                          <span style={{ fontWeight: 700, minWidth: '46px', color: '#64748b' }}>Cover:</span>
+                          <span style={{ fontWeight: 600 }}>{preset.landingStyle}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '0.9rem', display: 'flex', justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        disabled={isUpdatingTheme}
+                        className={isActive ? 'ad-btn-action-secondary' : 'ad-btn-action-primary'}
                         style={{
-                          width: '14px',
-                          height: '14px',
-                          borderRadius: '50%',
-                          background: c,
-                          display: 'inline-block',
-                          border: '1px solid rgba(0,0,0,0.1)',
+                          width: '100%',
+                          padding: '0.55rem 0.9rem',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
                         }}
-                      />
-                    ))}
+                      >
+                        {isActive ? 'Current Theme' : isUpdatingTheme ? 'Applying...' : 'Apply This Architecture'}
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#111827' }}>
-                    {preset.name}
-                  </div>
-                  <div style={{ fontSize: '0.74rem', color: '#6b7280', marginTop: '2px' }}>
-                    {preset.tagline.slice(0, 48)}...
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.4rem' }}>
@@ -1193,7 +1280,7 @@ export default function SuperAdminDashboard({
                 type="button"
                 className="ad-btn-action-secondary"
                 onClick={() => setThemeModalCafe(null)}
-                style={{ width: 'auto', padding: '0.5rem 1.2rem' }}
+                style={{ width: 'auto', padding: '0.55rem 1.4rem' }}
               >
                 Close
               </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon, WifiIcon, BatteryIcon, StarIcon } from '../common/Icons.jsx';
 
 export default function WelcomeCover({
   cafeName = 'CafeMenu',
@@ -9,6 +9,8 @@ export default function WelcomeCover({
   theme = null,
   onStart,
 }) {
+  const layout = theme?.layout || (theme?.preset === 'emerald' ? 'editorial' : theme?.preset === 'terracotta' ? 'rustic' : theme?.preset === 'pastel' ? 'boutique' : 'bento');
+
   const renderLogo = () => {
     switch (logo) {
       case 'pizza':
@@ -24,9 +26,41 @@ export default function WelcomeCover({
     }
   };
 
+  const layoutContent = {
+    editorial: {
+      badge: 'HAUTE CUISINE & RESERVE',
+      title: "L'Édition Gastronomique",
+      sub: 'An exquisite gastronomic experience featuring curated dishes and reserve selections.',
+      btnText: 'Explore the Collection',
+    },
+    rustic: {
+      badge: 'WOOD-FIRED HEARTH & GRILL',
+      title: 'Wood-Fired. Crafted by Flame.',
+      sub: 'Smoked cuts, stone-baked sourdough pizzas, and open-flame comfort food.',
+      btnText: 'Enter Hearth & Menu 🔥',
+    },
+    boutique: {
+      badge: 'PATISSERIE & SALON DE THÉ',
+      title: 'Sweet Delicacies & Bakes',
+      sub: 'Freshly laminated viennoiserie, strawberry cream choux, and fine artisanal teas.',
+      btnText: 'Discover Our Delicacies ✨',
+    },
+    bento: {
+      badge: 'DIGITAL QR MENU',
+      title: 'Scan. Browse. Enjoy.',
+      sub: 'Explore our curated selections crafted fresh for your table.',
+      btnText: 'View Menu',
+    },
+  }[layout] || {
+    badge: 'DIGITAL QR MENU',
+    title: 'Scan. Browse. Enjoy.',
+    sub: 'Explore our curated selections crafted fresh for your table.',
+    btnText: 'View Menu',
+  };
+
   const bgStyle = coverImage
     ? {
-        background: `linear-gradient(to bottom, rgba(14, 10, 7, 0.4) 0%, rgba(14, 10, 7, 0.8) 60%, ${theme?.backgroundColor || '#0e0a07'} 100%), url('${coverImage}') center/cover no-repeat`,
+        background: `linear-gradient(to bottom, rgba(14, 10, 7, 0.45) 0%, rgba(14, 10, 7, 0.85) 60%, ${theme?.backgroundColor || '#0e0a07'} 100%), url('${coverImage}') center/cover no-repeat`,
       }
     : undefined;
 
@@ -40,7 +74,8 @@ export default function WelcomeCover({
 
   return (
     <div
-      class="cm-welcome-screen"
+      class={`cm-welcome-screen cm-welcome-screen--${layout}`}
+      data-theme-layout={layout}
       role="region"
       aria-label="Welcome screen"
       style={bgStyle}
@@ -63,10 +98,13 @@ export default function WelcomeCover({
         >
           {renderLogo()}
         </span>
+        <div class="cm-welcome-badge-pill">
+          {layoutContent.badge}
+        </div>
         <h1
           class="cm-welcome-brand"
           style={{
-            fontFamily: theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
+            fontFamily: layout === 'editorial' || theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
           }}
         >
           {cafeName}
@@ -84,20 +122,20 @@ export default function WelcomeCover({
         <h2
           class="cm-welcome-title"
           style={{
-            fontFamily: theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
+            fontFamily: layout === 'editorial' || theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
           }}
         >
-          Scan. Browse. Enjoy.
+          {layoutContent.title}
         </h2>
-        <p class="cm-welcome-sub">Explore our curated selections crafted fresh for your table.</p>
+        <p class="cm-welcome-sub">{layoutContent.sub}</p>
         <button
           type="button"
-          class="cm-welcome-btn"
+          class={`cm-welcome-btn cm-welcome-btn--${layout}`}
           onClick={onStart}
-          aria-label="View Menu"
+          aria-label={layoutContent.btnText}
           style={btnStyle}
         >
-          <span>View Menu</span>
+          <span>{layoutContent.btnText}</span>
           <ArrowRightIcon size={18} />
         </button>
       </div>

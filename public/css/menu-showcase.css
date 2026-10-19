@@ -1298,4 +1298,434 @@
   }
 }
 
+/* ==========================================================================
+   THEME LAYOUT ARCHITECTURES
+   Provides 4 fundamentally distinct structural visual identities:
+   1. bento: Modern Clean App & Bento Grid Cards
+   2. editorial: Haute Cuisine Luxury, Split Magazine Cards & Gold Serif Hairlines
+   3. rustic: Wood-Fired Flame Bistro, Chunky Hearth Cards & Fiery Badges
+   4. boutique: Parisian Patisserie, Soft Pill Cards & Confectionery Ribbons
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Common Elements Across Layouts
+   -------------------------------------------------------------------------- */
+.cm-dish-thumb-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.cm-dish-overlay-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: none;
+}
+.cm-dish-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+.cm-dish-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.cm-dish-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+.cm-dish-preptime {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--cm-text-muted);
+}
+.cm-welcome-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   1. BENTO THEME LAYOUT (Modern Cafe & Bento App)
+   -------------------------------------------------------------------------- */
+[data-theme-layout="bento"] .cm-header {
+  background: var(--cm-card-bg, #ffffff);
+  border-bottom: 1px solid var(--cm-border, #f0f0f2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+[data-theme-layout="bento"] .cm-brand-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+[data-theme-layout="bento"] .cm-table-badge {
+  background: #f3f4f6;
+  border: 1px solid var(--cm-border-strong, #e5e7eb);
+  color: var(--cm-text-dark, #111827);
+  border-radius: 9999px;
+  font-weight: 700;
+}
+[data-theme-layout="bento"] .cm-dish-card {
+  background: var(--cm-card-bg, #ffffff);
+  border: 1px solid var(--cm-border, #f0f0f2);
+  border-radius: 18px;
+  padding: 0.85rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+[data-theme-layout="bento"] .cm-dish-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+[data-theme-layout="bento"] .cm-dish-thumb {
+  border-radius: 14px;
+}
+[data-theme-layout="bento"] .cm-dish-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 700;
+}
+[data-theme-layout="bento"] .cm-dish-price {
+  color: var(--cm-amber, #e6923c);
+  font-weight: 800;
+}
+[data-theme-layout="bento"] .cm-dish-badge {
+  background: rgba(230, 146, 60, 0.12);
+  color: var(--cm-amber, #e6923c);
+}
+[data-theme-layout="bento"] .cm-welcome-screen {
+  background: linear-gradient(to bottom, rgba(14, 10, 7, 0.4) 0%, rgba(14, 10, 7, 0.85) 60%, var(--cm-bg, #0e0a07) 100%),
+    var(--cm-cover-bg, url('/images/coffee.jpg')) center/cover no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   2. EDITORIAL THEME LAYOUT (Fine Dining & Haute Cuisine Luxury)
+   -------------------------------------------------------------------------- */
+[data-theme-layout="editorial"] .cm-header {
+  background: rgba(6, 26, 20, 0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+  padding: 0.85rem 1.4rem;
+}
+[data-theme-layout="editorial"] .cm-category-nav-header {
+  background: rgba(6, 26, 20, 0.98);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+  color: #f0fdf4;
+}
+[data-theme-layout="editorial"] .cm-brand-name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #f0fdf4;
+}
+[data-theme-layout="editorial"] .cm-table-badge {
+  background: transparent;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: #fbbf24;
+  border-radius: 3px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  padding: 0.25rem 0.65rem;
+  text-transform: uppercase;
+}
+[data-theme-layout="editorial"] .cm-table-badge .cm-badge-dot {
+  background: #fbbf24;
+}
+[data-theme-layout="editorial"] .cm-dish-card {
+  background: rgba(11, 41, 32, 0.88);
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: 6px;
+  padding: 1.05rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-theme-layout="editorial"] .cm-dish-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+}
+[data-theme-layout="editorial"] .cm-dish-thumb {
+  width: 84px;
+  height: 84px;
+  border-radius: 4px;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+[data-theme-layout="editorial"] .cm-dish-name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #f0fdf4;
+}
+[data-theme-layout="editorial"] .cm-dish-desc {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #a7f3d0;
+  line-height: 1.45;
+}
+[data-theme-layout="editorial"] .cm-dish-price {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.03em;
+}
+[data-theme-layout="editorial"] .cm-dish-badge {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+[data-theme-layout="editorial"] .cm-dish-chevron {
+  color: #fbbf24;
+}
+[data-theme-layout="editorial"] .cm-welcome-screen {
+  background: linear-gradient(to bottom, rgba(6, 26, 20, 0.5) 0%, rgba(6, 26, 20, 0.9) 60%, #061a14 100%),
+    var(--cm-cover-bg, url('/images/habesha.jpg')) center/cover no-repeat;
+}
+[data-theme-layout="editorial"] .cm-welcome-badge-pill {
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+  background: rgba(6, 26, 20, 0.6);
+  font-family: "Playfair Display", Georgia, serif;
+}
+[data-theme-layout="editorial"] .cm-welcome-btn {
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: 0.05em;
+  font-size: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   3. RUSTIC THEME LAYOUT (Wood-Fired Hearth & Flame Bistro)
+   -------------------------------------------------------------------------- */
+[data-theme-layout="rustic"] .cm-header {
+  background: rgba(20, 8, 5, 0.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 2px solid rgba(234, 88, 12, 0.4);
+  padding: 0.8rem 1.3rem;
+}
+[data-theme-layout="rustic"] .cm-category-nav-header {
+  background: rgba(20, 8, 5, 0.98);
+  border-bottom: 2px solid rgba(234, 88, 12, 0.4);
+  color: #fff7ed;
+}
+[data-theme-layout="rustic"] .cm-brand-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff7ed;
+}
+[data-theme-layout="rustic"] .cm-table-badge {
+  background: rgba(234, 88, 12, 0.2);
+  border: 1px solid #ea580c;
+  color: #ffedd5;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+[data-theme-layout="rustic"] .cm-table-badge .cm-badge-dot {
+  background: #ea580c;
+}
+[data-theme-layout="rustic"] .cm-dish-card {
+  background: rgba(38, 16, 11, 0.95);
+  border: 2px solid rgba(234, 88, 12, 0.3);
+  border-radius: 12px;
+  padding: 0.9rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+[data-theme-layout="rustic"] .cm-dish-card:hover {
+  transform: translateY(-2px);
+  border-color: #ea580c;
+  box-shadow: 0 8px 26px rgba(234, 88, 12, 0.35);
+}
+[data-theme-layout="rustic"] .cm-dish-thumb {
+  width: 82px;
+  height: 82px;
+  border-radius: 10px;
+  border: 1px solid rgba(234, 88, 12, 0.4);
+}
+[data-theme-layout="rustic"] .cm-dish-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 800;
+  font-size: 1.04rem;
+  color: #fff7ed;
+}
+[data-theme-layout="rustic"] .cm-dish-desc {
+  color: #fdba74;
+  font-size: 0.79rem;
+  line-height: 1.35;
+}
+[data-theme-layout="rustic"] .cm-dish-price {
+  background: rgba(234, 88, 12, 0.22);
+  border: 1px solid rgba(234, 88, 12, 0.45);
+  color: #ffedd5;
+  font-weight: 900;
+  font-size: 0.92rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+[data-theme-layout="rustic"] .cm-dish-badge {
+  background: #ea580c;
+  color: #ffffff;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+[data-theme-layout="rustic"] .cm-dish-chevron {
+  color: #ea580c;
+}
+[data-theme-layout="rustic"] .cm-welcome-screen {
+  background: linear-gradient(to bottom, rgba(20, 8, 5, 0.45) 0%, rgba(20, 8, 5, 0.88) 60%, #140805 100%),
+    var(--cm-cover-bg, url('/images/dishes/margherita-pizza.jpg')) center/cover no-repeat;
+}
+[data-theme-layout="rustic"] .cm-welcome-badge-pill {
+  border: 1px solid #ea580c;
+  background: rgba(234, 88, 12, 0.25);
+  color: #ffedd5;
+  font-weight: 800;
+}
+[data-theme-layout="rustic"] .cm-welcome-btn {
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   4. BOUTIQUE THEME LAYOUT (Parisian Patisserie & Sweet Confectionery)
+   -------------------------------------------------------------------------- */
+[data-theme-layout="boutique"] .cm-header {
+  background: rgba(22, 13, 20, 0.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+  padding: 0.8rem 1.3rem;
+}
+[data-theme-layout="boutique"] .cm-category-nav-header {
+  background: rgba(22, 13, 20, 0.98);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+  color: #fdf2f8;
+}
+[data-theme-layout="boutique"] .cm-brand-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fdf2f8;
+}
+[data-theme-layout="boutique"] .cm-table-badge {
+  background: rgba(236, 72, 153, 0.16);
+  border: 1px solid rgba(236, 72, 153, 0.45);
+  color: #f472b6;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.22rem 0.65rem;
+}
+[data-theme-layout="boutique"] .cm-table-badge .cm-badge-dot {
+  background: #ec4899;
+}
+[data-theme-layout="boutique"] .cm-dish-card {
+  background: rgba(42, 24, 38, 0.92);
+  border: 1px solid rgba(236, 72, 153, 0.25);
+  border-radius: 26px;
+  padding: 0.85rem 1.15rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+[data-theme-layout="boutique"] .cm-dish-card:hover {
+  transform: translateY(-2px);
+  border-color: #ec4899;
+  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.28);
+}
+[data-theme-layout="boutique"] .cm-dish-thumb {
+  width: 78px;
+  height: 78px;
+  border-radius: 22px;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+[data-theme-layout="boutique"] .cm-dish-name {
+  font-family: var(--cm-font-sans);
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: #fdf2f8;
+}
+[data-theme-layout="boutique"] .cm-dish-desc {
+  color: #fbcfe8;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+[data-theme-layout="boutique"] .cm-dish-price {
+  color: #f472b6;
+  font-weight: 800;
+  font-size: 0.96rem;
+}
+[data-theme-layout="boutique"] .cm-dish-badge {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f472b6;
+  border-radius: 9999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+[data-theme-layout="boutique"] .cm-dish-chevron {
+  color: #ec4899;
+}
+[data-theme-layout="boutique"] .cm-welcome-screen {
+  background: linear-gradient(to bottom, rgba(22, 13, 20, 0.45) 0%, rgba(22, 13, 20, 0.88) 60%, #160d14 100%),
+    var(--cm-cover-bg, url('/images/desserts.jpg')) center/cover no-repeat;
+}
+[data-theme-layout="boutique"] .cm-welcome-badge-pill {
+  border: 1px solid rgba(236, 72, 153, 0.45);
+  background: rgba(236, 72, 153, 0.2);
+  color: #fbcfe8;
+}
+[data-theme-layout="boutique"] .cm-welcome-btn {
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+
 

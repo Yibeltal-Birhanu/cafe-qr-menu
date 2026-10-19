@@ -68,6 +68,10 @@ export default function VenueSettings({
     const updatedTheme = {
       ...formData.theme,
       preset: preset.id,
+      layout: preset.layout,
+      cardStyle: preset.cardStyle,
+      navStyle: preset.navStyle,
+      landingStyle: preset.landingStyle,
       primaryColor: preset.primaryColor,
       accentColor: preset.accentColor,
       backgroundColor: preset.backgroundColor,
@@ -246,7 +250,7 @@ export default function VenueSettings({
                       key={preset.id}
                       onClick={() => handleSelectPreset(preset)}
                       style={{
-                        padding: '0.9rem',
+                        padding: '1rem',
                         borderRadius: '14px',
                         border: isSelected
                           ? '2px solid #e6923c'
@@ -255,44 +259,68 @@ export default function VenueSettings({
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                         boxShadow: isSelected ? '0 4px 12px rgba(230, 146, 60, 0.15)' : 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <div style={{ display: 'flex', gap: '5px' }}>
-                          {preset.previewColors.map((c, i) => (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                          <div style={{ display: 'flex', gap: '5px' }}>
+                            {preset.previewColors.map((c, i) => (
+                              <span
+                                key={i}
+                                style={{
+                                  width: '16px',
+                                  height: '16px',
+                                  borderRadius: '50%',
+                                  background: c,
+                                  border: '1px solid rgba(0,0,0,0.1)',
+                                  display: 'inline-block',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {isSelected ? (
                             <span
-                              key={i}
                               style={{
-                                width: '16px',
-                                height: '16px',
-                                borderRadius: '50%',
-                                background: c,
-                                border: '1px solid rgba(0,0,0,0.1)',
-                                display: 'inline-block',
+                                fontSize: '0.68rem',
+                                fontWeight: 700,
+                                color: '#e6923c',
+                                background: 'rgba(230, 146, 60, 0.12)',
+                                padding: '2px 6px',
+                                borderRadius: '999px',
                               }}
-                            />
-                          ))}
+                            >
+                              Active
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: '0.65rem',
+                                fontWeight: 600,
+                                color: '#6b7280',
+                                background: '#f3f4f6',
+                                padding: '1px 6px',
+                                borderRadius: '999px',
+                              }}
+                            >
+                              {preset.archetype}
+                            </span>
+                          )}
                         </div>
-                        {isSelected && (
-                          <span
-                            style={{
-                              fontSize: '0.68rem',
-                              fontWeight: 700,
-                              color: '#e6923c',
-                              background: 'rgba(230, 146, 60, 0.12)',
-                              padding: '2px 6px',
-                              borderRadius: '999px',
-                            }}
-                          >
-                            Active
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#111827', marginBottom: '2px' }}>
-                        {preset.name}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: '#6b7280', lineHeight: 1.3 }}>
-                        {preset.tagline}
+                        <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#111827', marginBottom: '2px' }}>
+                          {preset.name}
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#6b7280', lineHeight: 1.3, marginBottom: '0.6rem' }}>
+                          {preset.tagline}
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', background: '#f8fafc', padding: '0.5rem 0.6rem', borderRadius: '6px', fontSize: '0.7rem' }}>
+                          <div style={{ color: '#475569' }}><b style={{ color: '#64748b' }}>Card:</b> {preset.cardStyle}</div>
+                          <div style={{ color: '#475569' }}><b style={{ color: '#64748b' }}>Nav:</b> {preset.navStyle}</div>
+                          <div style={{ color: '#475569' }}><b style={{ color: '#64748b' }}>Cover:</b> {preset.landingStyle}</div>
+                        </div>
                       </div>
                     </div>
                   );
