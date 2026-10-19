@@ -84,10 +84,14 @@ export function applyThemeToDocument(theme) {
   if (effective.primaryColor) {
     root.style.setProperty('--accent', effective.primaryColor);
     root.style.setProperty('--border-glow', effective.primaryColor + '70');
+    root.style.setProperty('--shadow-glow', `0 0 35px ${effective.primaryColor}50`);
   }
   if (effective.accentColor) {
     root.style.setProperty('--accent-gold', effective.accentColor);
+    root.style.setProperty('--accent-2', effective.accentColor);
     root.style.setProperty('--border-focus', effective.accentColor);
+  } else if (effective.primaryColor) {
+    root.style.setProperty('--accent-2', effective.primaryColor);
   }
   if (effective.backgroundColor) {
     root.style.setProperty('--bg', effective.backgroundColor);
@@ -120,6 +124,9 @@ export function applyThemeToDocument(theme) {
   }
   if (effective.fontFamily) {
     root.style.setProperty('--font', `"${effective.fontFamily}", "Plus Jakarta Sans", sans-serif`);
+    if (effective.fontFamily === 'Playfair Display' || effective.fontFamily.toLowerCase().includes('serif')) {
+      root.style.setProperty('--serif', `"${effective.fontFamily}", Georgia, serif`);
+    }
   }
 }
 

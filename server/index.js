@@ -38,9 +38,23 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
 });
 
-/** Live demo Cafe digital menu (supports both /cafe, /cafe/:slug, and /abol-cafe) */
+/** Live demo Cafe digital menu (supports /cafe, /abol-cafe, /cafe/:slug, and registered /:slug) */
 app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+});
+
+app.get('/:cafeSlug', async (req, res, next) => {
+  const reserved = ['auth', 'admin', 'superadmin', 'health', 'menu', 'api', 'dist', 'css', 'images', 'videos', 'qr.png', 'favicon.ico'];
+  if (reserved.includes(req.params.cafeSlug)) return next();
+  const slug = req.params.cafeSlug;
+  if (slug === 'abol-cafe') {
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+  const cafeData = await store.loadCafeFromMySQL(slug);
+  if (cafeData && cafeData.cafe) {
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+  return next();
 });
 
 /** Redirect legacy /index or /index.html aliases to the preserved Abol Cafe menu */
