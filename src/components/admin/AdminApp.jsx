@@ -318,7 +318,7 @@ export default function AdminApp() {
   if (!isAuthenticated) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <AdminLogin onLogin={handleLogin} />
+        <AdminLogin onLogin={handleLogin} onSignIn={handleLogin} />
         {toast && (
           <div class={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
             {toast.text}

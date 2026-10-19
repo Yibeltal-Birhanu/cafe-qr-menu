@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LockIcon } from '../common/Icons.jsx';
 
-export default function AdminLogin({ onSignIn }) {
+export default function AdminLogin({ onSignIn, onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,12 @@ export default function AdminLogin({ onSignIn }) {
     setError(null);
     setLoading(true);
     try {
-      await onSignIn(password);
+      const authFn = onSignIn || onLogin;
+      if (typeof authFn === 'function') {
+        await authFn(password);
+      } else {
+        throw new Error('Authentication handler not provided');
+      }
     } catch (err) {
       setError(err.message || 'Incorrect password.');
     } finally {
