@@ -1,7 +1,7 @@
 import React from 'react';
 import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon } from './AdminIcons.jsx';
 
-export default function AdminSidebar({ activeTab, onSelectTab }) {
+export default function AdminSidebar({ activeTab, onSelectTab, cafe }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon size={18} /> },
     { id: 'items', label: 'Menu Items', icon: <BookOpenIcon size={18} /> },
@@ -17,9 +17,13 @@ export default function AdminSidebar({ activeTab, onSelectTab }) {
         <span class="ad-sidebar-logo" aria-hidden="true">
           <CoffeeIcon size={24} />
         </span>
-        <div>
-          <h1 class="ad-sidebar-title">CafeMenu</h1>
-          <p class="ad-sidebar-sub">Good Food &bull; Great Moments</p>
+        <div style={{ overflow: 'hidden' }}>
+          <h1 class="ad-sidebar-title" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            {cafe?.name || 'CafeMenu'}
+          </h1>
+          <p class="ad-sidebar-sub" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            {cafe?.tagline || 'Good Food • Great Moments'}
+          </p>
         </div>
       </a>
 

@@ -7,6 +7,7 @@ import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
+import { applyThemeToDocument } from '../common/themePresets.js';
 
 export default function MenuApp() {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -20,17 +21,62 @@ export default function MenuApp() {
   const toastTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // Determine active cafe slug from query params or URL path
+  const getActiveCafeSlug = () => {
+    if (typeof window === 'undefined') return 'abol-cafe';
+    const searchParams = new URLSearchParams(window.location.search);
+    const qCafe = searchParams.get('cafe');
+    if (qCafe) return qCafe;
+
+    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!pathname || pathname === 'cafe' || pathname === 'menu' || pathname === 'menu.html') {
+      return 'abol-cafe';
+    }
+    if (pathname.startsWith('cafe/')) {
+      const parts = pathname.split('/');
+      return parts[1] || 'abol-cafe';
+    }
+    return pathname;
+  };
+
   // Fetch API menu to keep synced with admin updates
   useEffect(() => {
-    fetch('/api/menu')
-      .then((res) => res.json())
+    const slug = getActiveCafeSlug();
+    fetch(`/api/${encodeURIComponent(slug)}/menu`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load cafe menu');
+        return res.json();
+      })
       .then((data) => {
-        if (data && data.categories && data.categories.length > 0) {
+        if (data && data.cafe) {
           setApiMenu(data);
+          if (data.cafe.theme) {
+            applyThemeToDocument(data.cafe.theme);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        fetch('/api/menu')
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.cafe) {
+              setApiMenu(data);
+              if (data.cafe.theme) {
+                applyThemeToDocument(data.cafe.theme);
+              }
+            }
+          })
+          .catch(() => {});
+      });
   }, []);
+
+  // Sync theme changes dynamically
+  useEffect(() => {
+    if (apiMenu?.cafe?.theme) {
+      applyThemeToDocument(apiMenu.cafe.theme);
+    }
+  }, [apiMenu?.cafe?.theme]);
+
 
   const cafeName = apiMenu?.cafe?.name || 'CafeMenu';
 
@@ -42,16 +88,57 @@ export default function MenuApp() {
     }, 2500);
   }, []);
 
-  // Consolidate categories: showcaseCategories + any dynamic custom items from API
+  // Consolidate categories: dynamic items from API with fallback to showcaseCategories
   const categories = useMemo(() => {
-    return showcaseCategories;
-  }, []);
+    if (!apiMenu || !apiMenu.categories || apiMenu.categories.length === 0) {
+      return showcaseCategories;
+    }
+
+    const showcaseMap = new Map();
+    showcaseCategories.forEach((sc) => {
+      showcaseMap.set(sc.id, sc);
+      showcaseMap.set(sc.name.toLowerCase(), sc);
+    });
+
+    return apiMenu.categories.map((cat) => {
+      const showcaseCat = showcaseMap.get(cat.id) || showcaseMap.get(cat.name?.toLowerCase());
+      const bannerImg = showcaseCat?.bannerImg || `/images/${cat.icon || 'coffee'}.jpg`;
+      const currency = apiMenu.cafe?.currency || 'ETB';
+
+      const items = (cat.items || []).map((item) => {
+        const showcaseItem = showcaseCat?.items?.find(
+          (si) => si.id === item.id || si.name.toLowerCase() === item.name.toLowerCase()
+        );
+        return {
+          ...item,
+          image: item.image || showcaseItem?.image || '/images/dishes/classic-beef-burger.jpg',
+          fullDescription: item.description || showcaseItem?.fullDescription || '',
+          price: Number(item.price) || showcaseItem?.price || 0,
+          currency: currency,
+          rating: showcaseItem?.rating || 4.9,
+          reviews: showcaseItem?.reviews || 95,
+          tags: item.badge ? [item.badge, ...(showcaseItem?.tags || [])] : (showcaseItem?.tags || ['Freshly Prepared']),
+          subcategory: showcaseItem?.subcategory || 'All',
+          isPopular: Boolean(item.badge) || Boolean(showcaseItem?.isPopular),
+        };
+      });
+
+      return {
+        id: cat.id,
+        name: cat.name,
+        tagline: cat.description || showcaseCat?.tagline || 'Freshly prepared for you.',
+        bannerImg: bannerImg,
+        subcategories: showcaseCat?.subcategories || ['All'],
+        items,
+      };
+    });
+  }, [apiMenu]);
 
   // Flatten all items for popular or search queries
   const allItems = useMemo(() => {
     const items = [];
     categories.forEach((cat) => {
-      cat.items.forEach((item) => {
+      (cat.items || []).forEach((item) => {
         items.push({ ...item, categoryId: cat.id, categoryName: cat.name });
       });
     });

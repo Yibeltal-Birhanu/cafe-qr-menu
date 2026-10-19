@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRightIcon } from '../common/Icons.jsx';
 
 const PHOTO_PRESETS = [
-  { label: 'Beef Tibs', path: '/images/dishes/special-beef-tibs.jpg' },
-  { label: 'Doro Wat', path: '/images/dishes/doro-wat-special.jpg' },
-  { label: 'Kitfo', path: '/images/dishes/special-kitfo.jpg' },
-  { label: 'Beyeaynetu', path: '/images/dishes/beyeaynetu-fasting-platter.jpg' },
-  { label: 'Shiro', path: '/images/dishes/shiro-tegabino.jpg' },
-  { label: 'Burger', path: '/images/dishes/classic-beef-burger.jpg' },
-  { label: 'Chicken', path: '/images/dishes/crispy-chicken-burger.jpg' },
-  { label: 'Pizza', path: '/images/dishes/four-cheese.jpg' },
-  { label: 'Buna', path: '/images/dishes/traditional-buna-ceremony.jpg' },
-  { label: 'Latte', path: '/images/dishes/caramel-latte.jpg' },
-  { label: 'Cheesecake', path: '/images/dishes/cheesecake.jpg' },
-  { label: 'Smoothie', path: '/images/dishes/mango-smoothie.jpg' },
+  { label: 'Beef Tibs', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg' },
+  { label: 'Doro Wat', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409014/cafe-qr-menu/dishes/doro-wat-special.jpg' },
+  { label: 'Kitfo', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409086/cafe-qr-menu/dishes/special-kitfo.jpg' },
+  { label: 'Beyeaynetu', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408829/cafe-qr-menu/dishes/beyeaynetu-fasting-platter.jpg' },
+  { label: 'Shiro', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409083/cafe-qr-menu/dishes/shiro-tegabino.jpg' },
+  { label: 'Burger', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408837/cafe-qr-menu/dishes/classic-beef-burger.jpg' },
+  { label: 'Chicken', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408838/cafe-qr-menu/dishes/crispy-chicken-burger.jpg' },
+  { label: 'Pizza', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409070/cafe-qr-menu/dishes/four-cheese.jpg' },
+  { label: 'Buna', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409090/cafe-qr-menu/dishes/traditional-buna-ceremony.jpg' },
+  { label: 'Latte', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408832/cafe-qr-menu/dishes/caramel-latte.jpg' },
+  { label: 'Cheesecake', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408834/cafe-qr-menu/dishes/cheesecake.jpg' },
+  { label: 'Smoothie', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409076/cafe-qr-menu/dishes/mango-smoothie.jpg' },
 ];
 
 const TAG_OPTIONS = [
@@ -38,6 +38,7 @@ export default function AdminDishModal({
   targetCategoryId,
   onClose,
   onSubmit,
+  onUploadImage,
 }) {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('coffee');
@@ -50,6 +51,34 @@ export default function AdminDishModal({
   const [categoryId, setCategoryId] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProvider, setUploadProvider] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (JPEG, PNG, WEBP).');
+      return;
+    }
+    setError('');
+    setUploading(true);
+    try {
+      if (onUploadImage) {
+        const res = await onUploadImage(file);
+        if (res && res.url) {
+          setImage(res.url);
+          setUploadProvider(res.provider || 'cloudinary');
+        }
+      }
+    } catch (err) {
+      setError(err.message || 'Image upload failed.');
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -245,16 +274,62 @@ export default function AdminDishModal({
                   </div>
                 </div>
 
-                {/* Photo Presets & URL */}
+                {/* Photo Presets & URL & Cloudinary Upload */}
                 <div>
-                  <label class="ad-field-label">Choose Food Photography</label>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                    <label class="ad-field-label" style={{ margin: 0 }}>Food Photography</label>
+                    {uploadProvider && (
+                      <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600 }}>
+                        {uploadProvider === 'cloudinary' ? '✓ Uploaded to Cloudinary' : '✓ Image Uploaded'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Cloudinary Upload Trigger */}
+                  <div style={{ marginBottom: '0.8rem' }}>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      type="button"
+                      class="ad-btn-action-primary"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '7px',
+                        padding: '0.48rem 0.9rem',
+                        fontSize: '0.82rem',
+                        background: '#13221e',
+                        color: '#ffffff',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: uploading ? 'wait' : 'pointer',
+                      }}
+                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                      disabled={uploading}
+                    >
+                      <span>☁️</span>
+                      <span>{uploading ? 'Uploading to Cloudinary...' : 'Upload Image to Cloudinary'}</span>
+                    </button>
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '0.6rem' }}>
+                      or select a curated preset below:
+                    </span>
+                  </div>
+
                   <div class="ad-photo-presets-grid">
                     {PHOTO_PRESETS.map((preset) => (
                       <button
                         key={preset.path}
                         type="button"
                         class={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
-                        onClick={() => setImage(preset.path)}
+                        onClick={() => {
+                          setImage(preset.path);
+                          setUploadProvider(null);
+                        }}
                         title={preset.label}
                       >
                         <img src={preset.path} alt={preset.label} />
@@ -266,7 +341,7 @@ export default function AdminDishModal({
                       type="text"
                       class="ad-form-input"
                       style={{ fontSize: '0.8rem', padding: '0.45rem 0.8rem' }}
-                      placeholder="Or enter custom image URL: /images/dishes/..."
+                      placeholder="Or enter custom image / Cloudinary URL: https://res.cloudinary.com/..."
                       value={image}
                       onChange={(e) => setImage(e.target.value)}
                     />

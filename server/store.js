@@ -50,6 +50,13 @@ function ensureShape(raw, fallbackSeed = seed) {
       wifi_ssid: typeof cafe.wifi_ssid === 'string' ? cafe.wifi_ssid : (defaultCafe.wifi_ssid || ''),
       wifi_pass: typeof cafe.wifi_pass === 'string' ? cafe.wifi_pass : (defaultCafe.wifi_pass || ''),
       status: cafe.status || 'active',
+      theme: cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {
+        preset: 'espresso',
+        primaryColor: '#e6923c',
+        accentColor: '#fbbf24',
+        backgroundMode: 'dark',
+        fontFamily: 'Plus Jakarta Sans',
+      },
     },
     categories: (Array.isArray(data.categories) ? data.categories : []).map((category) => ({
       id: String(category.id || slugify(category.name)),
@@ -60,6 +67,7 @@ function ensureShape(raw, fallbackSeed = seed) {
         id: String(item.id || slugify(item.name)),
         name: String(item.name || 'Untitled item'),
         description: String(item.description || ''),
+        image: String(item.image || ''),
         price: Number(item.price) || 0,
         badge: item.badge ? String(item.badge) : '',
         prepTime: item.prepTime ? String(item.prepTime) : '',
@@ -84,19 +92,20 @@ async function syncToMySQL(slug, menuData) {
   try {
     const cafe = menuData.cafe;
     const [existing] = await pool.query('SELECT id FROM cafes WHERE slug = ?', [slug]);
+    const themeVal = cafe.theme ? JSON.stringify(cafe.theme) : null;
     let cafeId = cafe.id;
     if (existing.length === 0) {
       cafeId = crypto.randomUUID();
       await pool.query(
-        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active']
+        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, theme)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal]
       );
     } else {
       cafeId = existing[0].id;
       await pool.query(
-        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ? WHERE id = ?`,
-        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', cafeId]
+        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ?, theme = ? WHERE id = ?`,
+        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal, cafeId]
       );
     }
 
@@ -115,12 +124,12 @@ async function syncToMySQL(slug, menuData) {
         for (let iIdx = 0; iIdx < cat.items.length; iIdx++) {
           const item = cat.items[iIdx];
           await pool.query(
-            `INSERT INTO items (id, categoryId, cafeId, name, description, price, badge, prepTime, dietary, available, sortOrder)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO items (id, categoryId, cafeId, name, description, image, price, badge, prepTime, dietary, available, sortOrder)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE categoryId = VALUES(categoryId), name = VALUES(name), description = VALUES(description),
-             price = VALUES(price), badge = VALUES(badge), prepTime = VALUES(prepTime), dietary = VALUES(dietary),
+             image = VALUES(image), price = VALUES(price), badge = VALUES(badge), prepTime = VALUES(prepTime), dietary = VALUES(dietary),
              available = VALUES(available), sortOrder = VALUES(sortOrder)`,
-            [item.id, cat.id, cafeId, item.name, item.description || '', Number(item.price) || 0, item.badge || '', item.prepTime || '', item.dietary || '', Boolean(item.available), iIdx]
+            [item.id, cat.id, cafeId, item.name, item.description || '', item.image || '', Number(item.price) || 0, item.badge || '', item.prepTime || '', item.dietary || '', Boolean(item.available), iIdx]
           );
         }
       }
@@ -148,6 +157,7 @@ async function loadAllFromMySQL() {
             id: it.id,
             name: it.name,
             description: it.description,
+            image: it.image || '',
             price: Number(it.price) || 0,
             badge: it.badge || '',
             prepTime: it.prepTime || '',
@@ -170,6 +180,11 @@ async function loadAllFromMySQL() {
             wifi_ssid: cafe.wifi_ssid,
             wifi_pass: cafe.wifi_pass,
             status: cafe.status,
+            theme: cafe.theme
+              ? typeof cafe.theme === 'string'
+                ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()
+                : cafe.theme
+              : null,
           },
           categories: catMap,
         })

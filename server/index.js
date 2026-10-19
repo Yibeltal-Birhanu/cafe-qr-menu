@@ -15,6 +15,7 @@ const {
   createManagerUser,
   bootstrapSuperAdmin,
 } = require('./auth');
+const { upload, uploadImage } = require('./cloudinary');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -259,6 +260,22 @@ app.get('/api/admin/menu', (req, res) => {
   res.json(store.get(req.cafeSlug));
 });
 
+/**
+ * Upload an image (to Cloudinary if configured, or local fallback)
+ */
+app.post('/api/admin/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded.' });
+    }
+    const result = await uploadImage(req.file);
+    return res.json({ url: result.url, provider: result.provider });
+  } catch (err) {
+    console.error('[upload] Image upload failed:', err);
+    return res.status(500).json({ error: err.message || 'Image upload failed.' });
+  }
+});
+
 /** Generate dynamic table QR code PNG for the authenticated manager's cafe */
 app.get('/api/admin/qr', async (req, res) => {
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
@@ -321,6 +338,9 @@ app.put('/api/admin/cafe', (req, res) => {
   const cafe = store.update(req.cafeSlug, (data) => {
     for (const key of ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass']) {
       if (typeof body[key] === 'string' && body[key].trim()) data.cafe[key] = body[key].trim();
+    }
+    if (body.theme && typeof body.theme === 'object') {
+      data.cafe.theme = { ...(data.cafe.theme || {}), ...body.theme };
     }
     return data.cafe;
   });
@@ -413,6 +433,7 @@ app.post('/api/admin/categories/:id/items', (req, res) => {
       id: store.newId(body.name, taken),
       name: String(body.name).trim(),
       description: String(body.description || ''),
+      image: body.image ? String(body.image).trim() : '',
       price: Number(body.price) || 0,
       badge: body.badge ? String(body.badge).trim() : '',
       prepTime: body.prepTime ? String(body.prepTime).trim() : '',
@@ -433,6 +454,7 @@ app.put('/api/admin/items/:id', (req, res) => {
     if (!found) return null;
     if (typeof body.name === 'string' && body.name.trim()) found.item.name = body.name.trim();
     if (typeof body.description === 'string') found.item.description = body.description;
+    if (body.image !== undefined) found.item.image = String(body.image || '').trim();
     if (body.price !== undefined) found.item.price = Number(body.price) || 0;
     if (typeof body.badge === 'string') found.item.badge = body.badge.trim();
     if (typeof body.prepTime === 'string') found.item.prepTime = body.prepTime.trim();

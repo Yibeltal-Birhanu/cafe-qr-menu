@@ -80,69 +80,129 @@ export default function AdminApp() {
     [token, showToast]
   );
 
-  // Load Menu
-  const loadMenu = useCallback(async () => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedCafeSlug, setSelectedCafeSlug] = useState('abol-cafe');
+  const [availableCafes, setAvailableCafes] = useState([]);
+
+  // Load Menu for designated tenant cafe
+  const loadMenu = useCallback(async (slug = '') => {
     try {
-      const data = await apiCall('/api/menu');
+      const activeSlug = slug || selectedCafeSlug;
+      const query = activeSlug ? `?cafe=${encodeURIComponent(activeSlug)}` : '';
+      const data = await apiCall(`/api/admin/menu${query}`);
       setMenu(data);
     } catch (err) {
       console.error('Menu load error:', err);
       showToast('Failed to load menu: ' + err.message, true);
     }
-  }, [apiCall, showToast]);
+  }, [apiCall, selectedCafeSlug, showToast]);
 
-  // Verify Session
-  useEffect(() => {
-    if (!token) {
+  // Verify Session & Resolve Scoped Cafe
+  const verifySession = useCallback(async (customToken = null) => {
+    const activeToken = customToken !== null ? customToken : token;
+    if (!activeToken) {
       setIsAuthenticated(false);
+      setCurrentUser(null);
       return;
     }
 
-    apiCall('/api/admin/session', { noAuthRedirect: true })
-      .then(() => {
+    try {
+      const session = await apiCall('/api/admin/session', { noAuthRedirect: true });
+      if (session && session.ok) {
         setIsAuthenticated(true);
-        loadMenu();
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        setToken('');
-        try {
-          localStorage.removeItem(TOKEN_KEY);
-        } catch {}
-      });
+        setCurrentUser(session.user);
+        const tenantSlug = session.cafeSlug || 'abol-cafe';
+        setSelectedCafeSlug(tenantSlug);
+
+        // If superadmin, fetch all cafes for switcher
+        if (session.user && session.user.role === 'superadmin') {
+          try {
+            const cafesRes = await apiCall('/api/admin/cafes');
+            setAvailableCafes(cafesRes.cafes || []);
+          } catch (_) {}
+        }
+
+        await loadMenu(tenantSlug);
+      }
+    } catch {
+      setIsAuthenticated(false);
+      setToken('');
+      setCurrentUser(null);
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+      } catch {}
+    }
   }, [token, apiCall, loadMenu]);
 
-  // Login handler
-  const handleLogin = async (password) => {
-    try {
-      const data = await apiCall('/api/admin/login', {
-        method: 'POST',
-        body: { password },
-        noAuthRedirect: true,
-      });
+  useEffect(() => {
+    verifySession();
+  }, [token, verifySession]);
 
-      if (data.token) {
-        setToken(data.token);
-        try {
-          localStorage.setItem(TOKEN_KEY, data.token);
-        } catch {}
-        setIsAuthenticated(true);
-        showToast('Welcome back, Admin!');
-        await loadMenu();
+  // Dual-mode Login handler (Manager Email or Master Password)
+  const handleLogin = async (credentials) => {
+    try {
+      let authToken = '';
+      if (typeof credentials === 'object' && credentials.email) {
+        // Better Auth Manager Sign In
+        const res = await fetch('/api/auth/sign-in/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: credentials.email.trim(),
+            password: credentials.password,
+          }),
+        });
+        const resData = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(resData.message || resData.error || 'Invalid manager email or password.');
+        }
+        authToken = resData.token || (resData.session && resData.session.token) || '';
+      } else {
+        // Master Admin Password
+        const pwd = typeof credentials === 'object' ? credentials.password : credentials;
+        const data = await apiCall('/api/admin/login', {
+          method: 'POST',
+          body: { password: pwd },
+          noAuthRedirect: true,
+        });
+        authToken = data.token || '';
       }
+
+      if (authToken) {
+        setToken(authToken);
+        try {
+          localStorage.setItem(TOKEN_KEY, authToken);
+        } catch {}
+      }
+
+      setIsAuthenticated(true);
+      showToast('Signed in successfully!');
+      await verifySession(authToken);
     } catch (err) {
       showToast(err.message, true);
       throw err;
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/sign-out', { method: 'POST' }).catch(() => {});
+    } catch {}
     setIsAuthenticated(false);
     setToken('');
+    setCurrentUser(null);
+    setSelectedCafeSlug('');
+    setAvailableCafes([]);
     try {
       localStorage.removeItem(TOKEN_KEY);
     } catch {}
     showToast('Signed out successfully.');
+  };
+
+  const handleSwitchCafe = async (newSlug) => {
+    setSelectedCafeSlug(newSlug);
+    await loadMenu(newSlug);
+    showToast(`Switched venue to ${newSlug}`);
   };
 
   const cafe = menu?.cafe || {
@@ -285,6 +345,7 @@ export default function AdminApp() {
             name: formData.name,
             description: formData.description,
             price: formData.price,
+            image: formData.image,
             badge: formData.badge,
             dietary: formData.dietary,
             prepTime: formData.prepTime,
@@ -298,6 +359,7 @@ export default function AdminApp() {
             name: formData.name,
             description: formData.description,
             price: formData.price,
+            image: formData.image,
             badge: formData.badge,
             dietary: formData.dietary,
             prepTime: formData.prepTime,
@@ -313,6 +375,24 @@ export default function AdminApp() {
       throw err;
     }
   };
+
+  // Image upload handler (uploads to Cloudinary via backend)
+  const handleUploadImage = useCallback(async (file) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: fd,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Upload failed');
+    }
+    return data;
+  }, [token]);
 
   // If not signed in, show clean modern login view
   if (!isAuthenticated) {
@@ -348,7 +428,7 @@ export default function AdminApp() {
   return (
     <div class="ad-layout">
       {/* 1. Left Sidebar */}
-      <AdminSidebar activeTab={activeTab} onSelectTab={setActiveTab} />
+      <AdminSidebar activeTab={activeTab} onSelectTab={setActiveTab} cafe={cafe} />
 
       {/* 2. Main Content Container */}
       <main class="ad-main">
@@ -358,6 +438,11 @@ export default function AdminApp() {
           searchQuery={globalSearch}
           onSearchChange={activeTab === 'templates' ? null : setGlobalSearch}
           searchPlaceholder={activeTab === 'templates' ? 'Search templates...' : 'Search menu items, categories...'}
+          user={currentUser}
+          cafe={cafe}
+          cafeSlug={selectedCafeSlug}
+          availableCafes={availableCafes}
+          onSwitchCafe={handleSwitchCafe}
           onLogout={handleLogout}
         />
 
@@ -368,8 +453,8 @@ export default function AdminApp() {
             <div class="ad-content-left">
               {/* Hero Welcome Card */}
               <div class="ad-hero-card">
-                <h2 class="ad-hero-title">Welcome back, Admin!</h2>
-                <p class="ad-hero-sub">Here&rsquo;s what&rsquo;s happening with your cafe today.</p>
+                <h2 class="ad-hero-title">Welcome back, {currentUser?.name || 'Admin'}!</h2>
+                <p class="ad-hero-sub">Managing <strong>{cafe.name}</strong> &bull; {selectedCafeSlug}</p>
                 <div class="ad-hero-date">
                   <CalendarIcon size={14} />
                   <span>{todayDateString}</span>
@@ -475,6 +560,7 @@ export default function AdminApp() {
         targetCategoryId={targetCategoryId}
         onClose={() => setModalOpen(false)}
         onSubmit={handleModalSubmit}
+        onUploadImage={handleUploadImage}
       />
 
       {/* Toast Notification */}

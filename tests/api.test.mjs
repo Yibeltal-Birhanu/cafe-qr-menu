@@ -273,6 +273,38 @@ test('multi-tenant: fetches scoped menu and generated QR code for specific cafe'
   assert.ok(listRes.body.cafes.some((c) => c.slug === cafeSlug));
 });
 
+test('multi-tenant theming: updates cafe visual theme and reflects in public menu', async () => {
+  const customTheme = {
+    preset: 'emerald',
+    primaryColor: '#10b981',
+    accentColor: '#fbbf24',
+    backgroundColor: '#061a14',
+    fontFamily: 'Playfair Display',
+  };
+
+  const updateRes = await call(
+    '/api/admin/cafe',
+    {
+      method: 'PUT',
+      body: {
+        theme: customTheme,
+      },
+    },
+    token
+  );
+  assert.equal(updateRes.status, 200);
+  assert.equal(updateRes.body.cafe.theme.preset, 'emerald');
+  assert.equal(updateRes.body.cafe.theme.primaryColor, '#10b981');
+  assert.equal(updateRes.body.cafe.theme.fontFamily, 'Playfair Display');
+
+  // Verify public menu reflects the updated theme
+  const publicMenu = await call('/api/menu');
+  assert.equal(publicMenu.status, 200);
+  assert.equal(publicMenu.body.cafe.theme.preset, 'emerald');
+  assert.equal(publicMenu.body.cafe.theme.primaryColor, '#10b981');
+});
+
+
 test('Super Admin: creates a cafe and provisions its manager user', async () => {
   const timestamp = Date.now();
   const slug = `skyline-cafe-${timestamp}`;

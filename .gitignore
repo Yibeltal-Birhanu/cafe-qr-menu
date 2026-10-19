@@ -4,6 +4,7 @@ npm-debug.log*
 # The live menu is generated from server/seed.js on first run.
 data/menu.json
 data/*.tmp
+data/cloudinary-map.json
 
 .env
 .DS_Store
