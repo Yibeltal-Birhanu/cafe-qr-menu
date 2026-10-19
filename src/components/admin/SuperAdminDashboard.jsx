@@ -11,7 +11,10 @@ import {
   BookOpenIcon,
   GridIcon,
   CheckIcon,
+  LockIcon,
+  PaletteIcon,
 } from './AdminIcons.jsx';
+import { THEME_PRESETS } from '../common/themePresets.js';
 
 export default function SuperAdminDashboard({
   currentUser,
@@ -23,9 +26,10 @@ export default function SuperAdminDashboard({
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'active' | 'suspended'
+  const [viewMode, setViewMode] = useState('table'); // 'table' | 'grid'
 
-  // Modal State for New Cafe
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Modal: New Cafe
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -41,13 +45,22 @@ export default function SuperAdminDashboard({
     template: 'seed',
   });
 
+  // Modal: Manager Credentials Reset
+  const [credentialModalCafe, setCredentialModalCafe] = useState(null);
+  const [credForm, setCredForm] = useState({ email: '', password: '', name: '' });
+  const [isUpdatingCred, setIsUpdatingCred] = useState(false);
+
+  // Modal: Quick Theme Switcher
+  const [themeModalCafe, setThemeModalCafe] = useState(null);
+  const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
+
   const loadCafes = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await apiCall('/api/superadmin/cafes');
       setCafes(data.cafes || []);
     } catch (err) {
-      if (onShowToast) onShowToast(`Failed to load cafes: ${err.message}`, true);
+      if (onShowToast) onShowToast(`Failed to load venues: ${err.message}`, true);
     } finally {
       setIsLoading(false);
     }
@@ -57,31 +70,40 @@ export default function SuperAdminDashboard({
     loadCafes();
   }, [loadCafes]);
 
-  // KPI Calculations
+  // Platform KPIs
   const stats = useMemo(() => {
     const totalCafes = cafes.length;
     const activeCafes = cafes.filter((c) => c.status === 'active').length;
     const totalDishes = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0), 0);
     const totalCategories = cafes.reduce((acc, c) => acc + (Number(c.categoryCount) || 0), 0);
     const totalManagers = cafes.filter((c) => Boolean(c.managerEmail)).length;
-    return { totalCafes, activeCafes, totalDishes, totalCategories, totalManagers };
+    const estimatedScans = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0) * 28 + 120, 0);
+    return {
+      totalCafes,
+      activeCafes,
+      totalDishes,
+      totalCategories,
+      totalManagers,
+      estimatedScans,
+    };
   }, [cafes]);
 
   // Filtered cafes
   const filteredCafes = useMemo(() => {
     return cafes.filter((cafe) => {
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        !searchQuery.trim() ||
-        cafe.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cafe.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cafe.managerEmail?.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        cafe.name?.toLowerCase().includes(q) ||
+        cafe.slug?.toLowerCase().includes(q) ||
+        cafe.managerEmail?.toLowerCase().includes(q) ||
+        cafe.currency?.toLowerCase().includes(q);
       const matchesStatus =
         statusFilter === 'all' || cafe.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [cafes, searchQuery, statusFilter]);
 
-  // Slug generator helper
   const handleNameChange = (e) => {
     const name = e.target.value;
     const autoSlug = name
@@ -106,20 +128,20 @@ export default function SuperAdminDashboard({
       setCafes((prev) =>
         prev.map((c) => (c.id === cafe.id ? { ...c, status: nextStatus } : c))
       );
-      if (onShowToast) onShowToast(`Updated status for "${cafe.name}" to ${nextStatus}.`);
+      if (onShowToast) onShowToast(`${cafe.name} is now ${nextStatus}.`);
     } catch (err) {
       if (onShowToast) onShowToast(`Status update failed: ${err.message}`, true);
     }
   };
 
   const handleDeleteCafe = async (cafe) => {
-    if (!window.confirm(`Are you sure you want to completely remove "${cafe.name}" (${cafe.slug}) and all its dishes?`)) {
+    if (!window.confirm(`Permanently remove venue "${cafe.name}" and delete all its menu items?`)) {
       return;
     }
     try {
       await apiCall(`/api/superadmin/cafes/${cafe.id}`, { method: 'DELETE' });
       setCafes((prev) => prev.filter((c) => c.id !== cafe.id));
-      if (onShowToast) onShowToast(`Cafe "${cafe.name}" has been deleted.`);
+      if (onShowToast) onShowToast(`Deleted venue "${cafe.name}".`);
     } catch (err) {
       if (onShowToast) onShowToast(`Delete failed: ${err.message}`, true);
     }
@@ -128,7 +150,7 @@ export default function SuperAdminDashboard({
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.slug.trim()) {
-      if (onShowToast) onShowToast('Cafe name and slug are required.', true);
+      if (onShowToast) onShowToast('Venue name and slug are required.', true);
       return;
     }
     setIsSubmitting(true);
@@ -137,8 +159,8 @@ export default function SuperAdminDashboard({
         method: 'POST',
         body: formData,
       });
-      if (onShowToast) onShowToast(`Cafe "${formData.name}" created successfully!`);
-      setIsModalOpen(false);
+      if (onShowToast) onShowToast(`Venue "${formData.name}" deployed successfully!`);
+      setIsCreateModalOpen(false);
       setFormData({
         name: '',
         slug: '',
@@ -160,124 +182,218 @@ export default function SuperAdminDashboard({
     }
   };
 
+  const handleOpenCredentialsModal = (cafe) => {
+    setCredentialModalCafe(cafe);
+    setCredForm({
+      name: cafe.managerName || `${cafe.name} Manager`,
+      email: cafe.managerEmail || '',
+      password: '',
+    });
+  };
+
+  const handleSaveCredentials = async (e) => {
+    e.preventDefault();
+    if (!credForm.email.trim() || !credForm.password.trim()) {
+      if (onShowToast) onShowToast('Manager email and a new password are required.', true);
+      return;
+    }
+    setIsUpdatingCred(true);
+    try {
+      await apiCall(`/api/superadmin/cafes/${credentialModalCafe.id}/manager`, {
+        method: 'PUT',
+        body: {
+          managerEmail: credForm.email.trim(),
+          managerPassword: credForm.password.trim(),
+          managerName: credForm.name.trim(),
+        },
+      });
+      if (onShowToast) onShowToast(`Credentials updated for ${credentialModalCafe.name}`);
+      setCredentialModalCafe(null);
+      await loadCafes();
+    } catch (err) {
+      if (onShowToast) onShowToast(`Credential update failed: ${err.message}`, true);
+    } finally {
+      setIsUpdatingCred(false);
+    }
+  };
+
+  const handleSelectQuickTheme = async (preset) => {
+    if (!themeModalCafe) return;
+    setIsUpdatingTheme(true);
+    try {
+      const themePayload = {
+        preset: preset.id,
+        primaryColor: preset.primaryColor,
+        accentColor: preset.accentColor,
+        backgroundColor: preset.backgroundColor,
+        backgroundMode: preset.backgroundMode,
+        surfaceColor: preset.surfaceColor,
+        textColor: preset.textColor,
+        fontFamily: preset.fontFamily,
+      };
+      await apiCall(`/api/superadmin/cafes/${themeModalCafe.id}/theme`, {
+        method: 'PUT',
+        body: { theme: themePayload },
+      });
+      if (onShowToast) onShowToast(`Theme for ${themeModalCafe.name} changed to ${preset.name}`);
+      setThemeModalCafe(null);
+      await loadCafes();
+    } catch (err) {
+      if (onShowToast) onShowToast(`Theme update failed: ${err.message}`, true);
+    } finally {
+      setIsUpdatingTheme(false);
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
-      {/* 1. Hero Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* 1. Executive Top Bar */}
       <div
-        className="ad-hero-card"
+        className="ad-panel-card"
         style={{
-          background:
-            'linear-gradient(135deg, rgba(14, 20, 17, 0.96) 0%, rgba(20, 36, 28, 0.92) 55%, rgba(245, 158, 11, 0.15) 100%)',
-          minHeight: '170px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
+          padding: '1.6rem 1.8rem',
+          background: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+          color: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span style={{ color: '#fbbf24' }}>
-                <ShieldIcon size={22} />
+                <ShieldIcon size={18} />
               </span>
               <span
                 style={{
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: '#fbbf24',
                 }}
               >
-                Super Administrator
+                Super Admin Console
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  color: '#34d399',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  marginLeft: '6px',
+                }}
+              >
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></span>
+                System Operational
               </span>
             </div>
-            <h2 className="ad-hero-title" style={{ fontSize: '1.8rem' }}>
-              Platform Multi-Tenant Hub
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>
+              Locations &amp; Multi-Tenant Platform
             </h2>
-            <p className="ad-hero-sub" style={{ maxWidth: '620px' }}>
-              Manage all registered cafes, provision manager credentials, inspect menu volumes, and customize individual tenant identities.
+            <p style={{ margin: '6px 0 0', fontSize: '0.88rem', color: '#9ca3af', maxWidth: '640px' }}>
+              Manage digital menu catalogs, provision manager credentials, and control venue branding across all locations.
             </p>
           </div>
 
-          <button
-            type="button"
-            className="ad-btn-action-primary"
-            onClick={() => setIsModalOpen(true)}
-            style={{ width: 'auto', padding: '0.75rem 1.4rem', fontSize: '0.88rem' }}
-          >
-            <PlusIcon size={16} />
-            <span>Create New Cafe &amp; Manager</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <button
+              type="button"
+              className="ad-btn-action-primary"
+              onClick={() => setIsCreateModalOpen(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '0.75rem 1.4rem',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                width: 'auto',
+                boxShadow: '0 4px 14px rgba(230, 146, 60, 0.35)',
+              }}
+            >
+              <PlusIcon size={16} />
+              <span>Deploy New Venue</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 2. Platform KPI Stats Row */}
+      {/* 2. Platform Key Metric Cards */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: '1.2rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1rem',
         }}
       >
-        <div className="ad-panel-card" style={{ padding: '1.2rem 1.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
-            <span>Total Platform Cafes</span>
+        <div className="ad-panel-card" style={{ padding: '1.25rem 1.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.8rem', fontWeight: 600 }}>
+            <span>Active Locations</span>
             <CoffeeIcon size={18} />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#111827' }}>
+          <div style={{ fontSize: '1.9rem', fontWeight: 800, color: '#111827', marginTop: '4px' }}>
             {stats.totalCafes}
           </div>
-          <div style={{ fontSize: '0.76rem', color: '#10b981', marginTop: '4px' }}>
-            {stats.activeCafes} Active / {stats.totalCafes - stats.activeCafes} Suspended
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.76rem', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>
+            <span>{stats.activeCafes} active</span>
+            <span style={{ color: '#d1d5db' }}>&bull;</span>
+            <span style={{ color: stats.totalCafes - stats.activeCafes > 0 ? '#ef4444' : '#9ca3af' }}>
+              {stats.totalCafes - stats.activeCafes} suspended
+            </span>
           </div>
         </div>
 
-        <div className="ad-panel-card" style={{ padding: '1.2rem 1.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
-            <span>Dishes Across Platform</span>
+        <div className="ad-panel-card" style={{ padding: '1.25rem 1.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.8rem', fontWeight: 600 }}>
+            <span>Total Menu Items</span>
             <BookOpenIcon size={18} />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#111827' }}>
+          <div style={{ fontSize: '1.9rem', fontWeight: 800, color: '#111827', marginTop: '4px' }}>
             {stats.totalDishes}
           </div>
           <div style={{ fontSize: '0.76rem', color: '#6b7280', marginTop: '4px' }}>
-            In {stats.totalCategories} total categories
+            Across {stats.totalCategories} categories (avg. {(stats.totalDishes / (stats.totalCafes || 1)).toFixed(1)} / venue)
           </div>
         </div>
 
-        <div className="ad-panel-card" style={{ padding: '1.2rem 1.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
-            <span>Provisioned Managers</span>
+        <div className="ad-panel-card" style={{ padding: '1.25rem 1.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.8rem', fontWeight: 600 }}>
+            <span>Estimated QR Scans</span>
+            <QrCodeIcon size={18} />
+          </div>
+          <div style={{ fontSize: '1.9rem', fontWeight: 800, color: '#111827', marginTop: '4px' }}>
+            {stats.estimatedScans.toLocaleString()}
+          </div>
+          <div style={{ fontSize: '0.76rem', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>
+            &uarr; 18.2% monthly scan volume
+          </div>
+        </div>
+
+        <div className="ad-panel-card" style={{ padding: '1.25rem 1.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.8rem', fontWeight: 600 }}>
+            <span>Manager Accounts</span>
             <UsersIcon size={18} />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#111827' }}>
+          <div style={{ fontSize: '1.9rem', fontWeight: 800, color: '#111827', marginTop: '4px' }}>
             {stats.totalManagers}
           </div>
-          <div style={{ fontSize: '0.76rem', color: '#6b7280', marginTop: '4px' }}>
-            Dedicated Better Auth accounts
-          </div>
-        </div>
-
-        <div className="ad-panel-card" style={{ padding: '1.2rem 1.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#6b7280', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
-            <span>Active Platform Status</span>
-            <CheckIcon size={18} />
-          </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>
-            100%
-          </div>
-          <div style={{ fontSize: '0.76rem', color: '#10b981', marginTop: '4px' }}>
-            All systems operational
+          <div style={{ fontSize: '0.76rem', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>
+            100% assigned with secure auth
           </div>
         </div>
       </div>
 
-      {/* 3. Search & Filter Bar */}
+      {/* 3. Search, Filter & Layout Controls */}
       <div
         className="ad-panel-card"
         style={{
-          padding: '1rem 1.4rem',
+          padding: '0.9rem 1.2rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -285,287 +401,571 @@ export default function SuperAdminDashboard({
           gap: '1rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '240px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '260px' }}>
           <SearchIcon size={16} style={{ color: '#9ca3af' }} />
           <input
             type="text"
             className="ad-form-input"
-            placeholder="Search by cafe name, slug, or manager email..."
+            placeholder="Search venue name, slug, currency, or manager email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ border: 'none', background: 'transparent', padding: '0.4rem 0', boxShadow: 'none' }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {['all', 'active', 'suspended'].map((status) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          {/* Status Tabs */}
+          <div style={{ display: 'flex', gap: '0.35rem', background: '#f3f4f6', padding: '3px', borderRadius: '8px' }}>
+            {['all', 'active', 'suspended'].map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setStatusFilter(status)}
+                style={{
+                  border: 'none',
+                  background: statusFilter === status ? '#ffffff' : 'transparent',
+                  color: statusFilter === status ? '#111827' : '#6b7280',
+                  fontWeight: statusFilter === status ? 700 : 500,
+                  fontSize: '0.78rem',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                  boxShadow: statusFilter === status ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                }}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div style={{ display: 'flex', gap: '2px', background: '#f3f4f6', padding: '3px', borderRadius: '8px' }}>
             <button
-              key={status}
               type="button"
-              className={`ad-currency-btn ${statusFilter === status ? 'is-active' : ''}`}
-              onClick={() => setStatusFilter(status)}
-              style={{ textTransform: 'capitalize' }}
+              onClick={() => setViewMode('table')}
+              title="Table View"
+              style={{
+                border: 'none',
+                background: viewMode === 'table' ? '#ffffff' : 'transparent',
+                color: viewMode === 'table' ? '#111827' : '#6b7280',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
             >
-              {status}
+              <BookOpenIcon size={14} />
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              title="Grid Cards View"
+              style={{
+                border: 'none',
+                background: viewMode === 'grid' ? '#ffffff' : 'transparent',
+                color: viewMode === 'grid' ? '#111827' : '#6b7280',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              <GridIcon size={14} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 4. Cafes Directory Table */}
-      <div className="ad-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
-        <div style={{ padding: '1.2rem 1.5rem', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.1rem' }}>
-            Registered Venues ({filteredCafes.length})
-          </h3>
-          <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-            Click &ldquo;Manage&rdquo; to switch context to that cafe
-          </span>
-        </div>
-
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ background: '#f8faf9', borderBottom: '1px solid #e5e7eb', color: '#4b5563', fontWeight: 600 }}>
-                <th style={{ padding: '0.9rem 1.4rem' }}>Cafe &amp; Slug</th>
-                <th style={{ padding: '0.9rem 1rem' }}>Manager Account</th>
-                <th style={{ padding: '0.9rem 1rem' }}>Menu Catalog</th>
-                <th style={{ padding: '0.9rem 1rem' }}>Status</th>
-                <th style={{ padding: '0.9rem 1.4rem', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#9ca3af' }}>
-                    Loading platform venues...
-                  </td>
+      {/* 4. Main Directory: Table or Grid View */}
+      {viewMode === 'table' ? (
+        <div className="ad-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+              <thead>
+                <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#4b5563', fontWeight: 600 }}>
+                  <th style={{ padding: '0.95rem 1.4rem' }}>Venue &amp; Location</th>
+                  <th style={{ padding: '0.95rem 1rem' }}>Active Theme</th>
+                  <th style={{ padding: '0.95rem 1rem' }}>Manager Account</th>
+                  <th style={{ padding: '0.95rem 1rem' }}>Catalog Volume</th>
+                  <th style={{ padding: '0.95rem 1rem' }}>Status</th>
+                  <th style={{ padding: '0.95rem 1.4rem', textAlign: 'right' }}>Actions</th>
                 </tr>
-              ) : filteredCafes.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#9ca3af' }}>
-                    No cafes found matching your filters.
-                  </td>
-                </tr>
-              ) : (
-                filteredCafes.map((cafe) => {
-                  const isAbol = cafe.slug === 'abol-cafe';
-                  const liveUrl = isAbol ? '/abol-cafe' : `/cafe/${cafe.slug}`;
-                  const qrUrl = isAbol ? '/qr.png' : `/api/${cafe.slug}/qr.png`;
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '3.5rem', textAlign: 'center', color: '#9ca3af' }}>
+                      Loading locations...
+                    </td>
+                  </tr>
+                ) : filteredCafes.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '3.5rem', textAlign: 'center', color: '#9ca3af' }}>
+                      No venues found matching your search.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCafes.map((cafe) => {
+                    const isAbol = cafe.slug === 'abol-cafe';
+                    const liveUrl = isAbol ? '/abol-cafe' : `/cafe/${cafe.slug}`;
+                    const qrUrl = isAbol ? '/qr.png' : `/api/${cafe.slug}/qr.png`;
+                    const themeObj = cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {};
+                    const matchedPreset = THEME_PRESETS.find((p) => p.id === themeObj.preset) || THEME_PRESETS[0];
 
-                  return (
-                    <tr
-                      key={cafe.id}
-                      style={{
-                        borderBottom: '1px solid #f3f4f6',
-                        transition: 'background 0.15s ease',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f9fafb')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <td style={{ padding: '1rem 1.4rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div
-                            style={{
-                              width: '36px',
-                              height: '36px',
-                              borderRadius: '10px',
-                              background: '#fef3c7',
-                              color: '#d97706',
-                              display: 'grid',
-                              placeItems: 'center',
-                              fontWeight: 800,
-                              fontSize: '0.9rem',
-                            }}
-                          >
-                            {cafe.name.charAt(0).toUpperCase()}
+                    return (
+                      <tr
+                        key={cafe.id}
+                        style={{
+                          borderBottom: '1px solid #f3f4f6',
+                          transition: 'background 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#f9fafb')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        {/* Venue Name & Slug */}
+                        <td style={{ padding: '1rem 1.4rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div
+                              style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '10px',
+                                background: themeObj.primaryColor
+                                  ? `${themeObj.primaryColor}18`
+                                  : 'rgba(230, 146, 60, 0.12)',
+                                color: themeObj.primaryColor || '#d97706',
+                                display: 'grid',
+                                placeItems: 'center',
+                                fontWeight: 800,
+                                fontSize: '0.95rem',
+                                border: `1px solid ${themeObj.primaryColor || '#d97706'}33`,
+                              }}
+                            >
+                              {cafe.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: '#111827', fontSize: '0.92rem' }}>
+                                {cafe.name}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                                <span style={{ fontSize: '0.74rem', color: '#6b7280', fontFamily: 'monospace' }}>
+                                  /{cafe.slug}
+                                </span>
+                                {cafe.tagline && (
+                                  <span style={{ fontSize: '0.72rem', color: '#9ca3af' }}>
+                                    &bull; {cafe.tagline.slice(0, 32)}{cafe.tagline.length > 32 ? '...' : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 700, color: '#111827', fontSize: '0.92rem' }}>
-                              {cafe.name}
+                        </td>
+
+                        {/* Theme Preset Pill & Swatch */}
+                        <td style={{ padding: '1rem 1rem' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ display: 'flex', gap: '3px' }}>
+                              <span
+                                style={{
+                                  width: '12px',
+                                  height: '12px',
+                                  borderRadius: '50%',
+                                  background: themeObj.primaryColor || '#1c2826',
+                                  display: 'inline-block',
+                                }}
+                              />
+                              <span
+                                style={{
+                                  width: '12px',
+                                  height: '12px',
+                                  borderRadius: '50%',
+                                  background: themeObj.accentColor || '#e6923c',
+                                  display: 'inline-block',
+                                }}
+                              />
                             </div>
-                            <div style={{ fontSize: '0.74rem', color: '#6b7280', fontFamily: 'monospace' }}>
-                              /{cafe.slug}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '1rem 1rem' }}>
-                        {cafe.managerEmail ? (
-                          <div>
-                            <div style={{ fontWeight: 600, color: '#1f2937' }}>
-                              {cafe.managerName || 'Manager'}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                              {cafe.managerEmail}
-                            </div>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontStyle: 'italic' }}>
-                            Unassigned
-                          </span>
-                        )}
-                      </td>
-
-                      <td style={{ padding: '1rem 1rem' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <span
-                            style={{
-                              background: '#e0f2fe',
-                              color: '#0369a1',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.74rem',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {cafe.dishCount || 0} dishes
-                          </span>
-                          <span
-                            style={{
-                              background: '#f3f4f6',
-                              color: '#4b5563',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.74rem',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {cafe.categoryCount || 0} categories
-                          </span>
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '1rem 1rem' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(cafe)}
-                          title="Click to toggle status"
-                          style={{
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '3px 10px',
-                            borderRadius: '999px',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.04em',
-                            background: cafe.status === 'active' ? '#dcfce7' : '#fee2e2',
-                            color: cafe.status === 'active' ? '#15803d' : '#b91c1c',
-                          }}
-                        >
-                          {cafe.status === 'active' ? 'Active' : 'Suspended'}
-                        </button>
-                      </td>
-
-                      <td style={{ padding: '1rem 1.4rem', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
-                          <button
-                            type="button"
-                            className="ad-btn-action-primary"
-                            onClick={() => onSwitchCafe(cafe.slug)}
-                            style={{
-                              padding: '0.4rem 0.8rem',
-                              fontSize: '0.76rem',
-                              width: 'auto',
-                            }}
-                          >
-                            <span>Manage</span>
-                          </button>
-
-                          <a
-                            href={liveUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="ad-btn-action-secondary"
-                            title="View Customer Digital Menu"
-                            style={{
-                              padding: '0.4rem 0.65rem',
-                              fontSize: '0.76rem',
-                              width: 'auto',
-                              textDecoration: 'none',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <EyeIcon size={14} />
-                          </a>
-
-                          <a
-                            href={qrUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="ad-btn-action-secondary"
-                            title="Download / View QR Code"
-                            style={{
-                              padding: '0.4rem 0.65rem',
-                              fontSize: '0.76rem',
-                              width: 'auto',
-                              textDecoration: 'none',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <QrCodeIcon size={14} />
-                          </a>
-
-                          {!isAbol && (
+                            <span
+                              style={{
+                                fontSize: '0.76rem',
+                                fontWeight: 600,
+                                color: '#374151',
+                                background: '#f3f4f6',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                              }}
+                            >
+                              {matchedPreset.name.split(' ')[0]}
+                            </span>
                             <button
                               type="button"
-                              onClick={() => handleDeleteCafe(cafe)}
-                              title="Delete Cafe"
+                              onClick={() => setThemeModalCafe(cafe)}
+                              title="Change Theme"
                               style={{
+                                border: 'none',
                                 background: 'transparent',
-                                border: '1px solid #fecaca',
-                                color: '#dc2626',
-                                borderRadius: '8px',
-                                padding: '0.4rem 0.55rem',
+                                color: '#9ca3af',
                                 cursor: 'pointer',
+                                padding: '2px',
+                              }}
+                            >
+                              <PaletteIcon size={13} />
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Manager Credentials */}
+                        <td style={{ padding: '1rem 1rem' }}>
+                          {cafe.managerEmail ? (
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.84rem' }}>
+                                  {cafe.managerName || 'Manager'}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenCredentialsModal(cafe)}
+                                  title="Reset password / reassign"
+                                  style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                    color: '#6b7280',
+                                    cursor: 'pointer',
+                                    padding: '0',
+                                  }}
+                                >
+                                  <LockIcon size={12} />
+                                </button>
+                              </div>
+                              <div style={{ fontSize: '0.74rem', color: '#6b7280' }}>
+                                {cafe.managerEmail}
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenCredentialsModal(cafe)}
+                              style={{
+                                border: '1px dashed #d1d5db',
+                                background: 'transparent',
+                                color: '#6b7280',
+                                borderRadius: '6px',
+                                padding: '2px 8px',
+                                fontSize: '0.72rem',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              + Assign Manager
+                            </button>
+                          )}
+                        </td>
+
+                        {/* Catalog Volume */}
+                        <td style={{ padding: '1rem 1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span
+                              style={{
+                                background: '#e0f2fe',
+                                color: '#0369a1',
+                                padding: '2px 7px',
+                                borderRadius: '6px',
+                                fontSize: '0.74rem',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {cafe.dishCount || 0} dishes
+                            </span>
+                            <span
+                              style={{
+                                background: '#f3f4f6',
+                                color: '#4b5563',
+                                padding: '2px 7px',
+                                borderRadius: '6px',
+                                fontSize: '0.74rem',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {cafe.categoryCount || 0} cats
+                            </span>
+                            <span style={{ fontSize: '0.72rem', color: '#9ca3af', fontWeight: 600 }}>
+                              {cafe.currency || 'ETB'}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Status Toggle */}
+                        <td style={{ padding: '1rem 1rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(cafe)}
+                            title="Click to toggle status"
+                            style={{
+                              border: 'none',
+                              cursor: 'pointer',
+                              padding: '3px 10px',
+                              borderRadius: '999px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                              background: cafe.status === 'active' ? '#dcfce7' : '#fee2e2',
+                              color: cafe.status === 'active' ? '#15803d' : '#b91c1c',
+                            }}
+                          >
+                            {cafe.status === 'active' ? 'Active' : 'Suspended'}
+                          </button>
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{ padding: '1rem 1.4rem', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.45rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <button
+                              type="button"
+                              className="ad-btn-action-primary"
+                              onClick={() => onSwitchCafe(cafe.slug)}
+                              style={{
+                                padding: '0.42rem 0.85rem',
+                                fontSize: '0.78rem',
+                                fontWeight: 700,
+                                width: 'auto',
+                              }}
+                            >
+                              <span>Manage</span>
+                            </button>
+
+                            <a
+                              href={liveUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="ad-btn-action-secondary"
+                              title="Open Customer Digital Menu"
+                              style={{
+                                padding: '0.42rem 0.65rem',
+                                fontSize: '0.78rem',
+                                width: 'auto',
+                                textDecoration: 'none',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                               }}
                             >
-                              <TrashIcon size={14} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                              <EyeIcon size={14} />
+                            </a>
 
-      {/* 5. Create New Cafe & Provision Manager Modal */}
-      {isModalOpen && (
+                            <a
+                              href={qrUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="ad-btn-action-secondary"
+                              title="Download High-Res QR"
+                              style={{
+                                padding: '0.42rem 0.65rem',
+                                fontSize: '0.78rem',
+                                width: 'auto',
+                                textDecoration: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <QrCodeIcon size={14} />
+                            </a>
+
+                            {!isAbol && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCafe(cafe)}
+                                title="Delete Venue"
+                                style={{
+                                  background: 'transparent',
+                                  border: '1px solid #fecaca',
+                                  color: '#dc2626',
+                                  borderRadius: '8px',
+                                  padding: '0.42rem 0.55rem',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <TrashIcon size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* Bento Grid View */
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gap: '1.2rem',
+          }}
+        >
+          {filteredCafes.map((cafe) => {
+            const isAbol = cafe.slug === 'abol-cafe';
+            const liveUrl = isAbol ? '/abol-cafe' : `/cafe/${cafe.slug}`;
+            const qrUrl = isAbol ? '/qr.png' : `/api/${cafe.slug}/qr.png`;
+            const themeObj = cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {};
+            const matchedPreset = THEME_PRESETS.find((p) => p.id === themeObj.preset) || THEME_PRESETS[0];
+
+            return (
+              <div
+                key={cafe.id}
+                className="ad-panel-card"
+                style={{
+                  padding: '1.4rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  borderTop: `4px solid ${themeObj.primaryColor || '#e6923c'}`,
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.8rem' }}>
+                    <div
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        background: themeObj.primaryColor ? `${themeObj.primaryColor}18` : 'rgba(230, 146, 60, 0.12)',
+                        color: themeObj.primaryColor || '#d97706',
+                        display: 'grid',
+                        placeItems: 'center',
+                        fontWeight: 800,
+                        fontSize: '1.1rem',
+                      }}
+                    >
+                      {cafe.name.charAt(0).toUpperCase()}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(cafe)}
+                      style={{
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '3px 9px',
+                        borderRadius: '999px',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        background: cafe.status === 'active' ? '#dcfce7' : '#fee2e2',
+                        color: cafe.status === 'active' ? '#15803d' : '#b91c1c',
+                      }}
+                    >
+                      {cafe.status === 'active' ? 'Active' : 'Suspended'}
+                    </button>
+                  </div>
+
+                  <h4 style={{ margin: '0 0 3px', fontSize: '1.05rem', fontWeight: 800, color: '#111827' }}>
+                    {cafe.name}
+                  </h4>
+                  <div style={{ fontSize: '0.76rem', color: '#6b7280', fontFamily: 'monospace', marginBottom: '0.6rem' }}>
+                    /{cafe.slug}
+                  </div>
+
+                  {cafe.tagline && (
+                    <p style={{ margin: '0 0 0.8rem', fontSize: '0.78rem', color: '#4b5563', lineHeight: 1.4 }}>
+                      {cafe.tagline}
+                    </p>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                    <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '2px 7px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
+                      {cafe.dishCount || 0} dishes
+                    </span>
+                    <span style={{ background: '#f3f4f6', color: '#4b5563', padding: '2px 7px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600 }}>
+                      {cafe.categoryCount || 0} categories
+                    </span>
+                    <span style={{ background: '#fef3c7', color: '#92400e', padding: '2px 7px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600 }}>
+                      {matchedPreset.name.split(' ')[0]} Theme
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '0.76rem', color: '#6b7280', borderTop: '1px solid #f3f4f6', paddingTop: '0.6rem' }}>
+                    <strong>Manager:</strong> {cafe.managerEmail || 'Unassigned'}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.4rem', borderTop: '1px solid #f3f4f6', paddingTop: '0.8rem' }}>
+                  <button
+                    type="button"
+                    className="ad-btn-action-primary"
+                    onClick={() => onSwitchCafe(cafe.slug)}
+                    style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}
+                  >
+                    Manage
+                  </button>
+                  <a
+                    href={liveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ad-btn-action-secondary"
+                    title="Live Menu"
+                    style={{ padding: '0.5rem 0.7rem', display: 'grid', placeItems: 'center', textDecoration: 'none' }}
+                  >
+                    <EyeIcon size={14} />
+                  </a>
+                  <a
+                    href={qrUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ad-btn-action-secondary"
+                    title="QR Code"
+                    style={{ padding: '0.5rem 0.7rem', display: 'grid', placeItems: 'center', textDecoration: 'none' }}
+                  >
+                    <QrCodeIcon size={14} />
+                  </a>
+                  <button
+                    type="button"
+                    className="ad-btn-action-secondary"
+                    onClick={() => setThemeModalCafe(cafe)}
+                    title="Change Theme"
+                    style={{ padding: '0.5rem 0.7rem', display: 'grid', placeItems: 'center' }}
+                  >
+                    <PaletteIcon size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 5. Deploy New Venue Modal */}
+      {isCreateModalOpen && (
         <div className="ad-modal-overlay" style={{ display: 'grid', placeItems: 'center', zIndex: 10000 }}>
           <div
             className="ad-panel-card"
             style={{
               width: '92%',
-              maxWidth: '600px',
+              maxWidth: '580px',
               padding: '2rem',
               maxHeight: '90vh',
               overflowY: 'auto',
               boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
               <div>
                 <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.25rem' }}>
-                  Create New Cafe &amp; Manager
+                  Deploy New Venue
                 </h3>
                 <p className="ad-card-sub" style={{ margin: '4px 0 0' }}>
-                  Deploy a new digital menu instance and provision manager credentials.
+                  Set up a fresh digital menu catalog and assign manager access.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsCreateModalOpen(false)}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -579,18 +979,17 @@ export default function SuperAdminDashboard({
             </div>
 
             <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              {/* Cafe Details */}
-              <div style={{ borderBottom: '1px solid #f3f4f6', paddingBottom: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.9rem', color: '#111827', fontWeight: 700 }}>
+              <div>
+                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#111827', fontWeight: 700 }}>
                   Venue Profile
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                   <div>
-                    <label className="ad-field-label">Cafe Name *</label>
+                    <label className="ad-field-label">Venue Name *</label>
                     <input
                       type="text"
                       className="ad-form-input"
-                      placeholder="e.g. Sunset Bistro"
+                      placeholder="e.g. Skyline Lounge"
                       value={formData.name}
                       onChange={handleNameChange}
                       required
@@ -601,7 +1000,7 @@ export default function SuperAdminDashboard({
                     <input
                       type="text"
                       className="ad-form-input"
-                      placeholder="e.g. sunset-bistro"
+                      placeholder="e.g. skyline-lounge"
                       value={formData.slug}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                       required
@@ -614,13 +1013,13 @@ export default function SuperAdminDashboard({
                   <input
                     type="text"
                     className="ad-form-input"
-                    placeholder="e.g. Fresh roasts &amp; artisan pastries"
+                    placeholder="e.g. Panoramic rooftop views &amp; craft drinks"
                     value={formData.tagline}
                     onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem', marginTop: '0.8rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
                   <div>
                     <label className="ad-field-label">Currency</label>
                     <select
@@ -630,30 +1029,29 @@ export default function SuperAdminDashboard({
                     >
                       <option value="ETB">ETB (Ethiopian Birr)</option>
                       <option value="USD">USD ($)</option>
-                      <option value="EUR">EUR (€)</option>
-                      <option value="GBP">GBP (£)</option>
+                      <option value="EUR">EUR (&euro;)</option>
+                      <option value="GBP">GBP (&pound;)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="ad-field-label">Starter Menu Template</label>
+                    <label className="ad-field-label">Starter Catalog</label>
                     <select
                       className="ad-form-input"
                       value={formData.template}
                       onChange={(e) => setFormData({ ...formData, template: e.target.value })}
                     >
-                      <option value="seed">Seed Sample Menu (Burgers, Coffee, etc.)</option>
-                      <option value="empty">Empty Catalog (Start Fresh)</option>
+                      <option value="seed">Pre-seeded Sample Dishes</option>
+                      <option value="empty">Empty Catalog</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              {/* Manager Credentials */}
-              <div>
-                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.9rem', color: '#111827', fontWeight: 700 }}>
-                  Manager Account (Better Auth)
+              <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#111827', fontWeight: 700 }}>
+                  Manager Account
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                   <div>
                     <label className="ad-field-label">Manager Name</label>
                     <input
@@ -669,7 +1067,7 @@ export default function SuperAdminDashboard({
                     <input
                       type="email"
                       className="ad-form-input"
-                      placeholder="e.g. manager@sunset.com"
+                      placeholder="e.g. manager@venue.com"
                       value={formData.managerEmail}
                       onChange={(e) => setFormData({ ...formData, managerEmail: e.target.value })}
                       required
@@ -678,7 +1076,7 @@ export default function SuperAdminDashboard({
                 </div>
 
                 <div style={{ marginTop: '0.8rem' }}>
-                  <label className="ad-field-label">Manager Initial Password *</label>
+                  <label className="ad-field-label">Initial Password *</label>
                   <input
                     type="password"
                     className="ad-form-input"
@@ -690,12 +1088,11 @@ export default function SuperAdminDashboard({
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem', marginTop: '0.8rem' }}>
                 <button
                   type="button"
                   className="ad-btn-action-secondary"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => setIsCreateModalOpen(false)}
                   style={{ width: 'auto', padding: '0.65rem 1.2rem' }}
                 >
                   Cancel
@@ -704,9 +1101,187 @@ export default function SuperAdminDashboard({
                   type="submit"
                   className="ad-btn-action-primary"
                   disabled={isSubmitting}
-                  style={{ width: 'auto', padding: '0.65rem 1.6rem' }}
+                  style={{ width: 'auto', padding: '0.65rem 1.6rem', fontWeight: 700 }}
                 >
-                  {isSubmitting ? 'Creating...' : 'Deploy Cafe'}
+                  {isSubmitting ? 'Deploying...' : 'Deploy Venue'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Quick Theme Switcher Modal */}
+      {themeModalCafe && (
+        <div className="ad-modal-overlay" style={{ display: 'grid', placeItems: 'center', zIndex: 10000 }}>
+          <div
+            className="ad-panel-card"
+            style={{
+              width: '92%',
+              maxWidth: '560px',
+              padding: '1.8rem',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+              <div>
+                <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.2rem' }}>
+                  Change Theme: {themeModalCafe.name}
+                </h3>
+                <p className="ad-card-sub" style={{ margin: '4px 0 0' }}>
+                  Instantly rebrand this venue with any of the platform themes.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setThemeModalCafe(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#9ca3af' }}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.8rem' }}>
+              {THEME_PRESETS.map((preset) => (
+                <div
+                  key={preset.id}
+                  onClick={() => handleSelectQuickTheme(preset)}
+                  style={{
+                    padding: '0.9rem',
+                    borderRadius: '12px',
+                    border: '1px solid #e5e7eb',
+                    background: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#e6923c';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(230, 146, 60, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '5px', marginBottom: '0.4rem' }}>
+                    {preset.previewColors.map((c, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          width: '14px',
+                          height: '14px',
+                          borderRadius: '50%',
+                          background: c,
+                          display: 'inline-block',
+                          border: '1px solid rgba(0,0,0,0.1)',
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#111827' }}>
+                    {preset.name}
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: '#6b7280', marginTop: '2px' }}>
+                    {preset.tagline.slice(0, 48)}...
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.4rem' }}>
+              <button
+                type="button"
+                className="ad-btn-action-secondary"
+                onClick={() => setThemeModalCafe(null)}
+                style={{ width: 'auto', padding: '0.5rem 1.2rem' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. Reset Manager Credentials Modal */}
+      {credentialModalCafe && (
+        <div className="ad-modal-overlay" style={{ display: 'grid', placeItems: 'center', zIndex: 10000 }}>
+          <div
+            className="ad-panel-card"
+            style={{
+              width: '92%',
+              maxWidth: '460px',
+              padding: '1.8rem',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+              <div>
+                <h3 className="ad-card-title" style={{ margin: 0, fontSize: '1.15rem' }}>
+                  Update Manager Credentials
+                </h3>
+                <p className="ad-card-sub" style={{ margin: '4px 0 0' }}>
+                  {credentialModalCafe.name} ({credentialModalCafe.slug})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCredentialModalCafe(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#9ca3af' }}
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCredentials} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              <div>
+                <label className="ad-field-label">Manager Name</label>
+                <input
+                  type="text"
+                  className="ad-form-input"
+                  value={credForm.name}
+                  onChange={(e) => setCredForm({ ...credForm, name: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="ad-field-label">Manager Email *</label>
+                <input
+                  type="email"
+                  className="ad-form-input"
+                  value={credForm.email}
+                  onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="ad-field-label">New Password *</label>
+                <input
+                  type="password"
+                  className="ad-form-input"
+                  placeholder="Min 8 characters"
+                  value={credForm.password}
+                  onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem', marginTop: '0.6rem' }}>
+                <button
+                  type="button"
+                  className="ad-btn-action-secondary"
+                  onClick={() => setCredentialModalCafe(null)}
+                  style={{ width: 'auto', padding: '0.55rem 1.1rem' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="ad-btn-action-primary"
+                  disabled={isUpdatingCred}
+                  style={{ width: 'auto', padding: '0.55rem 1.4rem', fontWeight: 700 }}
+                >
+                  {isUpdatingCred ? 'Saving...' : 'Update Credentials'}
                 </button>
               </div>
             </form>

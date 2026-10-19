@@ -411,6 +411,17 @@ async function updateCafeManager(cafeId, newOwnerId) {
   return getCafeById(cafeId);
 }
 
+async function updateCafeTheme(cafeId, theme) {
+  const themeVal = theme ? JSON.stringify(theme) : null;
+  await pool.query('UPDATE cafes SET theme = ? WHERE id = ?', [themeVal, cafeId]);
+  const cafe = await getCafeById(cafeId);
+  if (cafe && menus.has(cafe.slug)) {
+    menus.get(cafe.slug).cafe.theme = theme;
+    writeToDisk(cafe.slug, menus.get(cafe.slug));
+  }
+  return cafe;
+}
+
 async function deleteCafe(cafeId) {
   const cafe = await getCafeById(cafeId);
   if (!cafe) return null;
@@ -456,6 +467,7 @@ module.exports = {
   findCafeForUser,
   updateCafeStatus,
   updateCafeManager,
+  updateCafeTheme,
   deleteCafe,
   MENU_FILE,
 };

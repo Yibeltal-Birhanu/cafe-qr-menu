@@ -216,6 +216,17 @@ app.put('/api/superadmin/cafes/:id/manager', async (req, res) => {
   }
 });
 
+/** Update cafe theme directly from Super Admin */
+app.put('/api/superadmin/cafes/:id/theme', async (req, res) => {
+  const theme = req.body && req.body.theme;
+  if (!theme || typeof theme !== 'object') {
+    return res.status(400).json({ error: 'Valid theme object is required.' });
+  }
+  const cafe = await store.updateCafeTheme(req.params.id, theme);
+  if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+  res.json({ cafe });
+});
+
 /** Delete a cafe and its menu items */
 app.delete('/api/superadmin/cafes/:id', async (req, res) => {
   const cafe = await store.deleteCafe(req.params.id);
