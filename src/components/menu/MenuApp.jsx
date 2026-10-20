@@ -7,6 +7,7 @@ import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
+import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
 
 export default function MenuApp() {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -20,17 +21,62 @@ export default function MenuApp() {
   const toastTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // Determine active cafe slug from query params or URL path
+  const getActiveCafeSlug = () => {
+    if (typeof window === 'undefined') return 'abol-cafe';
+    const searchParams = new URLSearchParams(window.location.search);
+    const qCafe = searchParams.get('cafe');
+    if (qCafe) return qCafe;
+
+    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!pathname || pathname === 'cafe' || pathname === 'menu' || pathname === 'menu.html') {
+      return 'abol-cafe';
+    }
+    if (pathname.startsWith('cafe/')) {
+      const parts = pathname.split('/');
+      return parts[1] || 'abol-cafe';
+    }
+    return pathname;
+  };
+
   // Fetch API menu to keep synced with admin updates
   useEffect(() => {
-    fetch('/api/menu')
-      .then((res) => res.json())
+    const slug = getActiveCafeSlug();
+    fetch(`/api/${encodeURIComponent(slug)}/menu`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load cafe menu');
+        return res.json();
+      })
       .then((data) => {
-        if (data && data.categories && data.categories.length > 0) {
+        if (data && data.cafe) {
           setApiMenu(data);
+          if (data.cafe.theme) {
+            applyThemeToDocument(data.cafe.theme);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        fetch('/api/menu')
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.cafe) {
+              setApiMenu(data);
+              if (data.cafe.theme) {
+                applyThemeToDocument(data.cafe.theme);
+              }
+            }
+          })
+          .catch(() => {});
+      });
   }, []);
+
+  // Sync theme changes dynamically
+  useEffect(() => {
+    if (apiMenu?.cafe?.theme) {
+      applyThemeToDocument(apiMenu.cafe.theme);
+    }
+  }, [apiMenu?.cafe?.theme]);
+
 
   const cafeName = apiMenu?.cafe?.name || 'CafeMenu';
 
@@ -42,16 +88,57 @@ export default function MenuApp() {
     }, 2500);
   }, []);
 
-  // Consolidate categories: showcaseCategories + any dynamic custom items from API
+  // Consolidate categories: dynamic items from API with fallback to showcaseCategories
   const categories = useMemo(() => {
-    return showcaseCategories;
-  }, []);
+    if (!apiMenu || !apiMenu.categories || apiMenu.categories.length === 0) {
+      return showcaseCategories;
+    }
+
+    const showcaseMap = new Map();
+    showcaseCategories.forEach((sc) => {
+      showcaseMap.set(sc.id, sc);
+      showcaseMap.set(sc.name.toLowerCase(), sc);
+    });
+
+    return apiMenu.categories.map((cat) => {
+      const showcaseCat = showcaseMap.get(cat.id) || showcaseMap.get(cat.name?.toLowerCase());
+      const bannerImg = showcaseCat?.bannerImg || `/images/${cat.icon || 'coffee'}.jpg`;
+      const currency = apiMenu.cafe?.currency || 'ETB';
+
+      const items = (cat.items || []).map((item) => {
+        const showcaseItem = showcaseCat?.items?.find(
+          (si) => si.id === item.id || si.name.toLowerCase() === item.name.toLowerCase()
+        );
+        return {
+          ...item,
+          image: item.image || showcaseItem?.image || '/images/dishes/classic-beef-burger.jpg',
+          fullDescription: item.description || showcaseItem?.fullDescription || '',
+          price: Number(item.price) || showcaseItem?.price || 0,
+          currency: currency,
+          rating: showcaseItem?.rating || 4.9,
+          reviews: showcaseItem?.reviews || 95,
+          tags: item.badge ? [item.badge, ...(showcaseItem?.tags || [])] : (showcaseItem?.tags || ['Freshly Prepared']),
+          subcategory: showcaseItem?.subcategory || 'All',
+          isPopular: Boolean(item.badge) || Boolean(showcaseItem?.isPopular),
+        };
+      });
+
+      return {
+        id: cat.id,
+        name: cat.name,
+        tagline: cat.description || showcaseCat?.tagline || 'Freshly prepared for you.',
+        bannerImg: bannerImg,
+        subcategories: showcaseCat?.subcategories || ['All'],
+        items,
+      };
+    });
+  }, [apiMenu]);
 
   // Flatten all items for popular or search queries
   const allItems = useMemo(() => {
     const items = [];
     categories.forEach((cat) => {
-      cat.items.forEach((item) => {
+      (cat.items || []).forEach((item) => {
         items.push({ ...item, categoryId: cat.id, categoryName: cat.name });
       });
     });
@@ -108,13 +195,80 @@ export default function MenuApp() {
     }
   };
 
+  const cafeLogo = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return 'coffee';
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') return 'pizza';
+    if (slug === 'artisan-patisserie') return 'cake';
+    if (slug === 'skyline-lounge') return 'flame';
+    return apiMenu?.cafe?.logo || 'coffee';
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.logo, apiMenu?.cafe?.theme?.preset]);
+
+  const cafeCoverImage = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/coffee.jpg';
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
+    if (slug === 'artisan-patisserie') return '/images/desserts.jpg';
+    if (slug === 'skyline-lounge') return '/images/habesha.jpg';
+    return categories[0]?.bannerImg || '/images/coffee.jpg';
+  }, [apiMenu?.cafe?.slug, categories, apiMenu?.cafe?.theme?.preset]);
+
+  const heroImage = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/dishes/classic-beef-burger.jpg';
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
+    if (slug === 'artisan-patisserie') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
+    if (slug === 'skyline-lounge') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+    return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
+  }, [apiMenu?.cafe?.slug, allItems, apiMenu?.cafe?.theme?.preset]);
+
+  const { heroTitle, heroSub } = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') {
+      return {
+        heroTitle: 'Fresh Flavors Every Day',
+        heroSub: 'Quality ingredients, Great taste.',
+      };
+    }
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') {
+      return {
+        heroTitle: 'Wood-Fired Pizzas & Flame Grills',
+        heroSub: 'Stone-baked dough, dry-aged steaks & sunset dining.',
+      };
+    }
+    if (slug === 'artisan-patisserie') {
+      return {
+        heroTitle: 'French Viennoiserie & Tarts',
+        heroSub: 'Butter croissants, delicate tarts & ceremonial matcha.',
+      };
+    }
+    if (slug === 'skyline-lounge') {
+      return {
+        heroTitle: 'Artisan Roasts & Fine Dining',
+        heroSub: 'Rooftop pour-overs, wagyu plates & gourmet desserts.',
+      };
+    }
+    return {
+      heroTitle: 'Authentic Habesha & Specialty Roasts',
+      heroSub: apiMenu?.cafe?.tagline || 'Direct highland beans & sizzling dining.',
+    };
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline, apiMenu?.cafe?.theme?.preset]);
+
   return (
     <div class="cm-app">
-      <div class="cm-viewport">
+      <div
+        class="cm-viewport"
+        data-theme-layout={apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento'}
+        data-theme-preset={apiMenu?.cafe?.theme?.preset || 'showcase'}
+      >
         {/* 1. Welcome Splash / Cover Screen (dismissible) */}
         {showWelcome && (
           <WelcomeCover
             cafeName={cafeName}
+            tagline={apiMenu?.cafe?.tagline || 'Good Food • Great Moments'}
+            coverImage={cafeCoverImage}
+            logo={cafeLogo}
+            theme={apiMenu?.cafe?.theme}
             onStart={() => setShowWelcome(false)}
           />
         )}
@@ -136,6 +290,8 @@ export default function MenuApp() {
           onBack={handleBackToHome}
           onSearchClick={focusSearch}
           tableNumber="04"
+          logo={cafeLogo}
+          theme={apiMenu?.cafe?.theme}
         />
 
         {/* 3. Main Scrollable Screen Content */}
@@ -199,13 +355,43 @@ export default function MenuApp() {
           ) : (
             /* ================= HOME VIEW ================= */
             <div>
-              {/* Fresh Flavors Hero Banner Card */}
-              <div class="cm-hero-banner">
+              {/* Dynamic Cafe Hero Banner Card */}
+              <div
+                class="cm-hero-banner"
+                style={{
+                  background: apiMenu?.cafe?.theme?.backgroundColor
+                    ? `linear-gradient(135deg, ${apiMenu.cafe.theme.backgroundColor} 0%, ${apiMenu.cafe.theme.surfaceColor || apiMenu.cafe.theme.backgroundColor} 100%)`
+                    : undefined,
+                  border: apiMenu?.cafe?.theme?.primaryColor
+                    ? `1px solid ${apiMenu.cafe.theme.primaryColor}30`
+                    : undefined,
+                }}
+              >
                 <div class="cm-hero-banner-content">
-                  <h2 class="cm-hero-banner-title">Fresh Flavors Every Day</h2>
-                  <p class="cm-hero-banner-sub">Quality ingredients, Great taste.</p>
+                  <h2
+                    class="cm-hero-banner-title"
+                    style={{
+                      fontFamily: apiMenu?.cafe?.theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
+                    }}
+                  >
+                    {heroTitle}
+                  </h2>
+                  <p
+                    class="cm-hero-banner-sub"
+                    style={{
+                      color: apiMenu?.cafe?.theme?.accentColor || 'rgba(255, 255, 255, 0.75)',
+                    }}
+                  >
+                    {heroSub}
+                  </p>
                 </div>
-                <div class="cm-hero-banner-image" aria-hidden="true"></div>
+                <div
+                  class="cm-hero-banner-image"
+                  aria-hidden="true"
+                  style={{
+                    backgroundImage: `url('${heroImage}')`,
+                  }}
+                ></div>
               </div>
 
               {/* Search Bar */}

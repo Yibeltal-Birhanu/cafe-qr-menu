@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, SearchIcon, ChevronLeftIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, SearchIcon, ChevronLeftIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
 
 export default function MenuHeader({
   cafeName = 'CafeMenu',
@@ -9,7 +9,39 @@ export default function MenuHeader({
   onBack = null,
   onSearchClick = null,
   tableNumber = '04',
+  logo = 'coffee',
+  theme = null,
 }) {
+  const layout = theme?.layout || (theme?.preset === 'emerald' ? 'editorial' : theme?.preset === 'terracotta' ? 'rustic' : theme?.preset === 'pastel' ? 'boutique' : 'bento');
+
+  const renderLogo = () => {
+    switch (logo) {
+      case 'pizza':
+        return <PizzaIcon size={24} />;
+      case 'cake':
+      case 'dessert':
+        return <CakeIcon size={24} />;
+      case 'flame':
+      case 'lounge':
+        return <FlameIcon size={24} />;
+      default:
+        return <CoffeeIcon size={24} />;
+    }
+  };
+
+  const getTableBadgeLabel = () => {
+    switch (layout) {
+      case 'editorial':
+        return `RESERVE • TABLE ${tableNumber}`;
+      case 'rustic':
+        return `HEARTH #${tableNumber}`;
+      case 'boutique':
+        return `SALON #${tableNumber}`;
+      default:
+        return `Table ${tableNumber}`;
+    }
+  };
+
   return (
     <>
       {/* iOS Status Bar (Visible only on native phone screen) */}
@@ -23,7 +55,7 @@ export default function MenuHeader({
 
       {activeCategory ? (
         /* Category View Header: < [Category Name] [Search] */
-        <header class="cm-category-nav-header">
+        <header class={`cm-category-nav-header cm-category-nav-header--${layout}`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <button
               type="button"
@@ -73,10 +105,14 @@ export default function MenuHeader({
         </header>
       ) : (
         /* Home Header: Logo + CafeMenu + Table / Badge + Desktop Nav */
-        <header class="cm-header">
+        <header class={`cm-header cm-header--${layout}`}>
           <div class="cm-brand-group">
-            <span class="cm-welcome-logo" style={{ color: '#111827' }} aria-hidden="true">
-              <CoffeeIcon size={24} />
+            <span
+              class="cm-welcome-logo"
+              style={{ color: theme?.primaryColor || 'var(--cm-amber)' }}
+              aria-hidden="true"
+            >
+              {renderLogo()}
             </span>
             <span class="cm-brand-name" id="cafeName">{cafeName}</span>
           </div>
@@ -116,9 +152,9 @@ export default function MenuHeader({
               <span id="menuViewBadgeText">Digital Menu</span>
             </div>
 
-            <div class="cm-table-badge" title="Table number">
+            <div class={`cm-table-badge cm-table-badge--${layout}`} title="Table number">
               <span class="cm-badge-dot"></span>
-              <span>Table {tableNumber}</span>
+              <span>{getTableBadgeLabel()}</span>
             </div>
           </div>
         </header>

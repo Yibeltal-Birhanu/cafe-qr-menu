@@ -11,7 +11,9 @@ import CategoryManagerView from './CategoryManagerView.jsx';
 import SuperAdminDashboardView from './SuperAdminDashboardView.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
 import AdminLogin from './AdminLogin.jsx';
+import SuperAdminDashboard from './SuperAdminDashboard.jsx';
 import { CalendarIcon, PlusIcon } from './AdminIcons.jsx';
+
 
 const TOKEN_KEY = 'cafe-menu-admin-token';
 
@@ -55,6 +57,10 @@ export default function AdminApp() {
     }, 2800);
   }, []);
 
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedCafeSlug, setSelectedCafeSlug] = useState('abol-cafe');
+  const [availableCafes, setAvailableCafes] = useState([]);
+
   // API Helper
   const apiCall = useCallback(
     async (path, options = {}) => {
@@ -64,6 +70,7 @@ export default function AdminApp() {
           'Content-Type': 'application/json',
           'X-Cafe-Slug': currentCafeSlug,
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(selectedCafeSlug ? { 'x-cafe-slug': selectedCafeSlug } : {}),
           ...options.headers,
         },
       };
@@ -90,88 +97,137 @@ export default function AdminApp() {
       }
       return data;
     },
-    [token, showToast, currentCafeSlug]
+    [token, selectedCafeSlug, showToast]
   );
 
-  // Load Menu for active cafe
-  const loadMenu = useCallback(async () => {
+  // Load Menu for designated tenant cafe
+  const loadMenu = useCallback(async (slug = '') => {
     try {
-      const data = await apiCall(`/api/menu?cafe=${currentCafeSlug}`);
+      const activeSlug = slug || selectedCafeSlug;
+      const query = activeSlug ? `?cafe=${encodeURIComponent(activeSlug)}` : '';
+      const data = await apiCall(`/api/admin/menu${query}`, {
+        headers: activeSlug ? { 'x-cafe-slug': activeSlug } : {},
+      });
       setMenu(data);
     } catch (err) {
       console.error('Menu load error:', err);
       showToast('Failed to load menu: ' + err.message, true);
     }
-  }, [apiCall, showToast, currentCafeSlug]);
+  }, [apiCall, selectedCafeSlug, showToast]);
 
-  // Verify Session on mount or token change
-  useEffect(() => {
-    if (!token) {
+
+  // Verify Session & Resolve Scoped Cafe
+  const verifySession = useCallback(async (customToken = null) => {
+    const activeToken = customToken !== null ? customToken : token;
+    if (!activeToken) {
       setIsAuthenticated(false);
       setCurrentUser(null);
       return;
     }
 
-    apiCall('/api/admin/session', { noAuthRedirect: true })
-      .then((data) => {
+    try {
+      const session = await apiCall('/api/admin/session', { noAuthRedirect: true });
+      if (session && session.ok) {
         setIsAuthenticated(true);
-        setCurrentUser(data.user || null);
-        loadMenu();
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        setToken('');
-        setCurrentUser(null);
-        try {
-          localStorage.removeItem(TOKEN_KEY);
-        } catch {}
-      });
+        setCurrentUser(session.user);
+        const tenantSlug = session.cafeSlug || 'abol-cafe';
+        setSelectedCafeSlug(tenantSlug);
+
+        // If superadmin, fetch all cafes for switcher
+        if (session.user && session.user.role === 'superadmin') {
+          try {
+            const cafesRes = await apiCall('/api/admin/cafes');
+            setAvailableCafes(cafesRes.cafes || []);
+          } catch (_) {}
+          setActiveTab((prev) => (prev === 'dashboard' ? 'platform' : prev));
+        }
+
+        await loadMenu(tenantSlug);
+
+      }
+    } catch {
+      setIsAuthenticated(false);
+      setToken('');
+      setCurrentUser(null);
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+      } catch {}
+    }
   }, [token, apiCall, loadMenu]);
 
-  // Reload menu whenever cafe slug switches
   useEffect(() => {
-    if (isAuthenticated) {
-      loadMenu();
-    }
-  }, [currentCafeSlug, isAuthenticated, loadMenu]);
+    verifySession();
+  }, [token, verifySession]);
 
-  // Login handler
-  const handleLogin = async (password) => {
+  // Dual-mode Login handler (Manager Email or Master Password)
+  const handleLogin = async (credentials) => {
     try {
-      const data = await apiCall('/api/admin/login', {
-        method: 'POST',
-        body: { password, cafeSlug: currentCafeSlug },
-        noAuthRedirect: true,
-      });
-
-      if (data.token) {
-        setToken(data.token);
-        try {
-          localStorage.setItem(TOKEN_KEY, data.token);
-        } catch {}
-        setIsAuthenticated(true);
-        try {
-          const session = await apiCall('/api/admin/session', { noAuthRedirect: true });
-          setCurrentUser(session.user || null);
-        } catch {}
-        showToast('Welcome back, Admin!');
-        await loadMenu();
+      let authToken = '';
+      if (typeof credentials === 'object' && credentials.email) {
+        // Better Auth Manager Sign In
+        const res = await fetch('/api/auth/sign-in/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: credentials.email.trim(),
+            password: credentials.password,
+          }),
+        });
+        const resData = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(resData.message || resData.error || 'Invalid manager email or password.');
+        }
+        authToken = resData.token || (resData.session && resData.session.token) || '';
+      } else {
+        // Master Admin Password
+        const pwd = typeof credentials === 'object' ? credentials.password : credentials;
+        const data = await apiCall('/api/admin/login', {
+          method: 'POST',
+          body: { password: pwd },
+          noAuthRedirect: true,
+        });
+        authToken = data.token || '';
       }
+
+      if (authToken) {
+        setToken(authToken);
+        try {
+          localStorage.setItem(TOKEN_KEY, authToken);
+        } catch {}
+      }
+
+      setIsAuthenticated(true);
+      showToast('Signed in successfully!');
+      await verifySession(authToken);
     } catch (err) {
       showToast(err.message, true);
       throw err;
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/sign-out', { method: 'POST' }).catch(() => {});
+    } catch {}
     setIsAuthenticated(false);
     setToken('');
     setCurrentUser(null);
+    setSelectedCafeSlug('');
+    setAvailableCafes([]);
     try {
       localStorage.removeItem(TOKEN_KEY);
     } catch {}
     showToast('Signed out successfully.');
   };
+
+  const handleSwitchCafe = async (newSlug) => {
+    if (!newSlug) return;
+    setSelectedCafeSlug(newSlug);
+    await loadMenu(newSlug);
+    setActiveTab('dashboard');
+    showToast(`Switched venue to ${newSlug}`);
+  };
+
 
   const cafe = menu?.cafe || {
     name: 'CafeMenu',
@@ -314,6 +370,7 @@ export default function AdminApp() {
             name: formData.name,
             description: formData.description,
             price: formData.price,
+            image: formData.image,
             badge: formData.badge,
             dietary: formData.dietary,
             prepTime: formData.prepTime,
@@ -327,6 +384,7 @@ export default function AdminApp() {
             name: formData.name,
             description: formData.description,
             price: formData.price,
+            image: formData.image,
             badge: formData.badge,
             dietary: formData.dietary,
             prepTime: formData.prepTime,
@@ -343,11 +401,29 @@ export default function AdminApp() {
     }
   };
 
+  // Image upload handler (uploads to Cloudinary via backend)
+  const handleUploadImage = useCallback(async (file) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: fd,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Upload failed');
+    }
+    return data;
+  }, [token]);
+
   // If not signed in, show clean modern login view
   if (!isAuthenticated) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <AdminLogin onSignIn={handleLogin} onLogin={handleLogin} />
+        <AdminLogin onLogin={handleLogin} onSignIn={handleLogin} />
         {toast && (
           <div class={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
             {toast.text}
@@ -367,6 +443,7 @@ export default function AdminApp() {
 
   // Page title mapping
   const titles = {
+    platform: 'Platform Hub',
     dashboard: 'Dashboard',
     items: 'Menu Items',
     categories: 'Categories',
@@ -378,27 +455,50 @@ export default function AdminApp() {
   const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin' || true;
 
   return (
-    <div class="ad-layout">
+    <div className="ad-layout">
       {/* 1. Left Sidebar */}
       <AdminSidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        isSuperAdmin={isSuperAdmin}
+        cafe={cafe}
+        currentUser={currentUser}
       />
 
       {/* 2. Main Content Container */}
-      <main class="ad-main">
+      <main className="ad-main">
         {/* Top Header */}
         <AdminHeader
           title={titles[activeTab] || 'Dashboard'}
           searchQuery={globalSearch}
           onSearchChange={activeTab === 'templates' || activeTab === 'superadmin' ? null : setGlobalSearch}
           searchPlaceholder={activeTab === 'templates' ? 'Search templates...' : 'Search menu items, categories...'}
+          user={currentUser}
+          cafe={cafe}
+          cafeSlug={selectedCafeSlug}
+          availableCafes={availableCafes}
+          onSwitchCafe={handleSwitchCafe}
           onLogout={handleLogout}
           user={currentUser}
           currentCafe={cafe}
           onOpenSuperAdmin={() => setActiveTab('superadmin')}
         />
+
+        {/* Dedicated Super Admin Platform View */}
+        {activeTab === 'platform' && currentUser?.role === 'superadmin' && (
+          <div className="ad-content-wrapper">
+            <div className="ad-content-left" style={{ flex: 1, width: '100%' }}>
+              <SuperAdminDashboard
+                currentUser={currentUser}
+                onSwitchCafe={(slug) => {
+                  handleSwitchCafe(slug);
+                  setActiveTab('dashboard');
+                }}
+                onShowToast={showToast}
+                apiCall={apiCall}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Tab Views */}
 
@@ -422,15 +522,14 @@ export default function AdminApp() {
 
         {/* Regular Cafe Dashboard */}
         {activeTab === 'dashboard' && (
+
           <div class="ad-content-wrapper">
             {/* Left Main Dashboard Column */}
             <div class="ad-content-left">
               {/* Hero Welcome Card */}
               <div class="ad-hero-card">
                 <h2 class="ad-hero-title">Welcome back, {currentUser?.name || 'Admin'}!</h2>
-                <p class="ad-hero-sub">
-                  Here&rsquo;s what&rsquo;s happening with <strong>{cafe.name}</strong> today.
-                </p>
+                <p class="ad-hero-sub">Managing <strong>{cafe.name}</strong> &bull; {selectedCafeSlug}</p>
                 <div class="ad-hero-date">
                   <CalendarIcon size={14} />
                   <span>{todayDateString}</span>
@@ -536,6 +635,7 @@ export default function AdminApp() {
         targetCategoryId={targetCategoryId}
         onClose={() => setModalOpen(false)}
         onSubmit={handleModalSubmit}
+        onUploadImage={handleUploadImage}
       />
 
       {/* Toast Notification */}

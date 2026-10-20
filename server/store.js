@@ -50,6 +50,16 @@ function ensureShape(raw, fallbackSeed = seed) {
       wifi_ssid: typeof cafe.wifi_ssid === 'string' ? cafe.wifi_ssid : (defaultCafe.wifi_ssid || ''),
       wifi_pass: typeof cafe.wifi_pass === 'string' ? cafe.wifi_pass : (defaultCafe.wifi_pass || ''),
       status: cafe.status || 'active',
+      theme: cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {
+        preset: 'showcase',
+        primaryColor: '#1c2826',
+        accentColor: '#e6923c',
+        backgroundColor: '#f8f9fa',
+        backgroundMode: 'light',
+        surfaceColor: '#ffffff',
+        textColor: '#111827',
+        fontFamily: 'Plus Jakarta Sans',
+      },
     },
     categories: (Array.isArray(data.categories) ? data.categories : []).map((category) => ({
       id: String(category.id || slugify(category.name)),
@@ -60,6 +70,7 @@ function ensureShape(raw, fallbackSeed = seed) {
         id: String(item.id || slugify(item.name)),
         name: String(item.name || 'Untitled item'),
         description: String(item.description || ''),
+        image: String(item.image || ''),
         price: Number(item.price) || 0,
         badge: item.badge ? String(item.badge) : '',
         prepTime: item.prepTime ? String(item.prepTime) : '',
@@ -84,19 +95,20 @@ async function syncToMySQL(slug, menuData) {
   try {
     const cafe = menuData.cafe;
     const [existing] = await pool.query('SELECT id FROM cafes WHERE slug = ?', [slug]);
+    const themeVal = cafe.theme ? JSON.stringify(cafe.theme) : null;
     let cafeId = cafe.id;
     if (existing.length === 0) {
       cafeId = crypto.randomUUID();
       await pool.query(
-        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active']
+        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, theme)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal]
       );
     } else {
       cafeId = existing[0].id;
       await pool.query(
-        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ? WHERE id = ?`,
-        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', cafeId]
+        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ?, theme = ? WHERE id = ?`,
+        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal, cafeId]
       );
     }
 
@@ -115,12 +127,12 @@ async function syncToMySQL(slug, menuData) {
         for (let iIdx = 0; iIdx < cat.items.length; iIdx++) {
           const item = cat.items[iIdx];
           await pool.query(
-            `INSERT INTO items (id, categoryId, cafeId, name, description, price, badge, prepTime, dietary, available, sortOrder)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO items (id, categoryId, cafeId, name, description, image, price, badge, prepTime, dietary, available, sortOrder)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE categoryId = VALUES(categoryId), name = VALUES(name), description = VALUES(description),
-             price = VALUES(price), badge = VALUES(badge), prepTime = VALUES(prepTime), dietary = VALUES(dietary),
+             image = VALUES(image), price = VALUES(price), badge = VALUES(badge), prepTime = VALUES(prepTime), dietary = VALUES(dietary),
              available = VALUES(available), sortOrder = VALUES(sortOrder)`,
-            [item.id, cat.id, cafeId, item.name, item.description || '', Number(item.price) || 0, item.badge || '', item.prepTime || '', item.dietary || '', Boolean(item.available), iIdx]
+            [item.id, cat.id, cafeId, item.name, item.description || '', item.image || '', Number(item.price) || 0, item.badge || '', item.prepTime || '', item.dietary || '', Boolean(item.available), iIdx]
           );
         }
       }
@@ -148,6 +160,7 @@ async function loadAllFromMySQL() {
             id: it.id,
             name: it.name,
             description: it.description,
+            image: it.image || '',
             price: Number(it.price) || 0,
             badge: it.badge || '',
             prepTime: it.prepTime || '',
@@ -170,6 +183,11 @@ async function loadAllFromMySQL() {
             wifi_ssid: cafe.wifi_ssid,
             wifi_pass: cafe.wifi_pass,
             status: cafe.status,
+            theme: cafe.theme
+              ? typeof cafe.theme === 'string'
+                ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()
+                : cafe.theme
+              : null,
           },
           categories: catMap,
         })
@@ -180,8 +198,66 @@ async function loadAllFromMySQL() {
   }
 }
 
+
+async function loadCafeFromMySQL(slug) {
+  try {
+
+    const [cafes] = await pool.query('SELECT * FROM cafes WHERE slug = ?', [slug]);
+    if (cafes.length === 0) return null;
+    const cafe = cafes[0];
+    const [categories] = await pool.query('SELECT * FROM categories WHERE cafeId = ? ORDER BY sortOrder ASC', [cafe.id]);
+    const [items] = await pool.query('SELECT * FROM items WHERE cafeId = ? ORDER BY sortOrder ASC', [cafe.id]);
+    const catMap = categories.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      icon: cat.icon,
+      description: cat.description,
+      items: items
+        .filter((it) => it.categoryId === cat.id)
+        .map((it) => ({
+          id: it.id,
+          name: it.name,
+          description: it.description,
+          image: it.image || '',
+          price: Number(it.price) || 0,
+          badge: it.badge || '',
+          prepTime: it.prepTime || '',
+          dietary: it.dietary || '',
+          available: Boolean(it.available),
+        })),
+    }));
+    const shaped = ensureShape({
+      cafe: {
+        id: cafe.id,
+        slug: cafe.slug,
+        name: cafe.name,
+        tagline: cafe.tagline,
+        currency: cafe.currency,
+        footer: cafe.footer,
+        logo: cafe.logo,
+        phone: cafe.phone,
+        wifi_ssid: cafe.wifi_ssid,
+        wifi_pass: cafe.wifi_pass,
+        status: cafe.status,
+        theme: cafe.theme
+          ? typeof cafe.theme === 'string'
+            ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()
+            : cafe.theme
+          : null,
+      },
+      categories: catMap,
+    });
+    menus.set(slug, shaped);
+    return shaped;
+  } catch (err) {
+    console.warn(`[store] Could not load cafe ${slug} from DB:`, err.message);
+    return null;
+  }
+}
+
 function load(slug = 'abol-cafe') {
   loadAllFromMySQL().catch(() => {});
+
   if (slug === 'abol-cafe') {
     try {
       const raw = fs.readFileSync(MENU_FILE, 'utf8');
@@ -335,6 +411,17 @@ async function updateCafeManager(cafeId, newOwnerId) {
   return getCafeById(cafeId);
 }
 
+async function updateCafeTheme(cafeId, theme) {
+  const themeVal = theme ? JSON.stringify(theme) : null;
+  await pool.query('UPDATE cafes SET theme = ? WHERE id = ?', [themeVal, cafeId]);
+  const cafe = await getCafeById(cafeId);
+  if (cafe && menus.has(cafe.slug)) {
+    menus.get(cafe.slug).cafe.theme = theme;
+    writeToDisk(cafe.slug, menus.get(cafe.slug));
+  }
+  return cafe;
+}
+
 async function deleteCafe(cafeId) {
   const cafe = await getCafeById(cafeId);
   if (!cafe) return null;
@@ -366,6 +453,8 @@ module.exports = {
   save,
   update,
   reset,
+  loadAllFromMySQL,
+  loadCafeFromMySQL,
   findCategory,
   findItem,
   newId,
@@ -378,6 +467,8 @@ module.exports = {
   findCafeForUser,
   updateCafeStatus,
   updateCafeManager,
+  updateCafeTheme,
   deleteCafe,
   MENU_FILE,
 };
+

@@ -1,16 +1,13 @@
 import React from 'react';
-import {
-  CoffeeIcon,
-  HomeIcon,
-  GridIcon,
-  BookOpenIcon,
-  SettingsIcon,
-  QrCodeIcon,
-  ShieldIcon,
-} from './AdminIcons.jsx';
+import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon, ShieldIcon } from './AdminIcons.jsx';
 
-export default function AdminSidebar({ activeTab, onSelectTab, isSuperAdmin = true }) {
+export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser }) {
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+
   const navItems = [
+    ...(isSuperAdmin
+      ? [{ id: 'platform', label: 'Platform Hub', icon: <ShieldIcon size={18} /> }]
+      : []),
     { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon size={18} /> },
     { id: 'items', label: 'Menu Items', icon: <BookOpenIcon size={18} /> },
     { id: 'categories', label: 'Categories', icon: <GridIcon size={18} /> },
@@ -18,14 +15,6 @@ export default function AdminSidebar({ activeTab, onSelectTab, isSuperAdmin = tr
     { id: 'settings', label: 'Settings', icon: <SettingsIcon size={18} /> },
   ];
 
-  if (isSuperAdmin) {
-    navItems.push({
-      id: 'superadmin',
-      label: 'Super Admin',
-      icon: <ShieldIcon size={18} />,
-      badge: 'Platform',
-    });
-  }
 
   return (
     <aside class="ad-sidebar" aria-label="Admin Navigation">
@@ -34,9 +23,13 @@ export default function AdminSidebar({ activeTab, onSelectTab, isSuperAdmin = tr
         <span class="ad-sidebar-logo" aria-hidden="true">
           <CoffeeIcon size={24} />
         </span>
-        <div>
-          <h1 class="ad-sidebar-title">CafeMenu</h1>
-          <p class="ad-sidebar-sub">Good Food &bull; Great Moments</p>
+        <div style={{ overflow: 'hidden' }}>
+          <h1 class="ad-sidebar-title" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            {cafe?.name || 'CafeMenu'}
+          </h1>
+          <p class="ad-sidebar-sub" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            {cafe?.tagline || 'Good Food • Great Moments'}
+          </p>
         </div>
       </a>
 

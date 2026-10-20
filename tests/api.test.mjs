@@ -273,6 +273,38 @@ test('multi-tenant: fetches scoped menu and generated QR code for specific cafe'
   assert.ok(listRes.body.cafes.some((c) => c.slug === cafeSlug));
 });
 
+test('multi-tenant theming: updates cafe visual theme and reflects in public menu', async () => {
+  const customTheme = {
+    preset: 'emerald',
+    primaryColor: '#10b981',
+    accentColor: '#fbbf24',
+    backgroundColor: '#061a14',
+    fontFamily: 'Playfair Display',
+  };
+
+  const updateRes = await call(
+    '/api/admin/cafe',
+    {
+      method: 'PUT',
+      body: {
+        theme: customTheme,
+      },
+    },
+    token
+  );
+  assert.equal(updateRes.status, 200);
+  assert.equal(updateRes.body.cafe.theme.preset, 'emerald');
+  assert.equal(updateRes.body.cafe.theme.primaryColor, '#10b981');
+  assert.equal(updateRes.body.cafe.theme.fontFamily, 'Playfair Display');
+
+  // Verify public menu reflects the updated theme
+  const publicMenu = await call('/api/menu');
+  assert.equal(publicMenu.status, 200);
+  assert.equal(publicMenu.body.cafe.theme.preset, 'emerald');
+  assert.equal(publicMenu.body.cafe.theme.primaryColor, '#10b981');
+});
+
+
 test('Super Admin: creates a cafe and provisions its manager user', async () => {
   const timestamp = Date.now();
   const slug = `skyline-cafe-${timestamp}`;
@@ -324,6 +356,121 @@ test('Super Admin: creates a cafe and provisions its manager user', async () => 
   // 4. Non-superadmin cannot access Super Admin endpoints
   const forbiddenRes = await call('/api/superadmin/cafes', {}, loginRes.body.token);
   assert.equal(forbiddenRes.status, 403);
+});
+
+test('Manager: performs CRUD on categories and dishes, and generates dynamic table QR codes', async () => {
+  const ts = Date.now();
+  const cafeSlug = `sunset-cafe-${ts}`;
+  const managerEmail = `sunset-manager-${ts}@sunset.com`;
+  const managerPassword = 'managerPassword123!';
+
+  // 1. Super Admin creates the cafe and provisions its manager
+  const createRes = await call(
+    '/api/superadmin/cafes',
+    {
+      method: 'POST',
+      body: {
+        slug: cafeSlug,
+        name: 'Sunset Bistro',
+        currency: 'USD',
+        managerEmail,
+        managerPassword,
+        managerName: 'Sunset Manager',
+        template: 'empty',
+      },
+    },
+    token
+  );
+  assert.equal(createRes.status, 201);
+  const realSlug = createRes.body.cafe.slug;
+
+  // 2. Manager signs in with email and password
+  const loginRes = await call('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email: managerEmail, password: managerPassword },
+  });
+  assert.equal(loginRes.status, 200);
+  const managerToken = loginRes.body.token;
+
+  // 3. Manager creates a category
+  const catRes = await call(
+    '/api/admin/categories',
+    {
+      method: 'POST',
+      body: { name: 'Craft Cocktails', icon: 'cocktail', description: 'Handcrafted drinks' },
+    },
+    managerToken
+  );
+  assert.equal(catRes.status, 201);
+  const categoryId = catRes.body.category.id;
+  assert.equal(catRes.body.category.name, 'Craft Cocktails');
+
+  // 4. Manager creates a food/drink dish under that category
+  const dishRes = await call(
+    `/api/admin/categories/${categoryId}/items`,
+    {
+      method: 'POST',
+      body: {
+        name: 'Smoked Old Fashioned',
+        price: 18,
+        description: 'Bourbon, bitters, orange peel, smoked oak',
+        badge: 'Signature',
+        available: true,
+      },
+    },
+    managerToken
+  );
+  assert.equal(dishRes.status, 201);
+  const dishId = dishRes.body.item.id;
+  assert.equal(dishRes.body.item.name, 'Smoked Old Fashioned');
+
+  // 5. Manager updates the dish (price & badge)
+  const updateDishRes = await call(
+    `/api/admin/items/${dishId}`,
+    {
+      method: 'PUT',
+      body: { price: 20, badge: 'Popular' },
+    },
+    managerToken
+  );
+  assert.equal(updateDishRes.status, 200);
+  assert.equal(updateDishRes.body.item.price, 20);
+  assert.equal(updateDishRes.body.item.badge, 'Popular');
+
+  // 6. Manager generates dynamic table QR code for table 15
+  const qrRes = await fetch(`${BASE}/api/admin/qr?table=15`, {
+    headers: { Authorization: `Bearer ${managerToken}` },
+  });
+  assert.equal(qrRes.status, 200);
+  assert.equal(qrRes.headers.get('content-type'), 'image/png');
+
+  // 7. Verify public customer menu reflects manager's changes
+  const publicMenu = await call(`/api/${realSlug}/menu`);
+  assert.equal(publicMenu.status, 200);
+  const foundCat = publicMenu.body.categories.find((c) => c.id === categoryId);
+  assert.ok(foundCat);
+  const foundDish = foundCat.items.find((d) => d.id === dishId);
+  assert.ok(foundDish);
+  assert.equal(foundDish.price, 20);
+
+  // 8. Cross-tenant isolation check: Manager cannot tamper with another cafe
+  const tamperRes = await call(
+    '/api/admin/categories?cafe=abol-cafe',
+    {
+      method: 'POST',
+      body: { name: 'Hacked Category' },
+    },
+    managerToken
+  );
+  assert.equal(tamperRes.status, 403);
+  assert.match(tamperRes.body.error, /permission/i);
+
+  // 9. Manager deletes dish and category
+  const delDish = await call(`/api/admin/items/${dishId}`, { method: 'DELETE' }, managerToken);
+  assert.equal(delDish.status, 200);
+
+  const delCat = await call(`/api/admin/categories/${categoryId}`, { method: 'DELETE' }, managerToken);
+  assert.equal(delCat.status, 200);
 });
 
 test('rejects unknown API routes with JSON', async () => {

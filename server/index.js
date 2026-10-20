@@ -15,6 +15,7 @@ const {
   createManagerUser,
   bootstrapSuperAdmin,
 } = require('./auth');
+const { upload, uploadImage } = require('./cloudinary');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -37,14 +38,23 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
 });
 
-/** Admin and Super Admin dashboard single-page application */
-app.get(['/admin', '/superadmin', '/super-admin'], (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
-});
-
-/** Live demo Cafe digital menu (supports both /cafe, /cafe/:slug, and /abol-cafe) */
+/** Live demo Cafe digital menu (supports /cafe, /abol-cafe, /cafe/:slug, and registered /:slug) */
 app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+});
+
+app.get('/:cafeSlug', async (req, res, next) => {
+  const reserved = ['auth', 'admin', 'superadmin', 'health', 'menu', 'api', 'dist', 'css', 'images', 'videos', 'qr.png', 'favicon.ico'];
+  if (reserved.includes(req.params.cafeSlug)) return next();
+  const slug = req.params.cafeSlug;
+  if (slug === 'abol-cafe') {
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+  const cafeData = await store.loadCafeFromMySQL(slug);
+  if (cafeData && cafeData.cafe) {
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+  return next();
 });
 
 /** Redirect legacy /index or /index.html aliases to the preserved Abol Cafe menu */
@@ -64,20 +74,32 @@ app.get('/api/health', (req, res) => {
 });
 
 /** Default menu endpoint for backward compatibility */
-app.get('/api/menu', (req, res) => {
+app.get('/api/menu', async (req, res) => {
   const tenant = req.query.cafe || 'abol-cafe';
-  res.json(store.get(tenant));
+  let data = store.get(tenant);
+  if (!data || (data.categories.length === 0 && tenant !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(tenant);
+    if (dbData) data = dbData;
+  }
+  res.json(data);
 });
 
 /** Multi-tenant scoped public menu */
-app.get('/api/:cafeSlug/menu', (req, res, next) => {
+app.get('/api/:cafeSlug/menu', async (req, res, next) => {
   if (['auth', 'admin', 'superadmin', 'health', 'menu'].includes(req.params.cafeSlug)) return next();
-  res.json(store.get(req.params.cafeSlug));
+  let data = store.get(req.params.cafeSlug);
+  if (!data || (data.categories.length === 0 && req.params.cafeSlug !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(req.params.cafeSlug);
+    if (dbData) data = dbData;
+  }
+  res.json(data);
 });
 
-/** PNG QR code default */
+
+/** PNG QR code default (supports optional ?table=N query parameter) */
 app.get('/qr.png', async (req, res) => {
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/abol-cafe`;
+  const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/abol-cafe${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -91,11 +113,12 @@ app.get('/qr.png', async (req, res) => {
   }
 });
 
-/** Multi-tenant PNG QR code: /api/:cafeSlug/qr.png */
+/** Multi-tenant PNG QR code: /api/:cafeSlug/qr.png (supports optional ?table=N) */
 app.get('/api/:cafeSlug/qr.png', async (req, res, next) => {
   if (['auth', 'admin', 'superadmin'].includes(req.params.cafeSlug)) return next();
   const slug = req.params.cafeSlug;
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${slug}`;
+  const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${slug}${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -193,6 +216,17 @@ app.put('/api/superadmin/cafes/:id/manager', async (req, res) => {
   }
 });
 
+/** Update cafe theme directly from Super Admin */
+app.put('/api/superadmin/cafes/:id/theme', async (req, res) => {
+  const theme = req.body && req.body.theme;
+  if (!theme || typeof theme !== 'object') {
+    return res.status(400).json({ error: 'Valid theme object is required.' });
+  }
+  const cafe = await store.updateCafeTheme(req.params.id, theme);
+  if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+  res.json({ cafe });
+});
+
 /** Delete a cafe and its menu items */
 app.delete('/api/superadmin/cafes/:id', async (req, res) => {
   const cafe = await store.deleteCafe(req.params.id);
@@ -212,22 +246,106 @@ app.post('/api/admin/login', (req, res) => {
   return res.json({ token: createToken({ cafeSlug }) });
 });
 
-/* Everything below requires a valid session token (Better Auth or Legacy). */
-app.use('/api/admin', requireAuth);
+/**
+ * Middleware that resolves and verifies the tenant cafe for admin operations:
+ * - Super Admin / legacy token: allowed across all cafes.
+ * - Cafe Manager: bound strictly to the cafe they own; cross-tenant requests return 403 Forbidden.
+ */
+async function resolveAdminTenant(req, res, next) {
+  // Super Administrator or legacy test token
+  if (req.user && (req.user.role === 'superadmin' || req.user.id === 'legacy-admin')) {
+    req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
+    let data = store.get(req.cafeSlug);
+    if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
+      const dbData = await store.loadCafeFromMySQL(req.cafeSlug);
+      if (dbData) data = dbData;
+    }
+    req.cafe = data ? data.cafe : null;
+    return next();
+  }
 
-/** Helper to identify tenant for admin requests */
-function resolveTenant(req) {
-  return req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
+  // Cafe Manager: strictly enforce tenant ownership
+  if (req.user && req.user.role === 'manager') {
+    const userCafe = await store.findCafeForUser(req.user.id);
+    if (!userCafe) {
+      return res.status(404).json({ error: 'No cafe assigned to your account.' });
+    }
+
+    const requestedSlug = req.query.cafe || req.headers['x-cafe-slug'];
+    if (requestedSlug && requestedSlug !== userCafe.slug) {
+      return res.status(403).json({ error: 'You do not have permission to manage this cafe.' });
+    }
+
+    let data = store.get(userCafe.slug);
+    if (!data || (data.categories.length === 0 && userCafe.slug !== 'abol-cafe')) {
+      const dbData = await store.loadCafeFromMySQL(userCafe.slug);
+      if (dbData) data = dbData;
+    }
+    req.cafe = userCafe;
+    req.cafeSlug = userCafe.slug;
+    return next();
+  }
+
+  req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
+  let data = store.get(req.cafeSlug);
+  if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(req.cafeSlug);
+    if (dbData) data = dbData;
+  }
+  req.cafe = data ? data.cafe : null;
+  return next();
 }
+
+
+/* Everything below requires a valid session token (Better Auth or Legacy). */
+app.use('/api/admin', requireAuth, resolveAdminTenant);
 
 /** Lets the dashboard check whether a stored token is still valid. */
 app.get('/api/admin/session', (req, res) => {
-  res.json({ ok: true, user: req.user || null });
+  res.json({ ok: true, user: req.user || null, cafeSlug: req.cafeSlug });
 });
 
-/** List cafes owned by user or all cafes for legacy admin */
+/** Get full menu for the manager's assigned cafe */
+app.get('/api/admin/menu', (req, res) => {
+  res.json(store.get(req.cafeSlug));
+});
+
+/**
+ * Upload an image (to Cloudinary if configured, or local fallback)
+ */
+app.post('/api/admin/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded.' });
+    }
+    const result = await uploadImage(req.file);
+    return res.json({ url: result.url, provider: result.provider });
+  } catch (err) {
+    console.error('[upload] Image upload failed:', err);
+    return res.status(500).json({ error: err.message || 'Image upload failed.' });
+  }
+});
+
+/** Generate dynamic table QR code PNG for the authenticated manager's cafe */
+app.get('/api/admin/qr', async (req, res) => {
+  const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${req.cafeSlug}${table}`;
+  try {
+    const png = await QRCode.toBuffer(String(target), {
+      type: 'png',
+      width: Number(req.query.size) || 512,
+      margin: 2,
+      color: { dark: '#2b1810ff', light: '#fffaf4ff' },
+    });
+    res.type('png').set('Cache-Control', 'public, max-age=3600').send(png);
+  } catch (error) {
+    res.status(400).json({ error: `Could not build a QR code: ${error.message}` });
+  }
+});
+
+/** List cafes owned by user or all cafes for super admin */
 app.get('/api/admin/cafes', async (req, res) => {
-  const ownerId = req.user && req.user.id !== 'legacy-admin' ? req.user.id : null;
+  const ownerId = req.user && req.user.role === 'manager' ? req.user.id : null;
   const cafes = await store.listCafes(ownerId);
   res.json({ cafes });
 });
@@ -262,16 +380,17 @@ app.post('/api/admin/cafes', async (req, res) => {
  * ------------------------------------------------------------------ */
 
 app.get('/api/admin/cafe', (req, res) => {
-  const tenant = resolveTenant(req);
-  res.json({ cafe: store.get(tenant).cafe });
+  res.json({ cafe: store.get(req.cafeSlug).cafe });
 });
 
 app.put('/api/admin/cafe', (req, res) => {
   const body = req.body || {};
-  const tenant = resolveTenant(req);
-  const cafe = store.update(tenant, (data) => {
+  const cafe = store.update(req.cafeSlug, (data) => {
     for (const key of ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass']) {
       if (typeof body[key] === 'string' && body[key].trim()) data.cafe[key] = body[key].trim();
+    }
+    if (body.theme && typeof body.theme === 'object') {
+      data.cafe.theme = { ...(data.cafe.theme || {}), ...body.theme };
     }
     return data.cafe;
   });
@@ -279,16 +398,20 @@ app.put('/api/admin/cafe', (req, res) => {
 });
 
 /* ------------------------------------------------------------------ *
- * Admin: categories
+ * Admin: categories (CRUD)
  * ------------------------------------------------------------------ */
+
+app.get('/api/admin/categories', (req, res) => {
+  const menu = store.get(req.cafeSlug);
+  res.json({ categories: menu.categories });
+});
 
 app.post('/api/admin/categories', (req, res) => {
   const body = req.body || {};
-  const tenant = resolveTenant(req);
   if (!body.name || !String(body.name).trim()) {
     return res.status(400).json({ error: 'A category name is required.' });
   }
-  const category = store.update(tenant, (data) => {
+  const category = store.update(req.cafeSlug, (data) => {
     const taken = new Set(data.categories.map((entry) => entry.id));
     const created = {
       id: store.newId(body.name, taken),
@@ -305,8 +428,7 @@ app.post('/api/admin/categories', (req, res) => {
 
 app.put('/api/admin/categories/:id', (req, res) => {
   const body = req.body || {};
-  const tenant = resolveTenant(req);
-  const category = store.update(tenant, (data) => {
+  const category = store.update(req.cafeSlug, (data) => {
     const target = store.findCategory(data, req.params.id);
     if (!target) return null;
     if (typeof body.name === 'string' && body.name.trim()) target.name = body.name.trim();
@@ -319,8 +441,7 @@ app.put('/api/admin/categories/:id', (req, res) => {
 });
 
 app.delete('/api/admin/categories/:id', (req, res) => {
-  const tenant = resolveTenant(req);
-  const removed = store.update(tenant, (data) => {
+  const removed = store.update(req.cafeSlug, (data) => {
     const index = data.categories.findIndex((entry) => entry.id === req.params.id);
     if (index === -1) return null;
     return data.categories.splice(index, 1)[0];
@@ -332,9 +453,8 @@ app.delete('/api/admin/categories/:id', (req, res) => {
 /** Reorder categories */
 app.post('/api/admin/categories/reorder', (req, res) => {
   const order = Array.isArray(req.body && req.body.order) ? req.body.order : null;
-  const tenant = resolveTenant(req);
   if (!order) return res.status(400).json({ error: 'Send { order: [categoryId, ...] }.' });
-  const categories = store.update(tenant, (data) => {
+  const categories = store.update(req.cafeSlug, (data) => {
     const ranked = [...data.categories].sort((a, b) => {
       const ai = order.indexOf(a.id);
       const bi = order.indexOf(b.id);
@@ -347,16 +467,15 @@ app.post('/api/admin/categories/reorder', (req, res) => {
 });
 
 /* ------------------------------------------------------------------ *
- * Admin: items
+ * Admin: items / dishes / drinks (CRUD)
  * ------------------------------------------------------------------ */
 
 app.post('/api/admin/categories/:id/items', (req, res) => {
   const body = req.body || {};
-  const tenant = resolveTenant(req);
   if (!body.name || !String(body.name).trim()) {
     return res.status(400).json({ error: 'An item name is required.' });
   }
-  const item = store.update(tenant, (data) => {
+  const item = store.update(req.cafeSlug, (data) => {
     const category = store.findCategory(data, req.params.id);
     if (!category) return null;
     const taken = new Set(data.categories.flatMap((entry) => entry.items.map((it) => it.id)));
@@ -364,6 +483,7 @@ app.post('/api/admin/categories/:id/items', (req, res) => {
       id: store.newId(body.name, taken),
       name: String(body.name).trim(),
       description: String(body.description || ''),
+      image: body.image ? String(body.image).trim() : '',
       price: Number(body.price) || 0,
       badge: body.badge ? String(body.badge).trim() : '',
       prepTime: body.prepTime ? String(body.prepTime).trim() : '',
@@ -379,12 +499,12 @@ app.post('/api/admin/categories/:id/items', (req, res) => {
 
 app.put('/api/admin/items/:id', (req, res) => {
   const body = req.body || {};
-  const tenant = resolveTenant(req);
-  const item = store.update(tenant, (data) => {
+  const item = store.update(req.cafeSlug, (data) => {
     const found = store.findItem(data, req.params.id);
     if (!found) return null;
     if (typeof body.name === 'string' && body.name.trim()) found.item.name = body.name.trim();
     if (typeof body.description === 'string') found.item.description = body.description;
+    if (body.image !== undefined) found.item.image = String(body.image || '').trim();
     if (body.price !== undefined) found.item.price = Number(body.price) || 0;
     if (typeof body.badge === 'string') found.item.badge = body.badge.trim();
     if (typeof body.prepTime === 'string') found.item.prepTime = body.prepTime.trim();
@@ -404,8 +524,7 @@ app.put('/api/admin/items/:id', (req, res) => {
 });
 
 app.delete('/api/admin/items/:id', (req, res) => {
-  const tenant = resolveTenant(req);
-  const removed = store.update(tenant, (data) => {
+  const removed = store.update(req.cafeSlug, (data) => {
     for (const category of data.categories) {
       const index = category.items.findIndex((entry) => entry.id === req.params.id);
       if (index !== -1) return category.items.splice(index, 1)[0];
@@ -421,8 +540,7 @@ app.delete('/api/admin/items/:id', (req, res) => {
  * ------------------------------------------------------------------ */
 
 app.post('/api/admin/reset', (req, res) => {
-  const tenant = resolveTenant(req);
-  res.json({ menu: store.reset(tenant) });
+  res.json({ menu: store.reset(req.cafeSlug) });
 });
 
 /* ------------------------------------------------------------------ */
@@ -478,7 +596,9 @@ app.use((error, req, res, next) => {
 });
 
 store.load('abol-cafe');
+store.loadAllFromMySQL().catch((e) => console.warn('[boot] loadAllFromMySQL notice:', e.message));
 bootstrapSuperAdmin();
+
 
 if (require.main === module) {
   app.listen(PORT, () => {
