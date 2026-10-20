@@ -1,3 +1,27 @@
+
+/* Admin Page Clean Background Reset */
+body {
+  background: #f8f9fa !important;
+  color: #121826 !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body::before,
+body::after {
+  display: none !important;
+}
+
+#root {
+  min-height: 100vh;
+  background: #f8f9fa !important;
+}
+
+@keyframes cmSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* ==========================================================================
    CafeMenu Admin Showcase Stylesheet
    Matches exact layout of "CafeMenu Admin Dashboard.png" and

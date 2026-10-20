@@ -65,9 +65,8 @@ export default function AdminApp() {
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Cafe-Slug': currentCafeSlug,
+          'X-Cafe-Slug': selectedCafeSlug,
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...(selectedCafeSlug ? { 'x-cafe-slug': selectedCafeSlug } : {}),
           ...options.headers,
         },
       };
@@ -230,7 +229,7 @@ export default function AdminApp() {
     name: 'CafeMenu',
     tagline: 'Good Food • Great Moments',
     currency: 'ETB',
-    slug: currentCafeSlug,
+    slug: selectedCafeSlug,
   };
 
   const categories = menu?.categories || [];
@@ -293,7 +292,7 @@ export default function AdminApp() {
   const handleDeleteDish = async (dish) => {
     if (!window.confirm(`Delete "${dish.name}" from menu?`)) return;
     try {
-      await apiCall(`/api/admin/items/${dish.id}?cafe=${currentCafeSlug}`, { method: 'DELETE' });
+      await apiCall(`/api/admin/items/${dish.id}?cafe=${selectedCafeSlug}`, { method: 'DELETE' });
       showToast(`Deleted "${dish.name}"`);
       await loadMenu();
     } catch (err) {
@@ -304,7 +303,7 @@ export default function AdminApp() {
   const handleDeleteCategory = async (cat) => {
     if (!window.confirm(`Delete category "${cat.name}" and all its dishes?`)) return;
     try {
-      await apiCall(`/api/admin/categories/${cat.id}?cafe=${currentCafeSlug}`, { method: 'DELETE' });
+      await apiCall(`/api/admin/categories/${cat.id}?cafe=${selectedCafeSlug}`, { method: 'DELETE' });
       showToast(`Deleted category "${cat.name}"`);
       await loadMenu();
     } catch (err) {
@@ -314,7 +313,7 @@ export default function AdminApp() {
 
   const handleReorderCategories = async (newOrder) => {
     try {
-      await apiCall(`/api/admin/categories/reorder?cafe=${currentCafeSlug}`, {
+      await apiCall(`/api/admin/categories/reorder?cafe=${selectedCafeSlug}`, {
         method: 'POST',
         body: { order: newOrder },
       });
@@ -327,7 +326,7 @@ export default function AdminApp() {
 
   const handleSaveCafe = async (patch) => {
     try {
-      await apiCall(`/api/admin/cafe?cafe=${currentCafeSlug}`, { method: 'PUT', body: patch });
+      await apiCall(`/api/admin/cafe?cafe=${selectedCafeSlug}`, { method: 'PUT', body: patch });
       showToast('Cafe settings updated');
       await loadMenu();
     } catch (err) {
@@ -338,7 +337,7 @@ export default function AdminApp() {
   const handleResetSampleMenu = async () => {
     if (!window.confirm('Reset all categories and dishes to sample defaults? Any custom items will be overwritten.')) return;
     try {
-      await apiCall(`/api/admin/reset?cafe=${currentCafeSlug}`, { method: 'POST' });
+      await apiCall(`/api/admin/reset?cafe=${selectedCafeSlug}`, { method: 'POST' });
       showToast('Restored default sample menu');
       await loadMenu();
     } catch (err) {
@@ -349,19 +348,19 @@ export default function AdminApp() {
   const handleModalSubmit = async (formData) => {
     try {
       if (modalMode === 'addCategory') {
-        await apiCall(`/api/admin/categories?cafe=${currentCafeSlug}`, {
+        await apiCall(`/api/admin/categories?cafe=${selectedCafeSlug}`, {
           method: 'POST',
           body: { name: formData.name, icon: formData.icon },
         });
         showToast(`Category "${formData.name}" added`);
       } else if (modalMode === 'editCategory') {
-        await apiCall(`/api/admin/categories/${modalData.id}?cafe=${currentCafeSlug}`, {
+        await apiCall(`/api/admin/categories/${modalData.id}?cafe=${selectedCafeSlug}`, {
           method: 'PUT',
           body: { name: formData.name, icon: formData.icon },
         });
         showToast(`Category "${formData.name}" updated`);
       } else if (modalMode === 'addDish') {
-        await apiCall(`/api/admin/categories/${formData.categoryId}/items?cafe=${currentCafeSlug}`, {
+        await apiCall(`/api/admin/categories/${formData.categoryId}/items?cafe=${selectedCafeSlug}`, {
           method: 'POST',
           body: {
             name: formData.name,
@@ -375,7 +374,7 @@ export default function AdminApp() {
         });
         showToast(`Dish "${formData.name}" added`);
       } else if (modalMode === 'editDish') {
-        await apiCall(`/api/admin/items/${modalData.id}?cafe=${currentCafeSlug}`, {
+        await apiCall(`/api/admin/items/${modalData.id}?cafe=${selectedCafeSlug}`, {
           method: 'PUT',
           body: {
             name: formData.name,
