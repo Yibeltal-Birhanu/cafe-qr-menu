@@ -1,12 +1,13 @@
 import React from 'react';
 import { ChevronRightIcon, ClockIcon } from '../common/Icons.jsx';
 
-export default function DishListItem({ dish, onSelect, currency = 'ETB' }) {
+export default function DishListItem({ dish, onSelect, currency = 'ETB', layout = 'bento' }) {
   const formattedPrice = `${dish.price} ${dish.currency || currency || 'ETB'}`;
 
   return (
     <article
-      class="cm-dish-card"
+      class={`cm-dish-card cm-dish-card--${layout}`}
+      data-layout={layout}
       onClick={() => onSelect(dish)}
       role="button"
       tabIndex={0}

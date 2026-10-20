@@ -24,18 +24,14 @@ export default function AdminApp() {
       return '';
     }
   });
+  const tokenRef = useRef(token);
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [menu, setMenu] = useState(null);
-  const [activeTab, setActiveTab] = useState(() => {
-    if (
-      typeof window !== 'undefined' &&
-      (window.location.pathname.includes('superadmin') || window.location.pathname.includes('super-admin'))
-    ) {
-      return 'superadmin';
-    }
-    return 'dashboard';
-  });
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [globalSearch, setGlobalSearch] = useState('');
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
@@ -55,20 +51,38 @@ export default function AdminApp() {
   }, []);
 
   const [currentUser, setCurrentUser] = useState(null);
-  const [selectedCafeSlug, setSelectedCafeSlug] = useState('abol-cafe');
+  const [selectedCafeSlug, setSelectedCafeSlug] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('cafe') || '';
+    } catch {
+      return '';
+    }
+  });
+  const slugRef = useRef(selectedCafeSlug);
+  useEffect(() => {
+    slugRef.current = selectedCafeSlug;
+  }, [selectedCafeSlug]);
+
   const [availableCafes, setAvailableCafes] = useState([]);
 
-  // API Helper
+  // API Helper with tokenRef & credentials support
   const apiCall = useCallback(
     async (path, options = {}) => {
+      const activeToken = options.token !== undefined ? options.token : (tokenRef.current || token);
+      const activeSlug = options.cafeSlug !== undefined ? options.cafeSlug : (slugRef.current || selectedCafeSlug);
+
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(activeSlug ? { 'X-Cafe-Slug': activeSlug } : {}),
+        ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
+        ...options.headers,
+      };
+
       const config = {
         method: options.method || 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Cafe-Slug': selectedCafeSlug,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...options.headers,
-        },
+        headers,
+        credentials: 'include',
       };
       if (options.body !== undefined && typeof options.body !== 'string') {
         config.body = JSON.stringify(options.body);
@@ -78,6 +92,7 @@ export default function AdminApp() {
       if (res.status === 401 && !options.noAuthRedirect) {
         setIsAuthenticated(false);
         setToken('');
+        tokenRef.current = '';
         setCurrentUser(null);
         try {
           localStorage.removeItem(TOKEN_KEY);
@@ -97,59 +112,88 @@ export default function AdminApp() {
   );
 
   // Load Menu for designated tenant cafe
-  const loadMenu = useCallback(async (slug = '') => {
-    try {
-      const activeSlug = slug || selectedCafeSlug;
-      const query = activeSlug ? `?cafe=${encodeURIComponent(activeSlug)}` : '';
-      const data = await apiCall(`/api/admin/menu${query}`, {
-        headers: activeSlug ? { 'x-cafe-slug': activeSlug } : {},
-      });
-      setMenu(data);
-    } catch (err) {
-      console.error('Menu load error:', err);
-      showToast('Failed to load menu: ' + err.message, true);
-    }
-  }, [apiCall, selectedCafeSlug, showToast]);
-
+  const loadMenu = useCallback(
+    async (slug = '', customToken = null) => {
+      try {
+        const activeSlug = slug || slugRef.current || selectedCafeSlug || 'abol-cafe';
+        const query = activeSlug ? `?cafe=${encodeURIComponent(activeSlug)}` : '';
+        const data = await apiCall(`/api/admin/menu${query}`, {
+          token: customToken !== null ? customToken : (tokenRef.current || token),
+          cafeSlug: activeSlug,
+          noAuthRedirect: true,
+        });
+        if (data) {
+          setMenu(data);
+        }
+      } catch (err) {
+        console.warn('Menu load notice:', err.message);
+      }
+    },
+    [apiCall, selectedCafeSlug, token]
+  );
 
   // Verify Session & Resolve Scoped Cafe
-  const verifySession = useCallback(async (customToken = null) => {
-    const activeToken = customToken !== null ? customToken : token;
-    if (!activeToken) {
-      setIsAuthenticated(false);
-      setCurrentUser(null);
-      return;
-    }
+  const verifySession = useCallback(
+    async (customToken = null) => {
+      const activeToken = customToken !== null ? customToken : (tokenRef.current || token);
+      if (!activeToken) {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        return false;
+      }
 
-    try {
-      const session = await apiCall('/api/admin/session', { noAuthRedirect: true });
+      let session = null;
+      try {
+        session = await apiCall('/api/admin/session', {
+          noAuthRedirect: true,
+          token: activeToken,
+          cafeSlug: '', // don't send premature slug for session check
+        });
+      } catch (err) {
+        console.warn('Session check rejected:', err.message);
+        setIsAuthenticated(false);
+        setToken('');
+        tokenRef.current = '';
+        setCurrentUser(null);
+        try {
+          localStorage.removeItem(TOKEN_KEY);
+        } catch {}
+        return false;
+      }
+
       if (session && session.ok) {
         setIsAuthenticated(true);
         setCurrentUser(session.user);
-        const tenantSlug = session.cafeSlug || 'abol-cafe';
-        setSelectedCafeSlug(tenantSlug);
+        const resolvedSlug = session.cafeSlug || 'abol-cafe';
+        setSelectedCafeSlug(resolvedSlug);
+        slugRef.current = resolvedSlug;
 
         // If superadmin, fetch all cafes for switcher
-        if (session.user && session.user.role === 'superadmin') {
+        if (session.user && (session.user.role === 'superadmin' || session.user.id === 'legacy-admin')) {
           try {
-            const cafesRes = await apiCall('/api/admin/cafes');
+            const cafesRes = await apiCall('/api/admin/cafes', { token: activeToken, noAuthRedirect: true });
             setAvailableCafes(cafesRes.cafes || []);
           } catch (_) {}
-          setActiveTab((prev) => (prev === 'dashboard' ? 'platform' : prev));
         }
 
-        await loadMenu(tenantSlug);
+        try {
+          await loadMenu(resolvedSlug, activeToken);
+        } catch (_) {}
 
+        return true;
+      } else {
+        setIsAuthenticated(false);
+        setToken('');
+        tokenRef.current = '';
+        setCurrentUser(null);
+        try {
+          localStorage.removeItem(TOKEN_KEY);
+        } catch {}
+        return false;
       }
-    } catch {
-      setIsAuthenticated(false);
-      setToken('');
-      setCurrentUser(null);
-      try {
-        localStorage.removeItem(TOKEN_KEY);
-      } catch {}
-    }
-  }, [token, apiCall, loadMenu]);
+    },
+    [token, apiCall, loadMenu]
+  );
 
   useEffect(() => {
     verifySession();
@@ -164,16 +208,32 @@ export default function AdminApp() {
         const res = await fetch('/api/auth/sign-in/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             email: credentials.email.trim(),
             password: credentials.password,
           }),
         });
         const resData = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(resData.message || resData.error || 'Invalid manager email or password.');
+        if (res.ok && (resData.token || resData.session?.token)) {
+          authToken = resData.token || (resData.session && resData.session.token) || '';
+        } else {
+          // Check master admin password fallback
+          try {
+            const masterRes = await apiCall('/api/admin/login', {
+              method: 'POST',
+              body: { password: credentials.password },
+              noAuthRedirect: true,
+            });
+            if (masterRes && masterRes.token) {
+              authToken = masterRes.token;
+            }
+          } catch (_) {}
+
+          if (!authToken) {
+            throw new Error(resData.message || resData.error || 'Invalid email or password.');
+          }
         }
-        authToken = resData.token || (resData.session && resData.session.token) || '';
       } else {
         // Master Admin Password
         const pwd = typeof credentials === 'object' ? credentials.password : credentials;
@@ -185,16 +245,22 @@ export default function AdminApp() {
         authToken = data.token || '';
       }
 
-      if (authToken) {
-        setToken(authToken);
-        try {
-          localStorage.setItem(TOKEN_KEY, authToken);
-        } catch {}
+      if (!authToken) {
+        throw new Error('Authentication succeeded but no authorization token was received.');
       }
 
-      setIsAuthenticated(true);
-      showToast('Signed in successfully!');
-      await verifySession(authToken);
+      tokenRef.current = authToken;
+      setToken(authToken);
+      try {
+        localStorage.setItem(TOKEN_KEY, authToken);
+      } catch {}
+
+      const ok = await verifySession(authToken);
+      if (ok) {
+        showToast('Signed in successfully!');
+      } else {
+        throw new Error('Session could not be established. Please try again.');
+      }
     } catch (err) {
       showToast(err.message, true);
       throw err;
@@ -418,7 +484,7 @@ export default function AdminApp() {
   // If not signed in, show clean modern login view
   if (!isAuthenticated) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
         <AdminLogin onLogin={handleLogin} onSignIn={handleLogin} />
         {toast && (
           <div class={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
@@ -448,7 +514,7 @@ export default function AdminApp() {
     superadmin: 'Super Admin Platform',
   };
 
-  const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin' || true;
+  const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin';
 
   return (
     <div className="ad-layout">

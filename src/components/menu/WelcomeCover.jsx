@@ -9,7 +9,13 @@ export default function WelcomeCover({
   theme = null,
   onStart,
 }) {
-  const layout = theme?.layout || (theme?.preset === 'emerald' ? 'editorial' : theme?.preset === 'terracotta' ? 'rustic' : theme?.preset === 'pastel' ? 'boutique' : 'bento');
+  const layout = theme?.layout || (
+    theme?.preset === 'emerald' ? 'editorial' :
+    theme?.preset === 'terracotta' ? 'rustic' :
+    theme?.preset === 'pastel' ? 'boutique' :
+    theme?.preset === 'neon-noir' || theme?.preset === 'noir' ? 'noir' :
+    'bento'
+  );
 
   const renderLogo = () => {
     switch (logo) {
@@ -44,6 +50,12 @@ export default function WelcomeCover({
       title: 'Sweet Delicacies & Bakes',
       sub: 'Freshly laminated viennoiserie, strawberry cream choux, and fine artisanal teas.',
       btnText: 'Discover Our Delicacies ✨',
+    },
+    noir: {
+      badge: 'CYBER LOUNGE & COCKTAIL BAR',
+      title: 'Neon Nights & Craft Mixology',
+      sub: 'Ultra-modern craft beverages, fusion bites, and ambient late-night lounge.',
+      btnText: 'Access Lounge Menu ⚡',
     },
     bento: {
       badge: 'DIGITAL QR MENU',

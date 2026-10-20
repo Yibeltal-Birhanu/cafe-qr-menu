@@ -38,9 +38,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
 });
 
-/** Admin & Super Admin single-page app routes */
-app.get(['/admin', '/superadmin', '/super-admin'], (req, res) => {
+/** Cafe Manager single-page app route */
+app.get('/admin', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
+});
+
+/** Super Admin executive platform console route */
+app.get(['/superadmin', '/super-admin'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'superadmin.html'));
 });
 
 /** Live demo Cafe digital menu (supports /cafe, /abol-cafe, /cafe/:slug, and registered /:slug) */
@@ -49,7 +54,7 @@ app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
 });
 
 app.get('/:cafeSlug', async (req, res, next) => {
-  const reserved = ['auth', 'admin', 'superadmin', 'health', 'menu', 'api', 'dist', 'css', 'images', 'videos', 'qr.png', 'favicon.ico'];
+  const reserved = ['auth', 'admin', 'superadmin', 'super-admin', 'health', 'menu', 'api', 'dist', 'css', 'images', 'videos', 'qr.png', 'favicon.ico'];
   if (reserved.includes(req.params.cafeSlug)) return next();
   const slug = req.params.cafeSlug;
   if (slug === 'abol-cafe') {
@@ -177,6 +182,7 @@ app.post('/api/superadmin/cafes', async (req, res) => {
       wifi_pass: body.wifi_pass || '',
       status: body.status || 'active',
       template: body.template || 'seed',
+      theme: body.theme || null,
     });
 
     res.status(201).json({
@@ -276,6 +282,15 @@ async function resolveAdminTenant(req, res, next) {
       return res.status(404).json({ error: 'No cafe assigned to your account.' });
     }
 
+    req.cafe = userCafe;
+    req.cafeSlug = userCafe.slug;
+
+    // The session check endpoint is specifically designed to resolve the manager's assigned cafe,
+    // so any stale client header should not prevent session validation.
+    if (req.path === '/session') {
+      return next();
+    }
+
     const requestedSlug = req.query.cafe || req.headers['x-cafe-slug'];
     if (requestedSlug && requestedSlug !== userCafe.slug) {
       return res.status(403).json({ error: 'You do not have permission to manage this cafe.' });
@@ -286,8 +301,6 @@ async function resolveAdminTenant(req, res, next) {
       const dbData = await store.loadCafeFromMySQL(userCafe.slug);
       if (dbData) data = dbData;
     }
-    req.cafe = userCafe;
-    req.cafeSlug = userCafe.slug;
     return next();
   }
 
@@ -611,9 +624,10 @@ if (require.main === module) {
     console.log(`     Landing      http://localhost:${PORT}/`);
     console.log(`     Abol Cafe    http://localhost:${PORT}/abol-cafe`);
     console.log(`     Admin        http://localhost:${PORT}/admin`);
-    console.log(`     Super Admin  http://localhost:${PORT}/api/superadmin/cafes`);
+    console.log(`     Super Admin  http://localhost:${PORT}/superadmin`);
     console.log(`     Better Auth  http://localhost:${PORT}/api/auth/ok\n`);
   });
 }
 
 module.exports = app;
+

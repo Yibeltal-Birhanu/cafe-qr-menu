@@ -1,97 +1,123 @@
 /**
  * Multi-Tenant Theme Presets and CSS Custom Property Engine
- * Allows every cafe or restaurant to customize their visual identity instantly.
+ * Clean, simple aesthetic where the main color is white (#ffffff),
+ * with 1st (Primary), 2nd (Secondary), and 3rd (Accent) colors
+ * fully configurable by the cafe manager in the admin portal.
  */
 
 export const THEME_PRESETS = [
   {
     id: 'showcase',
     layout: 'bento',
-    name: 'Modern Bento & Clean App',
+    name: 'Modern Bento (Clean White)',
     archetype: 'Modern Cafe & Fast Casual',
     cardStyle: 'Floating Bento Cards with Quick Badges',
     navStyle: 'Top Floating App Bar with Integrated Search',
     landingStyle: 'Interactive Smartphone Splash Screen',
-    tagline: 'Clean off-white canvas, floating bento cards & modern app navigation.',
-    previewColors: ['#f8f9fa', '#1c2826', '#e6923c'],
-    primaryColor: '#1c2826',
-    accentColor: '#e6923c',
-    backgroundColor: '#f8f9fa',
+    tagline: 'Clean white canvas, charcoal slate buttons, cool slate borders & amber honey accents.',
+    previewColors: ['#ffffff', '#1c2826', '#64748b', '#e6923c'],
+    backgroundColor: '#ffffff',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
     textColor: '#111827',
+    primaryColor: '#1c2826',     // 1st color (Brand Primary / Buttons / Titles)
+    secondaryColor: '#64748b',   // 2nd color (Borders / Sub-Pills / Frames)
+    accentColor: '#e6923c',      // 3rd color (Prices / Stars / Highlights)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'emerald',
     layout: 'editorial',
-    name: 'Editorial & Fine Dining Luxury',
+    name: 'Haute Cuisine Editorial (White & Gold)',
     archetype: 'Fine Dining, Rooftops & Wine Lounges',
     cardStyle: 'Magazine Split Cards with Serif Typography',
     navStyle: 'Minimalist Centered Serif Header with Gold Hairlines',
     landingStyle: 'Grand Haute Cuisine Editorial Cover',
-    tagline: 'Full-bleed luxury photography, Playfair serif typography & champagne gold accents.',
-    previewColors: ['#061a14', '#10b981', '#fbbf24'],
-    primaryColor: '#10b981',
-    accentColor: '#fbbf24',
-    backgroundColor: '#061a14',
-    backgroundMode: 'dark',
-    surfaceColor: 'rgba(11, 41, 32, 0.92)',
-    textColor: '#f0fdf4',
+    tagline: 'Clean white canvas, deep emerald typography, gold hairline framing & champagne tags.',
+    previewColors: ['#ffffff', '#064e3b', '#92400e', '#d97706'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#111827',
+    primaryColor: '#064e3b',     // 1st color (Haute Emerald)
+    secondaryColor: '#92400e',   // 2nd color (Gold Hairline / Crests)
+    accentColor: '#d97706',      // 3rd color (Champagne Tasting Badges & Prices)
     fontFamily: 'Playfair Display',
   },
   {
     id: 'terracotta',
     layout: 'rustic',
-    name: 'Wood-Fired & Rustic Flame Bistro',
+    name: 'Wood-Fired Rustic Hearth (White & Flame)',
     archetype: 'Pizzerias, Smash Burgers & Steakhouses',
     cardStyle: 'Bold Hearth Cards with Flame Badges & Tactile Borders',
     navStyle: 'Sturdy Bistro Header with Fire Badges & Stamp Tags',
     landingStyle: 'Glowing Embers & Wood-Fired Hearth Cover',
-    tagline: 'Deep charcoal hearth, flame orange badges, bold stamps & tactile cards.',
-    previewColors: ['#140805', '#ea580c', '#f59e0b'],
-    primaryColor: '#ea580c',
-    accentColor: '#f59e0b',
-    backgroundColor: '#140805',
-    backgroundMode: 'dark',
-    surfaceColor: 'rgba(38, 16, 11, 0.92)',
-    textColor: '#fff7ed',
+    tagline: 'Clean white canvas, bold flame orange buttons, charred clay borders & ember gold tags.',
+    previewColors: ['#ffffff', '#ea580c', '#7c2d12', '#f59e0b'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#111827',
+    primaryColor: '#ea580c',     // 1st color (Flame Orange)
+    secondaryColor: '#7c2d12',   // 2nd color (Charred Clay / Terracotta Borders)
+    accentColor: '#f59e0b',      // 3rd color (Ember Gold Price Tags & Stars)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'pastel',
     layout: 'boutique',
-    name: 'Parisian Patisserie & Boutique Cafe',
+    name: 'Parisian Patisserie (White & Rose)',
     archetype: 'Bakeries, Confectioneries & Brunch Tea Rooms',
     cardStyle: 'Soft Rounded Pill Cards with Delicate Rose Badges',
     navStyle: 'Boutique Blush Header with Sweet Confectionery Branding',
     landingStyle: 'Pastel Vignette & French Patisserie Cover',
-    tagline: 'Blush rose velvet, strawberry cream badges & delicate confectionery elegance.',
-    previewColors: ['#160d14', '#ec4899', '#10b981'],
-    primaryColor: '#ec4899',
-    accentColor: '#10b981',
-    backgroundColor: '#160d14',
-    backgroundMode: 'dark',
-    surfaceColor: 'rgba(42, 24, 38, 0.92)',
-    textColor: '#fdf2f8',
+    tagline: 'Clean white canvas, blush rose branding, velvet petal borders & sweet mint tags.',
+    previewColors: ['#ffffff', '#db2777', '#831843', '#059669'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#111827',
+    primaryColor: '#db2777',     // 1st color (Blush Rose)
+    secondaryColor: '#831843',   // 2nd color (Velvet Mauve Borders & Rings)
+    accentColor: '#059669',      // 3rd color (Mint Pistachio & Sweet Tags)
+    fontFamily: 'Plus Jakarta Sans',
+  },
+  {
+    id: 'neon-noir',
+    layout: 'noir',
+    name: 'Tokyo Neon Tech (White & Cyan)',
+    archetype: 'Cocktail Lounges, Cyber Cafes & Late-Night Bars',
+    cardStyle: 'Glassmorphic Clean Cards with Glowing Cyan Edges',
+    navStyle: 'Cyberpunk Luminous App Bar with Neon Cyan Badges',
+    landingStyle: 'Tokyo Midnight Skyline & Neon Hologram Cover',
+    tagline: 'Clean white canvas, electric cyan cyber borders, neon violet accents & digital teal HUD.',
+    previewColors: ['#ffffff', '#0891b2', '#7c3aed', '#0d9488'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#0f172a',
+    primaryColor: '#0891b2',     // 1st color (Electric Cyan)
+    secondaryColor: '#7c3aed',   // 2nd color (Neon Violet Scanlines & Accents)
+    accentColor: '#0d9488',      // 3rd color (Digital Teal HUD Price Chips)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'espresso',
     layout: 'bento',
-    name: 'Roasted Espresso & Amber',
+    name: 'Artisan Roastery & Amber (White & Espresso)',
     archetype: 'Traditional Coffee Roastery & Habesha Dining',
-    cardStyle: 'Warm Mocha Bento Cards with Caramel Accents',
+    cardStyle: 'Warm Bento Cards with Caramel Accents',
     navStyle: 'Traditional Roastery Bar with Honey Gold Accents',
     landingStyle: 'Authentic Buna & Roaster Heritage Cover',
-    tagline: 'Velvet mocha, toasted caramel & honey gold.',
-    previewColors: ['#0e0a07', '#e6923c', '#fbbf24'],
-    primaryColor: '#e6923c',
-    accentColor: '#fbbf24',
-    backgroundColor: '#0e0a07',
-    backgroundMode: 'dark',
-    surfaceColor: 'rgba(28, 20, 15, 0.85)',
-    textColor: '#fff8f0',
+    tagline: 'Clean white canvas, dark espresso roast, warm caramel borders & honey gold.',
+    previewColors: ['#ffffff', '#78350f', '#92400e', '#d97706'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#111827',
+    primaryColor: '#78350f',     // 1st color (Dark Espresso Roast)
+    secondaryColor: '#92400e',   // 2nd color (Toasted Caramel Borders)
+    accentColor: '#d97706',      // 3rd color (Honey Gold Price Chips)
     fontFamily: 'Plus Jakarta Sans',
   },
 ];
@@ -105,52 +131,52 @@ export function applyThemeToDocument(theme) {
     ...preset,
     ...theme,
     layout: theme.layout || preset.layout || 'bento',
+    backgroundColor: theme.backgroundColor || '#ffffff',
+    surfaceColor: theme.surfaceColor || '#ffffff',
+    textColor: theme.textColor || '#111827',
+    primaryColor: theme.primaryColor || preset.primaryColor || '#1c2826',
+    secondaryColor: theme.secondaryColor || preset.secondaryColor || '#64748b',
+    accentColor: theme.accentColor || preset.accentColor || '#e6923c',
   };
 
   root.setAttribute('data-theme-layout', effective.layout);
   root.setAttribute('data-theme-preset', effective.id);
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.setAttribute('data-theme-layout', effective.layout);
+    document.body.setAttribute('data-theme-preset', effective.id);
+  }
 
-  if (effective.primaryColor) {
-    root.style.setProperty('--accent', effective.primaryColor);
-    root.style.setProperty('--border-glow', effective.primaryColor + '70');
-    root.style.setProperty('--shadow-glow', `0 0 35px ${effective.primaryColor}50`);
-  }
-  if (effective.accentColor) {
-    root.style.setProperty('--accent-gold', effective.accentColor);
-    root.style.setProperty('--accent-2', effective.accentColor);
-    root.style.setProperty('--border-focus', effective.accentColor);
-  } else if (effective.primaryColor) {
-    root.style.setProperty('--accent-2', effective.primaryColor);
-  }
-  if (effective.backgroundColor) {
-    root.style.setProperty('--bg', effective.backgroundColor);
-    if (effective.backgroundColor === '#fcfbf9' || effective.backgroundMode === 'light') {
-      root.style.setProperty('--bg-2', '#f3efe8');
-      root.style.setProperty('--bg-3', '#ebe4d8');
-    } else {
-      root.style.setProperty('--bg-2', '#140e0a');
-      root.style.setProperty('--bg-3', '#1c140f');
-    }
-  }
-  if (effective.surfaceColor) {
-    root.style.setProperty('--surface', effective.surfaceColor);
-    root.style.setProperty('--surface-card', effective.surfaceColor);
-    root.style.setProperty('--surface-strong', effective.surfaceColor);
-  }
-  if (effective.textColor) {
-    root.style.setProperty('--text', effective.textColor);
-    if (effective.textColor === '#18181b' || effective.backgroundMode === 'light') {
-      root.style.setProperty('--text-secondary', '#3f3f46');
-      root.style.setProperty('--muted', '#71717a');
-      root.style.setProperty('--border', 'rgba(0, 0, 0, 0.12)');
-      root.style.setProperty('--border-subtle', 'rgba(0, 0, 0, 0.06)');
-    } else {
-      root.style.setProperty('--text-secondary', '#a8988a');
-      root.style.setProperty('--muted', '#7d6f63');
-      root.style.setProperty('--border', 'rgba(230, 146, 60, 0.15)');
-      root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.06)');
-    }
-  }
+  // Set Core 1st, 2nd, and 3rd Colors + White Canvas
+  root.style.setProperty('--cm-bg', effective.backgroundColor);
+  root.style.setProperty('--cm-card-bg', effective.surfaceColor);
+  root.style.setProperty('--cm-text-dark', effective.textColor);
+  root.style.setProperty('--cm-text-muted', '#64748b');
+  root.style.setProperty('--cm-primary', effective.primaryColor);
+  root.style.setProperty('--cm-secondary', effective.secondaryColor);
+  root.style.setProperty('--cm-accent', effective.accentColor);
+  root.style.setProperty('--cm-amber', effective.accentColor);
+  root.style.setProperty('--cm-star', effective.accentColor);
+  root.style.setProperty('--cm-btn-dark', effective.primaryColor);
+  root.style.setProperty('--cm-btn-dark-hover', effective.secondaryColor);
+  root.style.setProperty('--cm-border', `${effective.secondaryColor}30`);
+  root.style.setProperty('--cm-border-strong', `${effective.secondaryColor}60`);
+
+  // Generic platform CSS variable bridges
+  root.style.setProperty('--bg', effective.backgroundColor);
+  root.style.setProperty('--bg-2', '#f9fafb');
+  root.style.setProperty('--bg-3', '#f3f4f6');
+  root.style.setProperty('--surface', effective.surfaceColor);
+  root.style.setProperty('--surface-card', effective.surfaceColor);
+  root.style.setProperty('--surface-strong', effective.surfaceColor);
+  root.style.setProperty('--text', effective.textColor);
+  root.style.setProperty('--text-secondary', '#4b5563');
+  root.style.setProperty('--muted', '#6b7280');
+  root.style.setProperty('--accent', effective.primaryColor);
+  root.style.setProperty('--accent-2', effective.secondaryColor);
+  root.style.setProperty('--accent-gold', effective.accentColor);
+  root.style.setProperty('--border', `${effective.secondaryColor}30`);
+  root.style.setProperty('--border-glow', `${effective.primaryColor}50`);
+
   if (effective.fontFamily) {
     const isSerif = effective.fontFamily === 'Playfair Display' || effective.fontFamily.toLowerCase().includes('serif');
     root.style.setProperty('--font', `"${effective.fontFamily}", "Plus Jakarta Sans", sans-serif`);
@@ -161,48 +187,4 @@ export function applyThemeToDocument(theme) {
       root.style.setProperty('--cm-font-sans', `"${effective.fontFamily}", -apple-system, sans-serif`);
     }
   }
-
-  // Bind showcase mobile variables so whole customer experience dynamically adapts
-  root.style.setProperty('--cm-bg', effective.backgroundColor || '#0e0a07');
-  if (effective.primaryColor) {
-    root.style.setProperty('--cm-amber', effective.primaryColor);
-    root.style.setProperty('--cm-btn-dark', effective.primaryColor);
-    root.style.setProperty('--cm-btn-dark-hover', effective.accentColor || effective.primaryColor);
-  }
-  if (effective.accentColor) {
-    root.style.setProperty('--cm-star', effective.accentColor);
-    root.style.setProperty('--cm-accent-green', effective.accentColor);
-  }
-
-  if (effective.backgroundMode === 'light') {
-    root.style.setProperty('--cm-card-bg', '#ffffff');
-    root.style.setProperty('--cm-surface-dark', '#18181b');
-    root.style.setProperty('--cm-text-dark', effective.textColor || '#18181b');
-    root.style.setProperty('--cm-text-muted', '#71717a');
-    root.style.setProperty('--cm-border', '#f0f0f2');
-    root.style.setProperty('--cm-border-strong', '#e5e7eb');
-  } else {
-    root.style.setProperty('--cm-card-bg', effective.surfaceColor || 'rgba(28, 20, 15, 0.95)');
-    root.style.setProperty('--cm-surface-dark', effective.backgroundColor || '#0e0a07');
-    root.style.setProperty('--cm-text-dark', effective.textColor || '#fff8f0');
-    root.style.setProperty('--cm-text-muted', '#a8988a');
-    root.style.setProperty('--cm-border', `${effective.primaryColor || '#ffffff'}22`);
-    root.style.setProperty('--cm-border-strong', `${effective.primaryColor || '#ffffff'}40`);
-  }
-
-  // Exact classic showcase theme variable mapping
-  if (effective.preset === 'showcase') {
-    root.style.setProperty('--cm-amber', '#e6923c');
-    root.style.setProperty('--cm-star', '#f59e0b');
-    root.style.setProperty('--cm-accent-green', '#10b981');
-    root.style.setProperty('--cm-btn-dark', '#1c2826');
-    root.style.setProperty('--cm-btn-dark-hover', '#273835');
-    root.style.setProperty('--cm-text-dark', '#111827');
-    root.style.setProperty('--cm-text-muted', '#6b7280');
-    root.style.setProperty('--cm-border', '#f0f0f2');
-    root.style.setProperty('--cm-border-strong', '#e5e7eb');
-    root.style.setProperty('--cm-bg', '#f8f9fa');
-    root.style.setProperty('--cm-card-bg', '#ffffff');
-  }
 }
-

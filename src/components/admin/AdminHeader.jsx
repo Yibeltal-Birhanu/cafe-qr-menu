@@ -15,7 +15,7 @@ export default function AdminHeader({
   onToggleSidebar = null,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const isSuperAdmin = user?.role === 'superadmin' || user?.id === 'legacy-admin' || true;
+  const isSuperAdmin = user?.role === 'superadmin' || user?.id === 'legacy-admin';
 
   const displayName = user?.name || 'Admin';
   const displayRole = user?.role === 'superadmin' ? 'Super Admin' : (user?.role === 'manager' ? 'Cafe Manager' : 'Administrator');
@@ -36,8 +36,8 @@ export default function AdminHeader({
         </button>
         <h2 className="ad-page-title">{title}</h2>
 
-        {/* Super Admin Cafe Switcher */}
-        {user?.role === 'superadmin' && availableCafes.length > 0 && (
+        {/* Super Admin Cafe Switcher (only shown when multi-cafe super admin) */}
+        {isSuperAdmin && availableCafes.length > 0 && (
           <div style={{ marginLeft: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: 600 }}>Venue:</span>
             <select
@@ -82,8 +82,33 @@ export default function AdminHeader({
         </div>
       )}
 
-      {/* Right Actions: Notifications & Profile */}
+      {/* Right Actions: Notifications, Super Admin link & Profile */}
       <div className="ad-topbar-right">
+        {/* Dedicated Super Admin Console button for super admins */}
+        {isSuperAdmin && (
+          <a
+            href="/superadmin"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              padding: '0.45rem 0.85rem',
+              background: '#090d16',
+              color: '#f59e0b',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}
+            title="Open dedicated Super Admin platform console"
+          >
+            <ShieldIcon size={14} />
+            <span>Super Admin &nearr;</span>
+          </a>
+        )}
+
         {/* Quick link to live customer QR menu */}
         <a
           href={liveMenuUrl}
@@ -135,7 +160,7 @@ export default function AdminHeader({
                 position: 'absolute',
                 top: '115%',
                 right: 0,
-                width: '210px',
+                width: '220px',
                 background: '#ffffff',
                 borderRadius: '12px',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
@@ -159,6 +184,26 @@ export default function AdminHeader({
                   Venue: {cafe?.name || currentSlug}
                 </div>
               </div>
+
+              {isSuperAdmin && (
+                <a
+                  href="/superadmin"
+                  style={{
+                    padding: '0.5rem 0.8rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    color: '#d97706',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <ShieldIcon size={15} />
+                  <span>Platform Console &nearr;</span>
+                </a>
+              )}
 
               <a
                 href={liveMenuUrl}

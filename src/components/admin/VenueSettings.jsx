@@ -73,10 +73,11 @@ export default function VenueSettings({
       navStyle: preset.navStyle,
       landingStyle: preset.landingStyle,
       primaryColor: preset.primaryColor,
+      secondaryColor: preset.secondaryColor || '#64748b',
       accentColor: preset.accentColor,
-      backgroundColor: preset.backgroundColor,
+      backgroundColor: preset.backgroundColor || '#ffffff',
       backgroundMode: preset.backgroundMode,
-      surfaceColor: preset.surfaceColor,
+      surfaceColor: preset.surfaceColor || '#ffffff',
       textColor: preset.textColor,
       fontFamily: preset.fontFamily,
     };
@@ -328,91 +329,198 @@ export default function VenueSettings({
               </div>
             </div>
 
-            {/* Custom Brand Colors & Typography */}
+            {/* Custom Brand Colors (Main White, 1st Primary, 2nd Secondary, 3rd Highlight) */}
             <div
               style={{
-                background: '#f8faf9',
+                background: '#ffffff',
                 border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '1.2rem',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1.2fr',
-                gap: '1rem',
-                alignItems: 'end',
+                borderRadius: '14px',
+                padding: '1.4rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.2rem',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
               }}
             >
-              <div>
-                <label className="ad-field-label" style={{ fontSize: '0.78rem' }}>
-                  Primary Accent Color
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    type="color"
-                    value={formData.theme?.primaryColor || '#e6923c'}
-                    onChange={(e) => handleThemeColorChange('primaryColor', e.target.value)}
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      padding: '2px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: 'none',
-                    }}
-                  />
-                  <input
-                    type="text"
-                    className="ad-form-input"
-                    value={formData.theme?.primaryColor || '#e6923c'}
-                    onChange={(e) => handleThemeColorChange('primaryColor', e.target.value)}
-                    style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
-                  />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#111827' }}>
+                    Template Color Palette
+                  </h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#6b7280' }}>
+                    The main background is simple clean white. Customize your 1st (Primary), 2nd (Secondary), and 3rd (Highlight) colors below.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#374151' }}>Live Palette:</span>
+                  <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: formData.theme?.backgroundColor || '#ffffff', border: '1px solid #d1d5db' }} title="Main: White" />
+                  <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: formData.theme?.primaryColor || '#1c2826' }} title="1st: Primary" />
+                  <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: formData.theme?.secondaryColor || '#64748b' }} title="2nd: Secondary" />
+                  <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: formData.theme?.accentColor || '#e6923c' }} title="3rd: Highlight" />
                 </div>
               </div>
 
-              <div>
-                <label className="ad-field-label" style={{ fontSize: '0.78rem' }}>
-                  Highlight / Gold Color
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    type="color"
-                    value={formData.theme?.accentColor || '#fbbf24'}
-                    onChange={(e) => handleThemeColorChange('accentColor', e.target.value)}
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      padding: '2px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: 'none',
-                    }}
-                  />
-                  <input
-                    type="text"
-                    className="ad-form-input"
-                    value={formData.theme?.accentColor || '#fbbf24'}
-                    onChange={(e) => handleThemeColorChange('accentColor', e.target.value)}
-                    style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
-                  />
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '0.9rem',
+                }}
+              >
+                {/* 1. Main Background Color (White) */}
+                <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <label className="ad-field-label" style={{ fontSize: '0.78rem', marginBottom: '2px', display: 'block' }}>
+                    Main Color (Canvas &amp; Cards)
+                  </label>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '8px' }}>
+                    Clean white base for the entire menu
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="color"
+                      value={formData.theme?.backgroundColor || '#ffffff'}
+                      onChange={(e) => {
+                        handleThemeColorChange('backgroundColor', e.target.value);
+                        handleThemeColorChange('surfaceColor', e.target.value);
+                      }}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        padding: '2px',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: '#ffffff',
+                      }}
+                    />
+                    <input
+                      type="text"
+                      className="ad-form-input"
+                      value={formData.theme?.backgroundColor || '#ffffff'}
+                      onChange={(e) => {
+                        handleThemeColorChange('backgroundColor', e.target.value);
+                        handleThemeColorChange('surfaceColor', e.target.value);
+                      }}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Primary 1st Color */}
+                <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <label className="ad-field-label" style={{ fontSize: '0.78rem', marginBottom: '2px', display: 'block' }}>
+                    1st Color (Primary Accent)
+                  </label>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '8px' }}>
+                    Brand buttons, active tabs &amp; titles
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="color"
+                      value={formData.theme?.primaryColor || '#1c2826'}
+                      onChange={(e) => handleThemeColorChange('primaryColor', e.target.value)}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        padding: '2px',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: '#ffffff',
+                      }}
+                    />
+                    <input
+                      type="text"
+                      className="ad-form-input"
+                      value={formData.theme?.primaryColor || '#1c2826'}
+                      onChange={(e) => handleThemeColorChange('primaryColor', e.target.value)}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Secondary 2nd Color */}
+                <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <label className="ad-field-label" style={{ fontSize: '0.78rem', marginBottom: '2px', display: 'block' }}>
+                    2nd Color (Secondary Accent)
+                  </label>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '8px' }}>
+                    Card borders, sub-pills &amp; frame accents
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="color"
+                      value={formData.theme?.secondaryColor || '#64748b'}
+                      onChange={(e) => handleThemeColorChange('secondaryColor', e.target.value)}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        padding: '2px',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: '#ffffff',
+                      }}
+                    />
+                    <input
+                      type="text"
+                      className="ad-form-input"
+                      value={formData.theme?.secondaryColor || '#64748b'}
+                      onChange={(e) => handleThemeColorChange('secondaryColor', e.target.value)}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* 4. 3rd Color (Accent / Highlight) */}
+                <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <label className="ad-field-label" style={{ fontSize: '0.78rem', marginBottom: '2px', display: 'block' }}>
+                    3rd Color (Highlights &amp; Prices)
+                  </label>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '8px' }}>
+                    Price tags, star ratings &amp; special badges
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="color"
+                      value={formData.theme?.accentColor || '#e6923c'}
+                      onChange={(e) => handleThemeColorChange('accentColor', e.target.value)}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        padding: '2px',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: '#ffffff',
+                      }}
+                    />
+                    <input
+                      type="text"
+                      className="ad-form-input"
+                      value={formData.theme?.accentColor || '#e6923c'}
+                      onChange={(e) => handleThemeColorChange('accentColor', e.target.value)}
+                      style={{ fontFamily: 'monospace', fontSize: '0.82rem', padding: '0.45rem 0.6rem' }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="ad-field-label" style={{ fontSize: '0.78rem' }}>
+              {/* Typography Row */}
+              <div style={{ marginTop: '0.2rem', borderTop: '1px solid #f1f5f9', paddingTop: '0.8rem' }}>
+                <label className="ad-field-label" style={{ fontSize: '0.78rem', marginBottom: '4px', display: 'block' }}>
                   Primary Font Family
                 </label>
                 <select
                   className="ad-form-input"
                   value={formData.theme?.fontFamily || 'Plus Jakarta Sans'}
                   onChange={(e) => handleThemeColorChange('fontFamily', e.target.value)}
-                  style={{ padding: '0.5rem 0.7rem', fontSize: '0.82rem' }}
+                  style={{ padding: '0.55rem 0.8rem', fontSize: '0.85rem', maxWidth: '320px' }}
                 >
                   <option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern Clean)</option>
-                  <option value="Playfair Display">Playfair Display (Luxury &amp; Serif)</option>
-                  <option value="Inter">Inter (Contemporary Minimal)</option>
-                  <option value="Poppins">Poppins (Warm &amp; Friendly)</option>
+                  <option value="Playfair Display">Playfair Display (Haute Luxury Serif)</option>
+                  <option value="Inter">Inter (Contemporary Tech)</option>
+                  <option value="Poppins">Poppins (Warm &amp; Rounded)</option>
                   <option value="Outfit">Outfit (Clean Geometric)</option>
                   <option value="Cinzel">Cinzel (Classic Heritage)</option>
                 </select>

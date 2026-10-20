@@ -12,7 +12,13 @@ export default function MenuHeader({
   logo = 'coffee',
   theme = null,
 }) {
-  const layout = theme?.layout || (theme?.preset === 'emerald' ? 'editorial' : theme?.preset === 'terracotta' ? 'rustic' : theme?.preset === 'pastel' ? 'boutique' : 'bento');
+  const layout = theme?.layout || (
+    theme?.preset === 'emerald' ? 'editorial' :
+    theme?.preset === 'terracotta' ? 'rustic' :
+    theme?.preset === 'pastel' ? 'boutique' :
+    theme?.preset === 'neon-noir' || theme?.preset === 'noir' ? 'noir' :
+    'bento'
+  );
 
   const renderLogo = () => {
     switch (logo) {
@@ -37,6 +43,8 @@ export default function MenuHeader({
         return `HEARTH #${tableNumber}`;
       case 'boutique':
         return `SALON #${tableNumber}`;
+      case 'noir':
+        return `BOOTH // ${tableNumber}`;
       default:
         return `Table ${tableNumber}`;
     }

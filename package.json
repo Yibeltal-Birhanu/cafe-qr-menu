@@ -9,7 +9,7 @@
     "dev": "node --watch server/index.js",
     "build": "node scripts/build.js",
     "upload:images": "node scripts/upload-to-cloudinary.js",
-    "test": "node --test"
+    "test": "node --test tests/api.test.mjs"
   },
   "engines": {
     "node": ">=18"

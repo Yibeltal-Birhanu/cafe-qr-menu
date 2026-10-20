@@ -5,6 +5,7 @@ import DishListItem from './DishListItem.jsx';
 import DishDetailModal from './DishDetailModal.jsx';
 import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
+import MenuHero from './MenuHero.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
 import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
@@ -213,53 +214,60 @@ export default function MenuApp() {
     return categories[0]?.bannerImg || '/images/coffee.jpg';
   }, [apiMenu?.cafe?.slug, categories, apiMenu?.cafe?.theme?.preset]);
 
+  const currentLayout = apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento';
+  const currentPreset = apiMenu?.cafe?.theme?.preset || 'showcase';
+
   const heroImage = useMemo(() => {
-    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/dishes/classic-beef-burger.jpg';
-    const slug = apiMenu?.cafe?.slug;
-    if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
-    if (slug === 'artisan-patisserie') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
-    if (slug === 'skyline-lounge') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+    if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
+    if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+    if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
+    if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
+    if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
-  }, [apiMenu?.cafe?.slug, allItems, apiMenu?.cafe?.theme?.preset]);
+  }, [currentLayout, allItems]);
 
   const { heroTitle, heroSub } = useMemo(() => {
-    if (apiMenu?.cafe?.theme?.preset === 'showcase') {
-      return {
-        heroTitle: 'Fresh Flavors Every Day',
-        heroSub: 'Quality ingredients, Great taste.',
-      };
-    }
     const slug = apiMenu?.cafe?.slug;
-    if (slug === 'sunset-bistro') {
+    if (slug === 'sunset-bistro' || currentLayout === 'rustic') {
       return {
         heroTitle: 'Wood-Fired Pizzas & Flame Grills',
-        heroSub: 'Stone-baked dough, dry-aged steaks & sunset dining.',
+        heroSub: apiMenu?.cafe?.tagline || 'Stone-baked dough, charred prime steaks & hearth comfort.',
       };
     }
-    if (slug === 'artisan-patisserie') {
+    if (slug === 'artisan-patisserie' || currentLayout === 'boutique') {
       return {
         heroTitle: 'French Viennoiserie & Tarts',
-        heroSub: 'Butter croissants, delicate tarts & ceremonial matcha.',
+        heroSub: apiMenu?.cafe?.tagline || 'Butter croissants, delicate tarts & ceremonial rose tea.',
       };
     }
-    if (slug === 'skyline-lounge') {
+    if (slug === 'skyline-lounge' || currentLayout === 'noir') {
       return {
-        heroTitle: 'Artisan Roasts & Fine Dining',
-        heroSub: 'Rooftop pour-overs, wagyu plates & gourmet desserts.',
+        heroTitle: 'Tokyo Cyber Lounge & Mixology',
+        heroSub: apiMenu?.cafe?.tagline || 'Late-night molecular cocktails, electric bites & ambient synth.',
+      };
+    }
+    if (currentLayout === 'editorial') {
+      return {
+        heroTitle: 'Curated Reserve & Tasting Menu',
+        heroSub: apiMenu?.cafe?.tagline || 'Grand degustation, rare vintage roasts & dry-aged cuts.',
       };
     }
     return {
-      heroTitle: 'Authentic Habesha & Specialty Roasts',
-      heroSub: apiMenu?.cafe?.tagline || 'Direct highland beans & sizzling dining.',
+      heroTitle: apiMenu?.cafe?.name === 'Abol Cafe' ? 'Fresh Flavors Every Day' : (apiMenu?.cafe?.name || 'Fresh Flavors Every Day'),
+      heroSub: apiMenu?.cafe?.tagline || 'Quality ingredients, handcrafted with authentic passion.',
     };
-  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline, apiMenu?.cafe?.theme?.preset]);
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline, apiMenu?.cafe?.name, currentLayout]);
 
   return (
-    <div class="cm-app">
+    <div
+      class={`cm-app cm-app--${currentLayout}`}
+      data-theme-layout={currentLayout}
+      data-theme-preset={currentPreset}
+    >
       <div
-        class="cm-viewport"
-        data-theme-layout={apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento'}
-        data-theme-preset={apiMenu?.cafe?.theme?.preset || 'showcase'}
+        class={`cm-viewport cm-viewport--${currentLayout}`}
+        data-theme-layout={currentLayout}
+        data-theme-preset={currentPreset}
       >
         {/* 1. Welcome Splash / Cover Screen (dismissible) */}
         {showWelcome && (
@@ -299,7 +307,18 @@ export default function MenuApp() {
           {activeTab === 'details' ? (
             <ThankYouView
               cafeName={cafeName}
+              tagline={apiMenu?.cafe?.tagline}
+              phone={apiMenu?.cafe?.phone}
+              wifiSSID={apiMenu?.cafe?.wifi_ssid}
+              wifiPass={apiMenu?.cafe?.wifi_pass}
+              currency={apiMenu?.cafe?.currency || 'ETB'}
+              footerText={apiMenu?.cafe?.footer}
+              theme={apiMenu?.cafe?.theme}
+              logo={cafeLogo}
+              layout={currentLayout}
+              tableNumber="04"
               onReturn={() => setActiveTab('home')}
+              onToast={showToast}
             />
           ) : activeCategory ? (
             /* ================= CATEGORY VIEW ================= */
@@ -335,7 +354,7 @@ export default function MenuApp() {
               )}
 
               {/* Dish List for this Category */}
-              <div class="cm-dish-list">
+              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish) => (
                     <DishListItem
@@ -343,6 +362,7 @@ export default function MenuApp() {
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
                       currency={dish.currency || 'ETB'}
+                      layout={currentLayout}
                     />
                   ))
                 ) : (
@@ -355,44 +375,16 @@ export default function MenuApp() {
           ) : (
             /* ================= HOME VIEW ================= */
             <div>
-              {/* Dynamic Cafe Hero Banner Card */}
-              <div
-                class="cm-hero-banner"
-                style={{
-                  background: apiMenu?.cafe?.theme?.backgroundColor
-                    ? `linear-gradient(135deg, ${apiMenu.cafe.theme.backgroundColor} 0%, ${apiMenu.cafe.theme.surfaceColor || apiMenu.cafe.theme.backgroundColor} 100%)`
-                    : undefined,
-                  border: apiMenu?.cafe?.theme?.primaryColor
-                    ? `1px solid ${apiMenu.cafe.theme.primaryColor}30`
-                    : undefined,
-                }}
-              >
-                <div class="cm-hero-banner-content">
-                  <h2
-                    class="cm-hero-banner-title"
-                    style={{
-                      fontFamily: apiMenu?.cafe?.theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
-                    }}
-                  >
-                    {heroTitle}
-                  </h2>
-                  <p
-                    class="cm-hero-banner-sub"
-                    style={{
-                      color: apiMenu?.cafe?.theme?.accentColor || 'rgba(255, 255, 255, 0.75)',
-                    }}
-                  >
-                    {heroSub}
-                  </p>
-                </div>
-                <div
-                  class="cm-hero-banner-image"
-                  aria-hidden="true"
-                  style={{
-                    backgroundImage: `url('${heroImage}')`,
-                  }}
-                ></div>
-              </div>
+              {/* Distinct Archetype Hero Section */}
+              <MenuHero
+                layout={currentLayout}
+                cafeName={cafeName}
+                tagline={apiMenu?.cafe?.tagline}
+                heroTitle={heroTitle}
+                heroSub={heroSub}
+                heroImage={heroImage}
+                tableNumber="04"
+              />
 
               {/* Search Bar */}
               <div class="cm-search-container">
@@ -463,7 +455,7 @@ export default function MenuApp() {
               </div>
 
               {/* Dish List */}
-              <div class="cm-dish-list">
+              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish) => (
                     <DishListItem
@@ -471,6 +463,7 @@ export default function MenuApp() {
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
                       currency={dish.currency || 'ETB'}
+                      layout={currentLayout}
                     />
                   ))
                 ) : (
@@ -486,6 +479,7 @@ export default function MenuApp() {
         {/* 4. Bottom Navigation Bar */}
         <BottomNav
           activeTab={activeTab}
+          theme={apiMenu?.cafe?.theme}
           onTabChange={(tab) => {
             setActiveTab(tab);
             if (tab === 'home') {

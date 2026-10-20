@@ -54,7 +54,8 @@ function ensureShape(raw, fallbackSeed = seed) {
         preset: 'showcase',
         primaryColor: '#1c2826',
         accentColor: '#e6923c',
-        backgroundColor: '#f8f9fa',
+        secondaryColor: '#64748b',
+        backgroundColor: '#ffffff',
         backgroundMode: 'light',
         surfaceColor: '#ffffff',
         textColor: '#111827',
@@ -333,6 +334,7 @@ async function createCafe({
   wifi_pass = '',
   status = 'active',
   template = 'seed',
+  theme = null,
 }) {
   const cafeId = crypto.randomUUID();
   let safeSlug = slugify(slug);
@@ -341,15 +343,16 @@ async function createCafe({
     safeSlug = `${safeSlug}-${crypto.randomBytes(2).toString('hex')}`;
   }
 
+  const themeVal = theme ? JSON.stringify(theme) : null;
   await pool.query(
-    `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, owner_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [cafeId, safeSlug, name, tagline, currency, 'Scan, browse, enjoy.', 'coffee', phone, wifi_ssid, wifi_pass, status, ownerId]
+    `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, owner_id, theme)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [cafeId, safeSlug, name, tagline, currency, 'Scan, browse, enjoy.', 'coffee', phone, wifi_ssid, wifi_pass, status, ownerId, themeVal]
   );
 
   const initialCategories = template === 'seed' ? seed.categories : [];
   const newMenu = ensureShape({
-    cafe: { id: cafeId, slug: safeSlug, name, tagline, currency, phone, wifi_ssid, wifi_pass, status },
+    cafe: { id: cafeId, slug: safeSlug, name, tagline, currency, phone, wifi_ssid, wifi_pass, status, theme },
     categories: initialCategories,
   });
 
