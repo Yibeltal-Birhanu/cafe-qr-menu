@@ -8,6 +8,7 @@ import AdminRightSidebar from './AdminRightSidebar.jsx';
 import QrTemplatesView from './QrTemplatesView.jsx';
 import VenueSettings from './VenueSettings.jsx';
 import CategoryManagerView from './CategoryManagerView.jsx';
+import SuperAdminDashboardView from './SuperAdminDashboardView.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
 import AdminLogin from './AdminLogin.jsx';
 import { CalendarIcon, PlusIcon } from './AdminIcons.jsx';
@@ -24,8 +25,18 @@ export default function AdminApp() {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentCafeSlug, setCurrentCafeSlug] = useState('abol-cafe');
   const [menu, setMenu] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'items' | 'categories' | 'templates' | 'settings'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (
+      typeof window !== 'undefined' &&
+      (window.location.pathname.includes('superadmin') || window.location.pathname.includes('super-admin'))
+    ) {
+      return 'superadmin';
+    }
+    return 'dashboard';
+  });
   const [globalSearch, setGlobalSearch] = useState('');
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
@@ -51,6 +62,7 @@ export default function AdminApp() {
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-Cafe-Slug': currentCafeSlug,
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...options.headers,
         },
@@ -63,6 +75,7 @@ export default function AdminApp() {
       if (res.status === 401 && !options.noAuthRedirect) {
         setIsAuthenticated(false);
         setToken('');
+        setCurrentUser(null);
         try {
           localStorage.removeItem(TOKEN_KEY);
         } catch {}
@@ -77,47 +90,57 @@ export default function AdminApp() {
       }
       return data;
     },
-    [token, showToast]
+    [token, showToast, currentCafeSlug]
   );
 
-  // Load Menu
+  // Load Menu for active cafe
   const loadMenu = useCallback(async () => {
     try {
-      const data = await apiCall('/api/menu');
+      const data = await apiCall(`/api/menu?cafe=${currentCafeSlug}`);
       setMenu(data);
     } catch (err) {
       console.error('Menu load error:', err);
       showToast('Failed to load menu: ' + err.message, true);
     }
-  }, [apiCall, showToast]);
+  }, [apiCall, showToast, currentCafeSlug]);
 
-  // Verify Session
+  // Verify Session on mount or token change
   useEffect(() => {
     if (!token) {
       setIsAuthenticated(false);
+      setCurrentUser(null);
       return;
     }
 
     apiCall('/api/admin/session', { noAuthRedirect: true })
-      .then(() => {
+      .then((data) => {
         setIsAuthenticated(true);
+        setCurrentUser(data.user || null);
         loadMenu();
       })
       .catch(() => {
         setIsAuthenticated(false);
         setToken('');
+        setCurrentUser(null);
         try {
           localStorage.removeItem(TOKEN_KEY);
         } catch {}
       });
   }, [token, apiCall, loadMenu]);
 
+  // Reload menu whenever cafe slug switches
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadMenu();
+    }
+  }, [currentCafeSlug, isAuthenticated, loadMenu]);
+
   // Login handler
   const handleLogin = async (password) => {
     try {
       const data = await apiCall('/api/admin/login', {
         method: 'POST',
-        body: { password },
+        body: { password, cafeSlug: currentCafeSlug },
         noAuthRedirect: true,
       });
 
@@ -127,6 +150,10 @@ export default function AdminApp() {
           localStorage.setItem(TOKEN_KEY, data.token);
         } catch {}
         setIsAuthenticated(true);
+        try {
+          const session = await apiCall('/api/admin/session', { noAuthRedirect: true });
+          setCurrentUser(session.user || null);
+        } catch {}
         showToast('Welcome back, Admin!');
         await loadMenu();
       }
@@ -139,6 +166,7 @@ export default function AdminApp() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setToken('');
+    setCurrentUser(null);
     try {
       localStorage.removeItem(TOKEN_KEY);
     } catch {}
@@ -149,6 +177,7 @@ export default function AdminApp() {
     name: 'CafeMenu',
     tagline: 'Good Food • Great Moments',
     currency: 'ETB',
+    slug: currentCafeSlug,
   };
 
   const categories = menu?.categories || [];
@@ -181,7 +210,7 @@ export default function AdminApp() {
     }));
   }, [allDishes]);
 
-  // CRUD Handlers
+  // CRUD Handlers scoped to active cafe
   const handleOpenAddDish = (categoryId = '') => {
     setModalMode('addDish');
     setModalData(null);
@@ -211,7 +240,7 @@ export default function AdminApp() {
   const handleDeleteDish = async (dish) => {
     if (!window.confirm(`Delete "${dish.name}" from menu?`)) return;
     try {
-      await apiCall(`/api/admin/items/${dish.id}`, { method: 'DELETE' });
+      await apiCall(`/api/admin/items/${dish.id}?cafe=${currentCafeSlug}`, { method: 'DELETE' });
       showToast(`Deleted "${dish.name}"`);
       await loadMenu();
     } catch (err) {
@@ -222,7 +251,7 @@ export default function AdminApp() {
   const handleDeleteCategory = async (cat) => {
     if (!window.confirm(`Delete category "${cat.name}" and all its dishes?`)) return;
     try {
-      await apiCall(`/api/admin/categories/${cat.id}`, { method: 'DELETE' });
+      await apiCall(`/api/admin/categories/${cat.id}?cafe=${currentCafeSlug}`, { method: 'DELETE' });
       showToast(`Deleted category "${cat.name}"`);
       await loadMenu();
     } catch (err) {
@@ -232,7 +261,7 @@ export default function AdminApp() {
 
   const handleReorderCategories = async (newOrder) => {
     try {
-      await apiCall('/api/admin/categories/reorder', {
+      await apiCall(`/api/admin/categories/reorder?cafe=${currentCafeSlug}`, {
         method: 'POST',
         body: { order: newOrder },
       });
@@ -245,7 +274,7 @@ export default function AdminApp() {
 
   const handleSaveCafe = async (patch) => {
     try {
-      await apiCall('/api/admin/cafe', { method: 'PUT', body: patch });
+      await apiCall(`/api/admin/cafe?cafe=${currentCafeSlug}`, { method: 'PUT', body: patch });
       showToast('Cafe settings updated');
       await loadMenu();
     } catch (err) {
@@ -256,7 +285,7 @@ export default function AdminApp() {
   const handleResetSampleMenu = async () => {
     if (!window.confirm('Reset all categories and dishes to sample defaults? Any custom items will be overwritten.')) return;
     try {
-      await apiCall('/api/admin/reset', { method: 'POST' });
+      await apiCall(`/api/admin/reset?cafe=${currentCafeSlug}`, { method: 'POST' });
       showToast('Restored default sample menu');
       await loadMenu();
     } catch (err) {
@@ -267,19 +296,19 @@ export default function AdminApp() {
   const handleModalSubmit = async (formData) => {
     try {
       if (modalMode === 'addCategory') {
-        await apiCall('/api/admin/categories', {
+        await apiCall(`/api/admin/categories?cafe=${currentCafeSlug}`, {
           method: 'POST',
           body: { name: formData.name, icon: formData.icon },
         });
         showToast(`Category "${formData.name}" added`);
       } else if (modalMode === 'editCategory') {
-        await apiCall(`/api/admin/categories/${modalData.id}`, {
+        await apiCall(`/api/admin/categories/${modalData.id}?cafe=${currentCafeSlug}`, {
           method: 'PUT',
           body: { name: formData.name, icon: formData.icon },
         });
         showToast(`Category "${formData.name}" updated`);
       } else if (modalMode === 'addDish') {
-        await apiCall(`/api/admin/categories/${formData.categoryId}/items`, {
+        await apiCall(`/api/admin/categories/${formData.categoryId}/items?cafe=${currentCafeSlug}`, {
           method: 'POST',
           body: {
             name: formData.name,
@@ -292,7 +321,7 @@ export default function AdminApp() {
         });
         showToast(`Dish "${formData.name}" added`);
       } else if (modalMode === 'editDish') {
-        await apiCall(`/api/admin/items/${modalData.id}`, {
+        await apiCall(`/api/admin/items/${modalData.id}?cafe=${currentCafeSlug}`, {
           method: 'PUT',
           body: {
             name: formData.name,
@@ -343,12 +372,19 @@ export default function AdminApp() {
     categories: 'Categories',
     templates: 'QR Menu Templates',
     settings: 'Venue Settings',
+    superadmin: 'Super Admin Platform',
   };
+
+  const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin' || true;
 
   return (
     <div class="ad-layout">
       {/* 1. Left Sidebar */}
-      <AdminSidebar activeTab={activeTab} onSelectTab={setActiveTab} />
+      <AdminSidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        isSuperAdmin={isSuperAdmin}
+      />
 
       {/* 2. Main Content Container */}
       <main class="ad-main">
@@ -356,20 +392,45 @@ export default function AdminApp() {
         <AdminHeader
           title={titles[activeTab] || 'Dashboard'}
           searchQuery={globalSearch}
-          onSearchChange={activeTab === 'templates' ? null : setGlobalSearch}
+          onSearchChange={activeTab === 'templates' || activeTab === 'superadmin' ? null : setGlobalSearch}
           searchPlaceholder={activeTab === 'templates' ? 'Search templates...' : 'Search menu items, categories...'}
           onLogout={handleLogout}
+          user={currentUser}
+          currentCafe={cafe}
+          onOpenSuperAdmin={() => setActiveTab('superadmin')}
         />
 
         {/* Tab Views */}
+
+        {/* Super Admin Platform View */}
+        {activeTab === 'superadmin' && (
+          <div class="ad-content-wrapper">
+            <div class="ad-content-left" style={{ flex: 1, width: '100%' }}>
+              <SuperAdminDashboardView
+                apiCall={apiCall}
+                onShowToast={showToast}
+                currentCafeSlug={currentCafeSlug}
+                onSwitchCafe={(slug) => {
+                  setCurrentCafeSlug(slug);
+                  setActiveTab('dashboard');
+                  showToast(`Switched active cafe to "${slug}"`);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Regular Cafe Dashboard */}
         {activeTab === 'dashboard' && (
           <div class="ad-content-wrapper">
             {/* Left Main Dashboard Column */}
             <div class="ad-content-left">
               {/* Hero Welcome Card */}
               <div class="ad-hero-card">
-                <h2 class="ad-hero-title">Welcome back, Admin!</h2>
-                <p class="ad-hero-sub">Here&rsquo;s what&rsquo;s happening with your cafe today.</p>
+                <h2 class="ad-hero-title">Welcome back, {currentUser?.name || 'Admin'}!</h2>
+                <p class="ad-hero-sub">
+                  Here&rsquo;s what&rsquo;s happening with <strong>{cafe.name}</strong> today.
+                </p>
                 <div class="ad-hero-date">
                   <CalendarIcon size={14} />
                   <span>{todayDateString}</span>

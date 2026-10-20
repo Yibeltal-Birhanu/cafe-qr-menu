@@ -1,7 +1,15 @@
 import React from 'react';
-import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon } from './AdminIcons.jsx';
+import {
+  CoffeeIcon,
+  HomeIcon,
+  GridIcon,
+  BookOpenIcon,
+  SettingsIcon,
+  QrCodeIcon,
+  ShieldIcon,
+} from './AdminIcons.jsx';
 
-export default function AdminSidebar({ activeTab, onSelectTab }) {
+export default function AdminSidebar({ activeTab, onSelectTab, isSuperAdmin = true }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon size={18} /> },
     { id: 'items', label: 'Menu Items', icon: <BookOpenIcon size={18} /> },
@@ -9,6 +17,15 @@ export default function AdminSidebar({ activeTab, onSelectTab }) {
     { id: 'templates', label: 'QR Templates', icon: <QrCodeIcon size={18} /> },
     { id: 'settings', label: 'Settings', icon: <SettingsIcon size={18} /> },
   ];
+
+  if (isSuperAdmin) {
+    navItems.push({
+      id: 'superadmin',
+      label: 'Super Admin',
+      icon: <ShieldIcon size={18} />,
+      badge: 'Platform',
+    });
+  }
 
   return (
     <aside class="ad-sidebar" aria-label="Admin Navigation">
@@ -34,7 +51,22 @@ export default function AdminSidebar({ activeTab, onSelectTab }) {
             aria-current={activeTab === item.id ? 'page' : undefined}
           >
             <span class="ad-nav-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
+            {item.badge && (
+              <span
+                style={{
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  background: activeTab === item.id ? '#ffffff' : '#fbbf24',
+                  color: activeTab === item.id ? '#142820' : '#142820',
+                  padding: '1px 6px',
+                  borderRadius: '999px',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {item.badge}
+              </span>
+            )}
           </button>
         ))}
       </nav>
@@ -51,7 +83,7 @@ export default function AdminSidebar({ activeTab, onSelectTab }) {
 
         <div class="ad-sidebar-credits">
           <strong>CafeMenu Admin</strong>
-          <span>v1.0.0</span>
+          <span>v1.0.0 &bull; Platform</span>
         </div>
       </div>
     </aside>

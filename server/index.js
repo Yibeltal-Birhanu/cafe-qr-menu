@@ -37,6 +37,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
 });
 
+/** Admin and Super Admin dashboard single-page application */
+app.get(['/admin', '/superadmin', '/super-admin'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
+});
+
 /** Live demo Cafe digital menu (supports both /cafe, /cafe/:slug, and /abol-cafe) */
 app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
