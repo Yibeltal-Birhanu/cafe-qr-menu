@@ -13,9 +13,6 @@ export default function AdminHeader({
   onSwitchCafe = null,
   onLogout = null,
   onToggleSidebar = null,
-  user = null,
-  currentCafe = null,
-  onOpenSuperAdmin = null,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const isSuperAdmin = user?.role === 'superadmin' || user?.id === 'legacy-admin' || true;

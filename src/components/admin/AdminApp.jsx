@@ -8,7 +8,6 @@ import AdminRightSidebar from './AdminRightSidebar.jsx';
 import QrTemplatesView from './QrTemplatesView.jsx';
 import VenueSettings from './VenueSettings.jsx';
 import CategoryManagerView from './CategoryManagerView.jsx';
-import SuperAdminDashboardView from './SuperAdminDashboardView.jsx';
 import AdminDishModal from './AdminDishModal.jsx';
 import AdminLogin from './AdminLogin.jsx';
 import SuperAdminDashboard from './SuperAdminDashboard.jsx';
@@ -27,8 +26,6 @@ export default function AdminApp() {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentCafeSlug, setCurrentCafeSlug] = useState('abol-cafe');
   const [menu, setMenu] = useState(null);
   const [activeTab, setActiveTab] = useState(() => {
     if (
@@ -478,43 +475,19 @@ export default function AdminApp() {
           availableCafes={availableCafes}
           onSwitchCafe={handleSwitchCafe}
           onLogout={handleLogout}
-          user={currentUser}
-          currentCafe={cafe}
-          onOpenSuperAdmin={() => setActiveTab('superadmin')}
         />
 
         {/* Dedicated Super Admin Platform View */}
-        {activeTab === 'platform' && currentUser?.role === 'superadmin' && (
+        {(activeTab === 'platform' || activeTab === 'superadmin') && (
           <div className="ad-content-wrapper">
             <div className="ad-content-left" style={{ flex: 1, width: '100%' }}>
               <SuperAdminDashboard
                 currentUser={currentUser}
                 onSwitchCafe={(slug) => {
                   handleSwitchCafe(slug);
-                  setActiveTab('dashboard');
                 }}
                 onShowToast={showToast}
                 apiCall={apiCall}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Tab Views */}
-
-        {/* Super Admin Platform View */}
-        {activeTab === 'superadmin' && (
-          <div class="ad-content-wrapper">
-            <div class="ad-content-left" style={{ flex: 1, width: '100%' }}>
-              <SuperAdminDashboardView
-                apiCall={apiCall}
-                onShowToast={showToast}
-                currentCafeSlug={currentCafeSlug}
-                onSwitchCafe={(slug) => {
-                  setCurrentCafeSlug(slug);
-                  setActiveTab('dashboard');
-                  showToast(`Switched active cafe to "${slug}"`);
-                }}
               />
             </div>
           </div>
