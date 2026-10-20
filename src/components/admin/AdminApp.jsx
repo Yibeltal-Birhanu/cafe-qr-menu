@@ -478,17 +478,15 @@ export default function AdminApp() {
 
         {/* Dedicated Super Admin Platform View */}
         {(activeTab === 'platform' || activeTab === 'superadmin') && (
-          <div className="ad-content-wrapper">
-            <div className="ad-content-left" style={{ flex: 1, width: '100%' }}>
-              <SuperAdminDashboard
-                currentUser={currentUser}
-                onSwitchCafe={(slug) => {
-                  handleSwitchCafe(slug);
-                }}
-                onShowToast={showToast}
-                apiCall={apiCall}
-              />
-            </div>
+          <div className="ad-content-full">
+            <SuperAdminDashboard
+              currentUser={currentUser}
+              onSwitchCafe={(slug) => {
+                handleSwitchCafe(slug);
+              }}
+              onShowToast={showToast}
+              apiCall={apiCall}
+            />
           </div>
         )}
 
@@ -585,15 +583,13 @@ export default function AdminApp() {
 
         {/* Dedicated Settings View */}
         {activeTab === 'settings' && (
-          <div class="ad-content-wrapper">
-            <div class="ad-content-left" style={{ flex: 1, width: '100%' }}>
-              <VenueSettings
+          <div className="ad-content-full">
+            <VenueSettings
                 cafe={cafe}
                 onSaveCafe={handleSaveCafe}
                 onResetSampleMenu={handleResetSampleMenu}
                 onShowToast={showToast}
-              />
-            </div>
+            />
           </div>
         )}
       </main>

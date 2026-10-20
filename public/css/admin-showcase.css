@@ -2074,6 +2074,9 @@ body::after {
 }
 
 .sad-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -2459,6 +2462,7 @@ body::after {
 
 .sad-table {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.86rem;
@@ -2680,3 +2684,27 @@ body::after {
   box-shadow: 0 8px 24px rgba(217, 119, 6, 0.12);
 }
 
+
+
+/* Full-Width Layout Container for Super Admin & Settings */
+.ad-content-full {
+  width: 100%;
+  max-width: 100%;
+  padding: 1.8rem 2.4rem 3.5rem;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1024px) {
+  .ad-content-full {
+    padding: 1.4rem 1.4rem 3rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ad-content-full {
+    padding: 1rem 0.8rem 2.5rem;
+  }
+}
