@@ -3145,4 +3145,271 @@
   .cm-hero-noir__img {
     height: 155px;
   }
+
+  /* Minimal Desktop */
+  .cm-hero-minimal {
+    min-height: 180px;
+  }
+  .cm-hero-minimal__content {
+    padding: 2rem 1.5rem 2rem 2.2rem;
+  }
+  .cm-hero-minimal__title {
+    font-size: 1.7rem;
+  }
+  .cm-hero-minimal__img {
+    height: 150px;
+  }
+}
+
+/* ==========================================================================
+   SCANDINAVIAN MINIMALIST ARCHITECTURE (data-theme-layout="minimal")
+   ========================================================================== */
+
+[data-theme-layout="minimal"].cm-viewport,
+.cm-viewport--minimal,
+[data-theme-layout="minimal"] .cm-app,
+.cm-app--minimal,
+[data-theme-layout="minimal"] {
+  --cm-bg: #ffffff;
+  --cm-card-bg: #ffffff;
+  --cm-text-dark: #0f172a;
+  --cm-text-muted: #64748b;
+  --cm-border: rgba(148, 163, 184, 0.25);
+  --cm-border-strong: #0f172a;
+  background-color: var(--cm-bg, #ffffff) !important;
+  color: #0f172a !important;
+}
+
+[data-theme-layout="minimal"] .cm-header,
+[data-theme-layout="minimal"] .cm-category-nav-header,
+.cm-viewport--minimal .cm-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  color: #0f172a !important;
+}
+
+[data-theme-layout="minimal"] .cm-brand-name,
+.cm-viewport--minimal .cm-brand-name {
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif) !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--cm-primary, #0f172a) !important;
+}
+
+[data-theme-layout="minimal"] .cm-table-badge,
+.cm-viewport--minimal .cm-table-badge {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  border-radius: 999px !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  padding: 0.25rem 0.75rem !important;
+}
+
+[data-theme-layout="minimal"] .cm-table-badge .cm-badge-dot,
+.cm-viewport--minimal .cm-table-badge .cm-badge-dot {
+  background: var(--cm-accent, #059669) !important;
+}
+
+[data-theme-layout="minimal"] .cm-section-title,
+.cm-viewport--minimal .cm-section-title {
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif) !important;
+  color: #0f172a !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Minimal Dish Cards: Clean, whitespace-driven */
+[data-theme-layout="minimal"] .cm-dish-list,
+.cm-dish-list--minimal,
+.cm-viewport--minimal .cm-dish-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.85rem !important;
+  padding: 0 1rem !important;
+}
+
+@media (min-width: 1024px) {
+  [data-theme-layout="minimal"] .cm-dish-list,
+  .cm-dish-list--minimal,
+  .cm-viewport--minimal .cm-dish-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+}
+
+[data-theme-layout="minimal"] .cm-dish-card,
+.cm-dish-card--minimal,
+.cm-viewport--minimal .cm-dish-card {
+  background: #ffffff !important;
+  border: 1px solid #f1f5f9 !important;
+  border-radius: 14px !important;
+  padding: 0.85rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-card:hover,
+.cm-dish-card--minimal:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-thumb-wrap,
+.cm-dish-card--minimal .cm-dish-thumb-wrap {
+  width: 90px !important;
+  height: 90px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-thumb,
+.cm-dish-card--minimal .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-name,
+.cm-dish-card--minimal .cm-dish-name {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-desc,
+.cm-dish-card--minimal .cm-dish-desc {
+  font-size: 0.82rem !important;
+  color: #64748b !important;
+  line-height: 1.45 !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-price,
+.cm-dish-card--minimal .cm-dish-price {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  color: var(--cm-accent, #059669) !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-badge,
+.cm-dish-card--minimal .cm-dish-badge {
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+  border-radius: 999px !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+}
+
+[data-theme-layout="minimal"] .cm-pill,
+.cm-viewport--minimal .cm-pill {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  padding: 0.45rem 1rem !important;
+}
+
+[data-theme-layout="minimal"] .cm-pill.is-active,
+.cm-viewport--minimal .cm-pill.is-active {
+  background: var(--cm-primary, #0f172a) !important;
+  color: #ffffff !important;
+  border-color: var(--cm-primary, #0f172a) !important;
+}
+
+/* Minimal Hero Banner */
+.cm-hero-minimal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  margin: 0.8rem 1rem 1.2rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.cm-hero-minimal__content {
+  flex: 1;
+  padding: 1.4rem 1.2rem;
+  z-index: 2;
+}
+
+.cm-hero-minimal__tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cm-accent, #059669);
+  margin-bottom: 0.4rem;
+}
+
+.cm-hero-minimal__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.cm-hero-minimal__sub {
+  margin: 0 0 0.8rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.cm-hero-minimal__chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cm-hero-minimal__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.cm-hero-minimal__chip--table {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+  font-weight: 700;
+}
+
+.cm-hero-minimal__media {
+  width: 120px;
+  height: 120px;
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cm-hero-minimal__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
 }

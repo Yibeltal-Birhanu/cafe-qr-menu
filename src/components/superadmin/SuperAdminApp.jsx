@@ -17,6 +17,8 @@ import {
   ExternalLinkIcon,
   RefreshIcon,
   SettingsIcon,
+  SmartphoneIcon,
+  ZapIcon,
 } from '../admin/AdminIcons.jsx';
 import SuperAdminLogin from './SuperAdminLogin.jsx';
 import { THEME_PRESETS } from '../common/themePresets.js';
@@ -92,6 +94,20 @@ export default function SuperAdminApp() {
     managerEmail: '',
     managerPassword: '',
   });
+
+  // Theme Management Studio & Multi-UI Switcher State
+  const [studioPresetId, setStudioPresetId] = useState('showcase');
+  const [studioTargetCafeId, setStudioTargetCafeId] = useState('');
+  const [studioCustomColors, setStudioCustomColors] = useState({
+    primary: '#1c2826',
+    secondary: '#64748b',
+    accent: '#e6923c',
+    font: 'Plus Jakarta Sans',
+    layout: 'bento',
+  });
+  const [studioView, setStudioView] = useState('studio'); // 'studio' | 'grid'
+  const [isApplyingTheme, setIsApplyingTheme] = useState(false);
+  const [activeSimulatorTab, setActiveSimulatorTab] = useState('All');
 
   const showToast = useCallback((msg, isBad = false) => {
     setToast({ text: msg, isBad });
@@ -572,6 +588,99 @@ export default function SuperAdminApp() {
       showToast(`Update failed: ${err.message}`, true);
     } finally {
       setIsUpdatingSettings(false);
+    }
+  };
+
+  const handleSelectStudioPreset = (preset) => {
+    setStudioPresetId(preset.id);
+    setStudioCustomColors({
+      primary: preset.primaryColor,
+      secondary: preset.secondaryColor,
+      accent: preset.accentColor,
+      font: preset.fontFamily,
+      layout: preset.layout,
+    });
+  };
+
+  const handleApplyPresetToCafe = async (preset, cafeId) => {
+    if (!cafeId) {
+      showToast('Please select a target venue first.', true);
+      return;
+    }
+    const targetCafe = cafes.find((c) => c.id === cafeId);
+    if (!targetCafe) return;
+
+    setIsApplyingTheme(true);
+    try {
+      const themePayload = {
+        preset: preset.id,
+        layout: preset.layout,
+        cardStyle: preset.cardStyle,
+        navStyle: preset.navStyle,
+        landingStyle: preset.landingStyle,
+        primaryColor: preset.primaryColor,
+        secondaryColor: preset.secondaryColor,
+        accentColor: preset.accentColor,
+        backgroundColor: preset.backgroundColor || '#ffffff',
+        backgroundMode: preset.backgroundMode || 'light',
+        surfaceColor: preset.surfaceColor || '#ffffff',
+        textColor: preset.textColor || '#111827',
+        fontFamily: preset.fontFamily,
+      };
+
+      await apiCall(`/api/superadmin/cafes/${cafeId}/theme`, {
+        method: 'PUT',
+        body: { theme: themePayload },
+      });
+
+      showToast(`Applied "${preset.name.split(' (')[0]}" to ${targetCafe.name}!`);
+      await loadCafes(true);
+    } catch (err) {
+      showToast(`Failed to apply theme: ${err.message}`, true);
+    } finally {
+      setIsApplyingTheme(false);
+    }
+  };
+
+  const handleApplyCustomStudioTheme = async (cafeId) => {
+    if (!cafeId) {
+      showToast('Please select a target venue first.', true);
+      return;
+    }
+    const targetCafe = cafes.find((c) => c.id === cafeId);
+    if (!targetCafe) return;
+
+    const basePreset = THEME_PRESETS.find((p) => p.id === studioPresetId) || THEME_PRESETS[0];
+
+    setIsApplyingTheme(true);
+    try {
+      const themePayload = {
+        preset: studioPresetId,
+        layout: studioCustomColors.layout || basePreset.layout,
+        cardStyle: basePreset.cardStyle,
+        navStyle: basePreset.navStyle,
+        landingStyle: basePreset.landingStyle,
+        primaryColor: studioCustomColors.primary || basePreset.primaryColor,
+        secondaryColor: studioCustomColors.secondary || basePreset.secondaryColor,
+        accentColor: studioCustomColors.accent || basePreset.accentColor,
+        backgroundColor: '#ffffff',
+        backgroundMode: 'light',
+        surfaceColor: '#ffffff',
+        textColor: '#111827',
+        fontFamily: studioCustomColors.font || basePreset.fontFamily,
+      };
+
+      await apiCall(`/api/superadmin/cafes/${cafeId}/theme`, {
+        method: 'PUT',
+        body: { theme: themePayload },
+      });
+
+      showToast(`Applied custom studio palette to ${targetCafe.name}!`);
+      await loadCafes(true);
+    } catch (err) {
+      showToast(`Failed to apply custom theme: ${err.message}`, true);
+    } finally {
+      setIsApplyingTheme(false);
     }
   };
 
@@ -1209,141 +1318,784 @@ export default function SuperAdminApp() {
           </>
         )}
 
-        {/* TAB 2: THEME ARCHITECTURES */}
-        {currentTab === 'themes' && (
-          <div>
-            <div className="sa-hero" style={{ marginBottom: '1.8rem' }}>
-              <div className="sa-hero-inner">
-                <div>
-                  <h2 className="sa-hero-title">Structural Theme Architectures</h2>
-                  <p className="sa-hero-sub">
-                    Explore the 5 specialized visual UI template architectures built for CafeMenu. Each architecture features custom card layouts, navigation header configurations, and immersive welcome covers with identical customer UX.
-                  </p>
+        {/* TAB 2: THEME ARCHITECTURES & LIVE STUDIO */}
+        {currentTab === 'themes' && (() => {
+          const activeStudioPreset = THEME_PRESETS.find((p) => p.id === studioPresetId) || THEME_PRESETS[0];
+          const activeLayout = studioCustomColors.layout || activeStudioPreset.layout || 'bento';
+          const primaryCol = studioCustomColors.primary || activeStudioPreset.primaryColor;
+          const secondaryCol = studioCustomColors.secondary || activeStudioPreset.secondaryColor;
+          const accentCol = studioCustomColors.accent || activeStudioPreset.accentColor;
+
+          const sampleDishes = [
+            {
+              id: 'd1',
+              name: 'Signature Wagyu Smash Burger',
+              desc: 'Double grass-fed smash patties, aged cheddar, caramelised onions & truffle aioli on toasted brioche.',
+              price: '280 ETB',
+              prepTime: '12 min',
+              badge: 'Chef Special 🔥',
+              image: '/images/dishes/classic-beef-burger.jpg',
+              category: 'Burgers',
+            },
+            {
+              id: 'd2',
+              name: 'Artisan Bunna Ceremony & Popcorn',
+              desc: 'Freshly roasted Yirgacheffe single-origin beans, traditional clay pot brew with organic salted popcorn.',
+              price: '120 ETB',
+              prepTime: '8 min',
+              badge: 'Heritage ☕',
+              image: '/images/dishes/macchiato.jpg',
+              category: 'Coffee',
+            },
+            {
+              id: 'd3',
+              name: 'Stone-Baked Margherita D.O.P.',
+              desc: 'San Marzano plum tomatoes, fresh buffalo mozzarella, aromatic sweet basil, cold-pressed olive oil.',
+              price: '340 ETB',
+              prepTime: '15 min',
+              badge: 'Wood Fired 🍕',
+              image: '/images/dishes/margherita.jpg',
+              category: 'Pizza',
+            },
+            {
+              id: 'd4',
+              name: 'Pistachio & Rose Choux Au Craquelin',
+              desc: 'Delicate crisp pastry filled with light Sicilian pistachio cream, infused with organic damask rose water.',
+              price: '190 ETB',
+              prepTime: '5 min',
+              badge: 'Fresh Baked ✨',
+              image: '/images/dishes/tiramisu.jpg',
+              category: 'Desserts',
+            },
+          ];
+
+          const filteredSampleDishes = activeSimulatorTab === 'All' 
+            ? sampleDishes 
+            : sampleDishes.filter((d) => d.category.toLowerCase().includes(activeSimulatorTab.toLowerCase()));
+
+          return (
+            <div>
+              {/* Header with View Toggle */}
+              <div className="sa-hero" style={{ marginBottom: '1.8rem' }}>
+                <div className="sa-hero-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h2 className="sa-hero-title">Structural Theme Architectures & Live Studio</h2>
+                    <p className="sa-hero-sub">
+                      Preview, customize, and switch distinct visual UI architectures across your venue fleet in real time.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', background: '#f1f5f9', padding: '4px', borderRadius: '12px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setStudioView('studio')}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '9px',
+                        border: 'none',
+                        background: studioView === 'studio' ? '#ffffff' : 'transparent',
+                        color: studioView === 'studio' ? '#0f172a' : '#64748b',
+                        fontWeight: studioView === 'studio' ? 700 : 500,
+                        fontSize: '0.84rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: studioView === 'studio' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      }}
+                    >
+                      <SmartphoneIcon size={15} />
+                      <span>Live Studio & Simulator</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStudioView('grid')}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '9px',
+                        border: 'none',
+                        background: studioView === 'grid' ? '#ffffff' : 'transparent',
+                        color: studioView === 'grid' ? '#0f172a' : '#64748b',
+                        fontWeight: studioView === 'grid' ? 700 : 500,
+                        fontSize: '0.84rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: studioView === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      }}
+                    >
+                      <GridIcon size={15} />
+                      <span>Theme Catalog Grid</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.4rem' }}>
-              {THEME_PRESETS.map((preset) => {
-                const assignedCafes = cafes.filter(
-                  (c) => c.theme?.preset === preset.id || (!c.theme?.preset && preset.id === 'showcase')
-                );
-
-                return (
-                  <div
-                    key={preset.id}
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '20px',
-                      padding: '1.8rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          {preset.previewColors.map((c, i) => (
-                            <span
-                              key={i}
-                              style={{
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                background: c,
-                                border: '1.5px solid #cbd5e1',
-                                display: 'inline-block',
-                              }}
-                            />
-                          ))}
+              {/* VIEW 1: INTERACTIVE STUDIO & PHONE SIMULATOR */}
+              {studioView === 'studio' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: '2rem', alignItems: 'start' }}>
+                  {/* Left Column: Preset Switcher, Color Engine, and Direct Apply Bar */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    
+                    {/* 1. Quick Switch Venue Action Bar */}
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '1.4rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                            1-Click Theme Switcher
+                          </h4>
+                          <p style={{ margin: '3px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+                            Apply the active architecture to any venue immediately.
+                          </p>
                         </div>
                         <span
                           style={{
-                            fontSize: '0.72rem',
+                            background: '#ecfdf5',
+                            color: '#059669',
+                            fontSize: '0.74rem',
                             fontWeight: 700,
-                            color: '#b45309',
-                            background: '#fef3c7',
                             padding: '3px 10px',
                             borderRadius: '999px',
-                            border: '1px solid #fde68a',
+                            border: '1px solid #a7f3d0',
                           }}
                         >
-                          {preset.archetype}
+                          Ready to Switch
                         </span>
                       </div>
 
-                      <h3 style={{ margin: '0 0 6px', fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
-                        {preset.name}
-                      </h3>
-                      <p style={{ margin: '0 0 1.2rem', fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
-                        {preset.tagline}
-                      </p>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <select
+                          value={studioTargetCafeId}
+                          onChange={(e) => setStudioTargetCafeId(e.target.value)}
+                          className="sa-input"
+                          style={{ flex: 1, height: '42px', fontSize: '0.88rem', fontWeight: 600 }}
+                        >
+                          <option value="">-- Select Target Venue --</option>
+                          {cafes.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name} (Current: {c.theme?.preset || 'showcase'})
+                            </option>
+                          ))}
+                        </select>
 
-                      <div
-                        style={{
-                          background: '#f8fafc',
-                          border: '1px solid #f1f5f9',
-                          borderRadius: '12px',
-                          padding: '1rem',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '6px',
-                          fontSize: '0.8rem',
-                          marginBottom: '1.2rem',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#64748b' }}>Card Style:</span>
-                          <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.cardStyle}</span>
+                        <button
+                          type="button"
+                          className="sa-btn-primary"
+                          disabled={!studioTargetCafeId || isApplyingTheme}
+                          onClick={() => handleApplyPresetToCafe(activeStudioPreset, studioTargetCafeId)}
+                          style={{
+                            height: '42px',
+                            padding: '0 20px',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            minWidth: '170px',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <ZapIcon size={14} />
+                          <span>{isApplyingTheme ? 'Applying...' : `Apply "${activeStudioPreset.name.split(' (')[0]}"`}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 2. Architecture Preset Carousel / Cards */}
+                    <div>
+                      <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                        Choose UI Architecture Preset ({THEME_PRESETS.length} available)
+                      </h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.85rem' }}>
+                        {THEME_PRESETS.map((preset) => {
+                          const isSelected = studioPresetId === preset.id;
+                          return (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => handleSelectStudioPreset(preset)}
+                              style={{
+                                padding: '14px',
+                                borderRadius: '14px',
+                                border: isSelected ? `2.5px solid ${preset.primaryColor}` : '1.5px solid #e2e8f0',
+                                background: isSelected ? '#faf5ff' : '#ffffff',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px',
+                                boxShadow: isSelected ? '0 8px 20px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.02)',
+                                transition: 'all 0.18s ease',
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: preset.primaryColor, border: '1px solid #e2e8f0' }} />
+                                  <span style={{ fontWeight: 800, fontSize: '0.86rem', color: '#0f172a' }}>
+                                    {preset.name.split(' (')[0]}
+                                  </span>
+                                </div>
+                                {isSelected && (
+                                  <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: '0.9rem' }}>✓</span>
+                                )}
+                              </div>
+
+                              <div style={{ fontSize: '0.74rem', color: '#64748b', lineHeight: 1.35 }}>
+                                {preset.archetype}
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+                                {preset.previewColors.map((c, i) => (
+                                  <span key={i} style={{ width: '18px', height: '7px', borderRadius: '3px', background: c, border: '1px solid #e2e8f0' }} />
+                                ))}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 3. Live 3-Tier Color Engine Customizer */}
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '1.4rem',
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                            3-Tier Color Engine & Architecture Specs
+                          </h4>
+                          <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                            Changes reflect in the live simulator immediately.
+                          </p>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#64748b' }}>Navigation:</span>
-                          <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.navStyle}</span>
+                        <span style={{ fontSize: '0.74rem', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                          Layout: {activeLayout}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.2rem' }}>
+                        <div>
+                          <label className="sa-label" style={{ fontSize: '0.76rem' }}>1st Color (Primary)</label>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <input
+                              type="color"
+                              value={primaryCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, primary: e.target.value })}
+                              style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                            />
+                            <input
+                              type="text"
+                              className="sa-input"
+                              value={primaryCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, primary: e.target.value })}
+                              style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8rem', padding: '6px 8px' }}
+                            />
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#64748b' }}>Welcome Cover:</span>
-                          <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.landingStyle}</span>
+
+                        <div>
+                          <label className="sa-label" style={{ fontSize: '0.76rem' }}>2nd Color (Secondary)</label>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <input
+                              type="color"
+                              value={secondaryCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, secondary: e.target.value })}
+                              style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                            />
+                            <input
+                              type="text"
+                              className="sa-input"
+                              value={secondaryCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, secondary: e.target.value })}
+                              style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8rem', padding: '6px 8px' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="sa-label" style={{ fontSize: '0.76rem' }}>3rd Color (Accent)</label>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <input
+                              type="color"
+                              value={accentCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, accent: e.target.value })}
+                              style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                            />
+                            <input
+                              type="text"
+                              className="sa-input"
+                              value={accentCol}
+                              onChange={(e) => setStudioCustomColors({ ...studioCustomColors, accent: e.target.value })}
+                              style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8rem', padding: '6px 8px' }}
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <div style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '6px', fontWeight: 600 }}>
-                          Currently Active On ({assignedCafes.length}):
+                      {studioTargetCafeId && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <button
+                            type="button"
+                            className="sa-btn-secondary"
+                            disabled={isApplyingTheme}
+                            onClick={() => handleApplyCustomStudioTheme(studioTargetCafeId)}
+                            style={{ fontSize: '0.82rem', padding: '7px 14px' }}
+                          >
+                            Apply Custom Palette to Selected Venue
+                          </button>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          {assignedCafes.length > 0 ? (
-                            assignedCafes.map((c) => (
-                              <span
-                                key={c.id}
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Realistic Interactive Smartphone Viewport Simulator */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ marginBottom: '8px', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
+                      📱 Live Smartphone Viewport Simulation ({activeStudioPreset.name.split(' (')[0]})
+                    </div>
+
+                    <div
+                      style={{
+                        width: '380px',
+                        height: '740px',
+                        background: '#0f172a',
+                        borderRadius: '44px',
+                        padding: '12px',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.25), 0 0 0 2px #334155',
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                    >
+                      {/* Phone Speaker Notch */}
+                      <div
+                        style={{
+                          width: '120px',
+                          height: '18px',
+                          background: '#0f172a',
+                          borderRadius: '0 0 12px 12px',
+                          position: 'absolute',
+                          top: '12px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          zIndex: 50,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <span style={{ width: '40px', height: '4px', background: '#334155', borderRadius: '999px' }} />
+                      </div>
+
+                      {/* Phone Screen Canvas */}
+                      <div
+                        style={{
+                          flex: 1,
+                          background: '#ffffff',
+                          borderRadius: '32px',
+                          overflowY: 'auto',
+                          overflowX: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          position: 'relative',
+                          fontFamily: studioCustomColors.font || activeStudioPreset.fontFamily || 'Plus Jakarta Sans',
+                        }}
+                      >
+                        {/* Top Simulated App Bar */}
+                        <div
+                          style={{
+                            padding: '30px 14px 10px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            borderBottom: `1.5px solid ${secondaryCol}25`,
+                            background: '#ffffff',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 20,
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontSize: '0.72rem', color: secondaryCol, fontWeight: 700, letterSpacing: '0.04em' }}>
+                              CAFEMENU GUEST APP
+                            </div>
+                            <div style={{ fontSize: '1rem', fontWeight: 900, color: primaryCol, letterSpacing: '-0.02em' }}>
+                              Abol Cafe &amp; Roasters
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              background: `${primaryCol}15`,
+                              border: `1px solid ${primaryCol}35`,
+                              color: primaryCol,
+                              fontSize: '0.68rem',
+                              fontWeight: 800,
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                            }}
+                          >
+                            Table #04
+                          </div>
+                        </div>
+
+                        {/* Distinct Archetype Hero Banner */}
+                        <div style={{ margin: '8px 12px 12px' }}>
+                          {activeLayout === 'editorial' && (
+                            <div style={{ background: '#fbfaf8', border: `1.5px solid ${secondaryCol}`, borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                              <div style={{ fontSize: '0.65rem', letterSpacing: '0.12em', color: secondaryCol, fontWeight: 800 }}>
+                                ✦ RESERVE GASTRONOMIQUE ✦
+                              </div>
+                              <h3 style={{ margin: '4px 0', fontFamily: 'serif', fontSize: '1.15rem', color: primaryCol, fontWeight: 800 }}>
+                                Curated Tasting Menu
+                              </h3>
+                              <div style={{ width: '40px', height: '1.5px', background: accentCol, margin: '6px auto' }} />
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                Rare single-origin harvests &amp; artisanal pairings.
+                              </div>
+                            </div>
+                          )}
+
+                          {activeLayout === 'rustic' && (
+                            <div style={{ background: '#fff7ed', border: `2px solid ${primaryCol}`, borderRadius: '12px', padding: '12px 14px' }}>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 900, color: primaryCol, textTransform: 'uppercase' }}>
+                                🔥 WOOD-FIRED HEARTH &amp; GRILL
+                              </div>
+                              <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 900, color: '#0f172a' }}>
+                                CRAFTED BY FLAME
+                              </h3>
+                              <div style={{ fontSize: '0.72rem', color: secondaryCol }}>
+                                Hardwood smoked, stone-baked sourdough crusts.
+                              </div>
+                            </div>
+                          )}
+
+                          {activeLayout === 'boutique' && (
+                            <div style={{ background: '#fdf2f8', border: `1.5px solid ${primaryCol}40`, borderRadius: '14px', padding: '12px 14px' }}>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: primaryCol }}>
+                                ✨ MAISON DE DÉLICES
+                              </div>
+                              <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
+                                Parisian Bakes &amp; Patisserie
+                              </h3>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                Freshly laminated viennoiserie &amp; choux.
+                              </div>
+                            </div>
+                          )}
+
+                          {activeLayout === 'noir' && (
+                            <div style={{ background: '#0f172a', border: `1.5px solid ${primaryCol}`, borderRadius: '12px', padding: '12px 14px', color: '#ffffff' }}>
+                              <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: primaryCol, fontWeight: 700 }}>
+                                [SYS: CYBER_LOUNGE // ACTIVE]
+                              </div>
+                              <h3 style={{ margin: '3px 0', fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>
+                                NEON NIGHTS &amp; MIXOLOGY
+                              </h3>
+                              <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                                Late-night ambient fusion soundscapes.
+                              </div>
+                            </div>
+                          )}
+
+                          {activeLayout === 'minimal' && (
+                            <div style={{ background: '#f8fafc', border: `1px solid ${secondaryCol}40`, borderRadius: '12px', padding: '12px 14px' }}>
+                              <div style={{ fontSize: '0.65rem', fontWeight: 700, color: accentCol, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                                NORDIC BOTANICAL &bull; ORGANIC
+                              </div>
+                              <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 800, color: primaryCol }}>
+                                Pure, Minimalist &amp; Honest
+                              </h3>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                Clean stone-ground grains &amp; single origins.
+                              </div>
+                            </div>
+                          )}
+
+                          {activeLayout === 'bento' && (
+                            <div style={{ background: '#faf5ff', border: `1.5px solid ${primaryCol}30`, borderRadius: '14px', padding: '12px 14px' }}>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: accentCol }}>
+                                ✨ CHEF'S DAILY SPECIAL
+                              </div>
+                              <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 900, color: primaryCol }}>
+                                Fresh Flavors Every Day
+                              </h3>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                Authentic Habesha craft &amp; artisan grill.
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Category Filter Pills in Phone */}
+                        <div style={{ display: 'flex', gap: '6px', padding: '0 12px 10px', overflowX: 'auto' }}>
+                          {['All', 'Burgers', 'Coffee', 'Pizza', 'Desserts'].map((cat) => {
+                            const isPillActive = activeSimulatorTab === cat;
+                            return (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() => setActiveSimulatorTab(cat)}
                                 style={{
-                                  fontSize: '0.74rem',
-                                  background: '#f1f5f9',
-                                  color: '#334155',
-                                  border: '1px solid #e2e8f0',
-                                  padding: '2px 8px',
-                                  borderRadius: '6px',
+                                  padding: '5px 12px',
+                                  borderRadius: activeLayout === 'boutique' ? '999px' : '8px',
+                                  border: isPillActive ? `1.5px solid ${primaryCol}` : '1px solid #e2e8f0',
+                                  background: isPillActive ? primaryCol : '#ffffff',
+                                  color: isPillActive ? '#ffffff' : '#475569',
+                                  fontSize: '0.72rem',
+                                  fontWeight: isPillActive ? 700 : 500,
+                                  whiteSpace: 'nowrap',
+                                  cursor: 'pointer',
                                 }}
                               >
-                                {c.name}
-                              </span>
-                            ))
-                          ) : (
-                            <span style={{ fontSize: '0.74rem', color: '#475569', fontStyle: 'italic' }}>
-                              No venues assigned yet
-                            </span>
-                          )}
+                                {cat}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Dish List inside Phone */}
+                        <div style={{ padding: '0 12px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {filteredSampleDishes.map((dish) => (
+                            <div
+                              key={dish.id}
+                              style={{
+                                background: '#ffffff',
+                                border: activeLayout === 'noir'
+                                  ? `1.5px solid ${primaryCol}60`
+                                  : activeLayout === 'rustic'
+                                  ? `2px solid #ea580c30`
+                                  : '1px solid #f1f5f9',
+                                borderRadius: activeLayout === 'boutique' ? '18px' : '14px',
+                                padding: '10px',
+                                display: 'flex',
+                                gap: '10px',
+                                alignItems: 'center',
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                              }}
+                            >
+                              <img
+                                src={dish.image}
+                                alt={dish.name}
+                                style={{
+                                  width: '64px',
+                                  height: '64px',
+                                  borderRadius: activeLayout === 'boutique' ? '12px' : '10px',
+                                  objectFit: 'cover',
+                                  flexShrink: 0,
+                                }}
+                              />
+
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                  <div
+                                    style={{
+                                      fontSize: '0.82rem',
+                                      fontWeight: 800,
+                                      color: primaryCol,
+                                      lineHeight: 1.25,
+                                    }}
+                                  >
+                                    {dish.name}
+                                  </div>
+                                </div>
+                                <div style={{ fontSize: '0.68rem', color: '#64748b', margin: '2px 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {dish.desc}
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: accentCol }}>
+                                    {dish.price}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: '0.62rem',
+                                      padding: '2px 6px',
+                                      borderRadius: '4px',
+                                      background: `${primaryCol}12`,
+                                      color: primaryCol,
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    {dish.badge}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
+
+              {/* VIEW 2: THEME CATALOG GRID */}
+              {studioView === 'grid' && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.4rem' }}>
+                  {THEME_PRESETS.map((preset) => {
+                    const assignedCafes = cafes.filter(
+                      (c) => c.theme?.preset === preset.id || (!c.theme?.preset && preset.id === 'showcase')
+                    );
+
+                    return (
+                      <div
+                        key={preset.id}
+                        style={{
+                          background: '#ffffff',
+                          border: studioPresetId === preset.id ? `2px solid ${preset.primaryColor}` : '1px solid #e2e8f0',
+                          borderRadius: '20px',
+                          padding: '1.6rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              {preset.previewColors.map((c, i) => (
+                                <span
+                                  key={i}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '50%',
+                                    background: c,
+                                    border: '1.5px solid #cbd5e1',
+                                    display: 'inline-block',
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <span
+                              style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                color: '#b45309',
+                                background: '#fef3c7',
+                                padding: '3px 10px',
+                                borderRadius: '999px',
+                                border: '1px solid #fde68a',
+                              }}
+                            >
+                              {preset.archetype}
+                            </span>
+                          </div>
+
+                          <h3 style={{ margin: '0 0 4px', fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
+                            {preset.name}
+                          </h3>
+                          <p style={{ margin: '0 0 1rem', fontSize: '0.84rem', color: '#64748b', lineHeight: 1.45 }}>
+                            {preset.tagline}
+                          </p>
+
+                          <div
+                            style={{
+                              background: '#f8fafc',
+                              border: '1px solid #f1f5f9',
+                              borderRadius: '12px',
+                              padding: '0.9rem',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px',
+                              fontSize: '0.78rem',
+                              marginBottom: '1rem',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <span style={{ color: '#64748b' }}>Card Style:</span>
+                              <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.cardStyle}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <span style={{ color: '#64748b' }}>Navigation:</span>
+                              <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.navStyle}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <span style={{ color: '#64748b' }}>Welcome Cover:</span>
+                              <span style={{ color: '#0f172a', fontWeight: 600 }}>{preset.landingStyle}</span>
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: '1.2rem' }}>
+                            <div style={{ fontSize: '0.74rem', color: '#64748b', marginBottom: '6px', fontWeight: 600 }}>
+                              Active on {assignedCafes.length} venue{assignedCafes.length === 1 ? '' : 's'}:
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              {assignedCafes.length > 0 ? (
+                                assignedCafes.map((c) => (
+                                  <span
+                                    key={c.id}
+                                    style={{
+                                      fontSize: '0.74rem',
+                                      background: '#f1f5f9',
+                                      color: '#334155',
+                                      border: '1px solid #e2e8f0',
+                                      padding: '2px 8px',
+                                      borderRadius: '6px',
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {c.name}
+                                  </span>
+                                ))
+                              ) : (
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontStyle: 'italic' }}>
+                                  No venues assigned yet
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Direct Switcher Actions */}
+                        <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1rem', display: 'flex', gap: '8px' }}>
+                          <button
+                            type="button"
+                            className="sa-btn-secondary"
+                            onClick={() => {
+                              handleSelectStudioPreset(preset);
+                              setStudioView('studio');
+                            }}
+                            style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '8px' }}
+                          >
+                            <SmartphoneIcon size={14} />
+                            <span>Preview in Studio</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="sa-btn-primary"
+                            onClick={() => {
+                              setThemeModalCafe(cafes[0]);
+                            }}
+                            style={{ fontSize: '0.8rem', padding: '8px 14px' }}
+                          >
+                            Assign...
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* TAB 3: MANAGER ACCOUNTS */}
         {currentTab === 'managers' && (

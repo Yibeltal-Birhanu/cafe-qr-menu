@@ -143,31 +143,65 @@ export default function MenuHero({
   }
 
   // 5. NOIR HERO (Tokyo Neon Noir Cyber Lounge)
-  return (
-    <div class="cm-hero-noir">
-      <div class="cm-hero-noir__content">
-        <div class="cm-hero-noir__tag">
-          [SYS: CYBER_LOUNGE // NIGHT_MODE: ACTIVE]
+  if (layout === 'noir') {
+    return (
+      <div class="cm-hero-noir">
+        <div class="cm-hero-noir__content">
+          <div class="cm-hero-noir__tag">
+            [SYS: CYBER_LOUNGE // NIGHT_MODE: ACTIVE]
+          </div>
+          <h2 class="cm-hero-noir__title">
+            {heroTitle || 'NEON NIGHTS & CRAFT MIXOLOGY'}
+          </h2>
+          <p class="cm-hero-noir__sub">
+            {heroSub || 'High-tech mixology, late-night fusion bites, and ambient techno soundscapes.'}
+          </p>
+          <div class="cm-hero-noir__chips">
+            <span class="cm-hero-noir__chip">⚡ AMBIENT MIXOLOGY</span>
+            <span class="cm-hero-noir__chip">🔮 NEON INFUSION</span>
+            <span class="cm-hero-noir__chip cm-hero-noir__chip--table">[BOOTH // {tableNumber}]</span>
+          </div>
         </div>
-        <h2 class="cm-hero-noir__title">
-          {heroTitle || 'NEON NIGHTS & CRAFT MIXOLOGY'}
-        </h2>
-        <p class="cm-hero-noir__sub">
-          {heroSub || 'High-tech mixology, late-night fusion bites, and ambient techno soundscapes.'}
-        </p>
-        <div class="cm-hero-noir__chips">
-          <span class="cm-hero-noir__chip">⚡ AMBIENT MIXOLOGY</span>
-          <span class="cm-hero-noir__chip">🔮 NEON INFUSION</span>
-          <span class="cm-hero-noir__chip cm-hero-noir__chip--table">[BOOTH // {tableNumber}]</span>
+        <div class="cm-hero-noir__media">
+          <img
+            src={heroImage || '/images/dishes/caramel-latte.jpg'}
+            alt="Cyber Lounge Special"
+            class="cm-hero-noir__img"
+            onError={(e) => {
+              e.currentTarget.src = '/images/dishes/caramel-latte.jpg';
+            }}
+          />
         </div>
       </div>
-      <div class="cm-hero-noir__media">
+    );
+  }
+
+  // 6. MINIMAL HERO (Scandinavian Nordic Botanical)
+  return (
+    <div class="cm-hero-minimal">
+      <div class="cm-hero-minimal__content">
+        <div class="cm-hero-minimal__tag">
+          <span>NORDIC BOTANICAL &bull; ARTISANAL HARVEST</span>
+        </div>
+        <h2 class="cm-hero-minimal__title">
+          {heroTitle || 'Pure, Minimalist & Mindfully Sourced'}
+        </h2>
+        <p class="cm-hero-minimal__sub">
+          {heroSub || 'Clean single-origin roasts, stone-ground grain sourdough, and seasonal comfort.'}
+        </p>
+        <div class="cm-hero-minimal__chips">
+          <span class="cm-hero-minimal__chip">&bull; Stone Milled</span>
+          <span class="cm-hero-minimal__chip">&bull; Organic Harvest</span>
+          <span class="cm-hero-minimal__chip cm-hero-minimal__chip--table">Table #{tableNumber}</span>
+        </div>
+      </div>
+      <div class="cm-hero-minimal__media">
         <img
-          src={heroImage || '/images/dishes/caramel-latte.jpg'}
-          alt="Cyber Lounge Special"
-          class="cm-hero-noir__img"
+          src={heroImage || '/images/dishes/macchiato.jpg'}
+          alt="Artisanal specialty"
+          class="cm-hero-minimal__img"
           onError={(e) => {
-            e.currentTarget.src = '/images/dishes/caramel-latte.jpg';
+            e.currentTarget.src = '/images/dishes/macchiato.jpg';
           }}
         />
       </div>

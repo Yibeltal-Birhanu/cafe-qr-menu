@@ -120,6 +120,25 @@ export const THEME_PRESETS = [
     accentColor: '#d97706',      // 3rd color (Honey Gold Price Chips)
     fontFamily: 'Plus Jakarta Sans',
   },
+  {
+    id: 'minimalist',
+    layout: 'minimal',
+    name: 'Scandinavian Minimalist (Pure White & Sage)',
+    archetype: 'High-Concept Cafes & Concept Bakeries',
+    cardStyle: 'Ultra-Clean Borderless List with Subtle Sage Dividers',
+    navStyle: 'Typography-First Floating Header with Minimal Sans Badges',
+    landingStyle: 'Whitespace-Driven Nordic Botanical Cover',
+    tagline: 'Pure white canvas, deep charcoal typography, cool slate framing & calm sage accents.',
+    previewColors: ['#ffffff', '#0f172a', '#94a3b8', '#059669'],
+    backgroundColor: '#ffffff',
+    backgroundMode: 'light',
+    surfaceColor: '#ffffff',
+    textColor: '#0f172a',
+    primaryColor: '#0f172a',     // 1st color (Deep Charcoal)
+    secondaryColor: '#94a3b8',   // 2nd color (Cool Slate Hairline)
+    accentColor: '#059669',      // 3rd color (Calm Sage Green)
+    fontFamily: 'Plus Jakarta Sans',
+  },
 ];
 
 export function applyThemeToDocument(theme) {
