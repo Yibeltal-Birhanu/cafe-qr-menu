@@ -164,7 +164,9 @@ export default function AdminApp() {
       if (session && session.ok) {
         setIsAuthenticated(true);
         setCurrentUser(session.user);
-        const resolvedSlug = session.cafeSlug || 'abol-cafe';
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCafe = urlParams.get('cafe');
+        const resolvedSlug = urlCafe || session.cafeSlug || 'abol-cafe';
         setSelectedCafeSlug(resolvedSlug);
         slugRef.current = resolvedSlug;
 

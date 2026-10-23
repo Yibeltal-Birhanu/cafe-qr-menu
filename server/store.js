@@ -374,7 +374,7 @@ async function listCafes(ownerId) {
 async function listAllCafesWithManagers() {
   const [rows] = await pool.query(`
     SELECT 
-      c.id, c.slug, c.name, c.tagline, c.currency, c.status, c.created_at, c.updated_at,
+      c.id, c.slug, c.name, c.tagline, c.currency, c.status, c.theme, c.created_at, c.updated_at,
       u.id AS managerId, u.name AS managerName, u.email AS managerEmail,
       (SELECT COUNT(*) FROM categories cat WHERE cat.cafeId = c.id) AS categoryCount,
       (SELECT COUNT(*) FROM items it WHERE it.cafeId = c.id) AS dishCount
@@ -382,7 +382,14 @@ async function listAllCafesWithManagers() {
     LEFT JOIN user u ON c.owner_id = u.id
     ORDER BY c.created_at DESC
   `);
-  return rows;
+  return rows.map((r) => ({
+    ...r,
+    theme: r.theme
+      ? typeof r.theme === 'string'
+        ? (() => { try { return JSON.parse(r.theme); } catch { return null; } })()
+        : r.theme
+      : null,
+  }));
 }
 
 async function getCafeById(cafeId) {
@@ -405,6 +412,7 @@ async function updateCafeStatus(cafeId, status) {
   const cafe = await getCafeById(cafeId);
   if (cafe && menus.has(cafe.slug)) {
     menus.get(cafe.slug).cafe.status = status;
+    writeToDisk(cafe.slug, menus.get(cafe.slug));
   }
   return cafe;
 }
@@ -430,6 +438,10 @@ async function deleteCafe(cafeId) {
   if (!cafe) return null;
   await pool.query('DELETE FROM cafes WHERE id = ?', [cafeId]);
   menus.delete(cafe.slug);
+  const file = path.join(DATA_DIR, `menu-${cafe.slug}.json`);
+  if (fs.existsSync(file)) {
+    try { fs.unlinkSync(file); } catch (_) {}
+  }
   return cafe;
 }
 

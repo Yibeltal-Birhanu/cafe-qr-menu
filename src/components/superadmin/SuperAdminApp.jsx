@@ -136,6 +136,17 @@ export default function SuperAdminApp() {
     try {
       const session = await apiCall('/api/admin/session', { silentAuth: true, token: activeToken });
       if (session && session.ok) {
+        const isSuper = session.user?.role === 'superadmin' || session.user?.id === 'legacy-admin';
+        if (!isSuper) {
+          setIsAuthenticated(false);
+          setToken('');
+          tokenRef.current = '';
+          setCurrentUser(null);
+          try {
+            localStorage.removeItem(SUPERADMIN_TOKEN_KEY);
+          } catch {}
+          return false;
+        }
         setIsAuthenticated(true);
         setCurrentUser(session.user);
         return true;
@@ -457,7 +468,7 @@ export default function SuperAdminApp() {
   }
 
   return (
-    <div id="root">
+    <div className="sa-app">
       {/* 1. Executive Topbar */}
       <header className="sa-topbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
@@ -812,11 +823,11 @@ export default function SuperAdminApp() {
                                         display: 'inline-block',
                                       }}
                                     />
-                                    <span style={{ fontWeight: 700, fontSize: '0.86rem', color: '#f8fafc' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '0.86rem', color: '#0f172a' }}>
                                       {matchedPreset.name.split(' ')[0]}
                                     </span>
                                   </div>
-                                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
                                     {matchedPreset.archetype}
                                   </div>
                                 </div>
@@ -826,10 +837,10 @@ export default function SuperAdminApp() {
                               <td>
                                 {cafe.managerEmail ? (
                                   <div>
-                                    <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.86rem' }}>
+                                    <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.86rem' }}>
                                       {cafe.managerName || 'Manager'}
                                     </div>
-                                    <div style={{ fontSize: '0.76rem', color: '#94a3b8' }}>
+                                    <div style={{ fontSize: '0.76rem', color: '#64748b' }}>
                                       {cafe.managerEmail}
                                     </div>
                                   </div>
@@ -837,7 +848,7 @@ export default function SuperAdminApp() {
                                   <span
                                     style={{
                                       fontSize: '0.72rem',
-                                      color: '#f59e0b',
+                                      color: '#b45309',
                                       background: 'rgba(245, 158, 11, 0.12)',
                                       border: '1px solid rgba(245, 158, 11, 0.25)',
                                       padding: '2px 8px',
@@ -852,8 +863,8 @@ export default function SuperAdminApp() {
 
                               {/* Catalog */}
                               <td>
-                                <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.9rem' }}>
-                                  {cafe.dishCount || 0} <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 500 }}>dishes</span>
+                                <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>
+                                  {cafe.dishCount || 0} <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 500 }}>dishes</span>
                                 </div>
                                 <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
                                   {cafe.categoryCount || 0} categories
@@ -1025,19 +1036,19 @@ export default function SuperAdminApp() {
                         </div>
 
                         {cafe.tagline && (
-                          <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                          <p style={{ margin: '0 0 0.8rem', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.4 }}>
                             {cafe.tagline}
                           </p>
                         )}
 
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
-                          <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
+                          <span style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
                             {cafe.dishCount || 0} dishes
                           </span>
-                          <span style={{ background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600 }}>
+                          <span style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600 }}>
                             {cafe.categoryCount || 0} categories
                           </span>
-                          <span style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
+                          <span style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
                             {matchedPreset.name.split(' ')[0]} Theme
                           </span>
                         </div>
@@ -1088,7 +1099,7 @@ export default function SuperAdminApp() {
                 <div>
                   <h2 className="sa-hero-title">Structural Theme Architectures</h2>
                   <p className="sa-hero-sub">
-                    Explore the 5 specialized visual UI template architectures built for CafeMenu. Each architecture features custom card layouts, navigation header configurations, and immersive welcome covers with identical customer UX. Each architecture features custom card layouts, navigation header configurations, and immersive welcome covers.
+                    Explore the 5 specialized visual UI template architectures built for CafeMenu. Each architecture features custom card layouts, navigation header configurations, and immersive welcome covers with identical customer UX.
                   </p>
                 </div>
               </div>
@@ -1135,11 +1146,11 @@ export default function SuperAdminApp() {
                           style={{
                             fontSize: '0.72rem',
                             fontWeight: 700,
-                            color: '#f59e0b',
-                            background: 'rgba(245, 158, 11, 0.15)',
+                            color: '#b45309',
+                            background: '#fef3c7',
                             padding: '3px 10px',
                             borderRadius: '999px',
-                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            border: '1px solid #fde68a',
                           }}
                         >
                           {preset.archetype}
@@ -1149,7 +1160,7 @@ export default function SuperAdminApp() {
                       <h3 style={{ margin: '0 0 6px', fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
                         {preset.name}
                       </h3>
-                      <p style={{ margin: '0 0 1.2rem', fontSize: '0.86rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                      <p style={{ margin: '0 0 1.2rem', fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
                         {preset.tagline}
                       </p>
 
@@ -1262,10 +1273,10 @@ export default function SuperAdminApp() {
                             {(cafe.managerName || cafe.name || 'M').charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: '#ffffff' }}>
+                            <div style={{ fontWeight: 700, color: '#0f172a' }}>
                               {cafe.managerName || `${cafe.name} Manager`}
                             </div>
-                            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
                               {cafe.managerEmail || 'No manager email assigned'}
                             </div>
                           </div>
@@ -1274,7 +1285,7 @@ export default function SuperAdminApp() {
 
                       <td>
                         <div>
-                          <div style={{ fontWeight: 600, color: '#f8fafc' }}>{cafe.name}</div>
+                          <div style={{ fontWeight: 600, color: '#0f172a' }}>{cafe.name}</div>
                           <a href={`/${cafe.slug}`} target="_blank" rel="noreferrer" className="sa-slug-link">
                             /{cafe.slug}
                           </a>
@@ -1286,8 +1297,9 @@ export default function SuperAdminApp() {
                           style={{
                             fontSize: '0.72rem',
                             fontWeight: 700,
-                            background: 'rgba(99, 102, 241, 0.15)',
-                            color: '#a5b4fc',
+                            background: '#eef2ff',
+                            color: '#4338ca',
+                            border: '1px solid #c7d2fe',
                             padding: '3px 9px',
                             borderRadius: '999px',
                           }}
@@ -1301,7 +1313,7 @@ export default function SuperAdminApp() {
                           style={{
                             fontSize: '0.74rem',
                             fontWeight: 700,
-                            color: cafe.status === 'active' ? '#34d399' : '#fb7185',
+                            color: cafe.status === 'active' ? '#059669' : '#e11d48',
                           }}
                         >
                           {cafe.status === 'active' ? '● Active' : '○ Suspended'}
@@ -1348,15 +1360,15 @@ export default function SuperAdminApp() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.84rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Engine:</span>
-                    <span style={{ color: '#34d399', fontWeight: 700 }}>MySQL 8.0 Multi-Tenant</span>
+                    <span style={{ color: '#64748b' }}>Engine:</span>
+                    <span style={{ color: '#059669', fontWeight: 700 }}>MySQL 8.0 Multi-Tenant</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Status:</span>
-                    <span style={{ color: '#34d399', fontWeight: 700 }}>Connected &bull; Active Pool</span>
+                    <span style={{ color: '#64748b' }}>Status:</span>
+                    <span style={{ color: '#059669', fontWeight: 700 }}>Connected &bull; Active Pool</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Tenants Registered:</span>
+                    <span style={{ color: '#64748b' }}>Tenants Registered:</span>
                     <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.totalCafes} venues</span>
                   </div>
                 </div>
@@ -1368,15 +1380,15 @@ export default function SuperAdminApp() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.84rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Auth Provider:</span>
+                    <span style={{ color: '#64748b' }}>Auth Provider:</span>
                     <span style={{ color: '#0f172a', fontWeight: 700 }}>Better Auth v1.7</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Role Enforcements:</span>
-                    <span style={{ color: '#34d399', fontWeight: 700 }}>superadmin &bull; manager</span>
+                    <span style={{ color: '#64748b' }}>Role Enforcements:</span>
+                    <span style={{ color: '#059669', fontWeight: 700 }}>superadmin &bull; manager</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Manager Accounts:</span>
+                    <span style={{ color: '#64748b' }}>Manager Accounts:</span>
                     <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.totalManagers} verified</span>
                   </div>
                 </div>
@@ -1395,7 +1407,7 @@ export default function SuperAdminApp() {
                 <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
                   Deploy New Venue
                 </h3>
-                <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#94a3b8' }}>
+                <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
                   Provision a fresh multi-tenant catalog and assign manager access.
                 </p>
               </div>
@@ -1407,7 +1419,7 @@ export default function SuperAdminApp() {
                   border: '1px solid #e2e8f0',
                   fontSize: '1.4rem',
                   cursor: 'pointer',
-                  color: '#94a3b8',
+                  color: '#64748b',
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
@@ -1421,7 +1433,7 @@ export default function SuperAdminApp() {
 
             <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div>
-                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#0f172a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   1. Venue Profile
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
@@ -1489,7 +1501,7 @@ export default function SuperAdminApp() {
               </div>
 
               <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.1rem' }}>
-                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#0f172a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   2. Manager Credentials (Better Auth)
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
@@ -1532,7 +1544,7 @@ export default function SuperAdminApp() {
               {/* 3. Visual UI Web Design Template Picker */}
               <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.8rem' }}>
-                  <h4 style={{ margin: 0, fontSize: '0.88rem', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <h4 style={{ margin: 0, fontSize: '0.88rem', color: '#0f172a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     3. Choose Web Design Template (UI)
                   </h4>
                   <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
@@ -1664,7 +1676,7 @@ export default function SuperAdminApp() {
                 <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
                   Select Theme Architecture: {themeModalCafe.name}
                 </h3>
-                <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#94a3b8' }}>
+                <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#64748b' }}>
                   Assign one of the 5 structural UI architectures to this venue.
                 </p>
               </div>
@@ -1676,7 +1688,7 @@ export default function SuperAdminApp() {
                   border: '1px solid #e2e8f0',
                   fontSize: '1.4rem',
                   cursor: 'pointer',
-                  color: '#94a3b8',
+                  color: '#64748b',
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
@@ -1722,7 +1734,7 @@ export default function SuperAdminApp() {
                                 borderRadius: '50%',
                                 background: c,
                                 display: 'inline-block',
-                                border: '1.5px solid rgba(255, 255, 255, 0.2)',
+                                border: '1px solid rgba(0, 0, 0, 0.12)',
                               }}
                             />
                           ))}
@@ -1732,8 +1744,8 @@ export default function SuperAdminApp() {
                             style={{
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              background: '#f59e0b',
-                              color: '#000000',
+                              background: '#2563eb',
+                              color: '#ffffff',
                               padding: '2px 9px',
                               borderRadius: '999px',
                             }}
@@ -1759,7 +1771,7 @@ export default function SuperAdminApp() {
                       <h4 style={{ margin: '0 0 4px', fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
                         {preset.name}
                       </h4>
-                      <p style={{ margin: '0 0 0.9rem', fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                      <p style={{ margin: '0 0 0.9rem', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.4 }}>
                         {preset.tagline}
                       </p>
 
@@ -1822,7 +1834,7 @@ export default function SuperAdminApp() {
                 <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
                   Update Manager Credentials
                 </h3>
-                <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#94a3b8' }}>
+                <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
                   {credentialModalCafe.name} (/{credentialModalCafe.slug})
                 </p>
               </div>
@@ -1834,7 +1846,7 @@ export default function SuperAdminApp() {
                   border: '1px solid #e2e8f0',
                   fontSize: '1.3rem',
                   cursor: 'pointer',
-                  color: '#94a3b8',
+                  color: '#64748b',
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',

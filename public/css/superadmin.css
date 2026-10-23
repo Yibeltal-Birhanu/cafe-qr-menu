@@ -80,12 +80,22 @@ body {
   line-height: 1.5;
 }
 
-#root {
+#root,
+.sa-app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
+}
+
+.cm-spin {
+  animation: cmSpin 0.8s linear infinite;
+}
+
+@keyframes cmSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ------------------------------------------------------------------ Topbar */

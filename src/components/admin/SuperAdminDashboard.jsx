@@ -171,9 +171,28 @@ export default function SuperAdminDashboard({
     }
     setIsSubmitting(true);
     try {
+      const selectedPreset = THEME_PRESETS[0];
+      const themePayload = {
+        preset: selectedPreset.id,
+        layout: selectedPreset.layout,
+        cardStyle: selectedPreset.cardStyle,
+        navStyle: selectedPreset.navStyle,
+        landingStyle: selectedPreset.landingStyle,
+        primaryColor: selectedPreset.primaryColor,
+        accentColor: selectedPreset.accentColor,
+        backgroundColor: selectedPreset.backgroundColor,
+        backgroundMode: selectedPreset.backgroundMode,
+        surfaceColor: selectedPreset.surfaceColor,
+        textColor: selectedPreset.textColor,
+        fontFamily: selectedPreset.fontFamily,
+      };
+
       await apiCall('/api/superadmin/cafes', {
         method: 'POST',
-        body: formData,
+        body: {
+          ...formData,
+          theme: themePayload,
+        },
       });
       if (onShowToast) onShowToast(`Venue "${formData.name}" deployed successfully!`);
       setIsCreateModalOpen(false);

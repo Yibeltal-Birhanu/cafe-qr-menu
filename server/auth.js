@@ -41,13 +41,26 @@ const auth = betterAuth({
  * ------------------------------------------------------------------ */
 
 /**
- * Creates or retrieves a manager account with a dedicated password.
+ * Creates or retrieves/updates a manager account with a dedicated password.
  */
 async function createManagerUser({ email, password, name = 'Cafe Manager' }) {
   const safeEmail = String(email || '').trim().toLowerCase();
   const [existing] = await pool.query('SELECT id, email, name, role FROM user WHERE email = ?', [safeEmail]);
   if (existing.length > 0) {
-    return existing[0];
+    const existingUser = existing[0];
+    if (password) {
+      const { hashPassword } = require('better-auth/crypto');
+      const hashedPassword = await hashPassword(String(password));
+      await pool.query('UPDATE account SET password = ? WHERE userId = ? AND providerId = ?', [
+        hashedPassword,
+        existingUser.id,
+        'credential',
+      ]);
+    }
+    if (name && name !== existingUser.name) {
+      await pool.query('UPDATE user SET name = ? WHERE id = ?', [String(name), existingUser.id]);
+    }
+    return { ...existingUser, name: name || existingUser.name };
   }
 
   const res = await auth.api.signUpEmail({
