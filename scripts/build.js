@@ -16,6 +16,7 @@ async function build() {
         menu: path.join(rootDir, 'src/entries/menu.jsx'),
         landing: path.join(rootDir, 'src/entries/landing.jsx'),
         admin: path.join(rootDir, 'src/entries/admin.jsx'),
+        superadmin: path.join(rootDir, 'src/entries/superadmin.jsx'),
       },
       outdir: path.join(rootDir, 'public/dist'),
       bundle: true,

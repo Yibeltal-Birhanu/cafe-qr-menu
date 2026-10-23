@@ -8,7 +8,8 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "build": "node scripts/build.js",
-    "test": "node --test"
+    "upload:images": "node scripts/upload-to-cloudinary.js",
+    "test": "node --test tests/api.test.mjs"
   },
   "engines": {
     "node": ">=18"
@@ -23,9 +24,11 @@
   "license": "MIT",
   "dependencies": {
     "better-auth": "^1.7.10",
+    "cloudinary": "^2.11.0",
     "dotenv": "^18.0.8",
     "drizzle-orm": "^0.45.4",
     "express": "^4.21.2",
+    "multer": "^2.4.0",
     "mysql2": "^3.24.6",
     "qrcode": "^1.5.4",
     "react": "^19.3.1",

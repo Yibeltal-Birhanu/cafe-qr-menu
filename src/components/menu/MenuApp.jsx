@@ -5,8 +5,10 @@ import DishListItem from './DishListItem.jsx';
 import DishDetailModal from './DishDetailModal.jsx';
 import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
+import MenuHero from './MenuHero.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
+import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
 
 export default function MenuApp() {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -20,17 +22,62 @@ export default function MenuApp() {
   const toastTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // Determine active cafe slug from query params or URL path
+  const getActiveCafeSlug = () => {
+    if (typeof window === 'undefined') return 'abol-cafe';
+    const searchParams = new URLSearchParams(window.location.search);
+    const qCafe = searchParams.get('cafe');
+    if (qCafe) return qCafe;
+
+    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!pathname || pathname === 'cafe' || pathname === 'menu' || pathname === 'menu.html') {
+      return 'abol-cafe';
+    }
+    if (pathname.startsWith('cafe/')) {
+      const parts = pathname.split('/');
+      return parts[1] || 'abol-cafe';
+    }
+    return pathname;
+  };
+
   // Fetch API menu to keep synced with admin updates
   useEffect(() => {
-    fetch('/api/menu')
-      .then((res) => res.json())
+    const slug = getActiveCafeSlug();
+    fetch(`/api/${encodeURIComponent(slug)}/menu`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load cafe menu');
+        return res.json();
+      })
       .then((data) => {
-        if (data && data.categories && data.categories.length > 0) {
+        if (data && data.cafe) {
           setApiMenu(data);
+          if (data.cafe.theme) {
+            applyThemeToDocument(data.cafe.theme);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        fetch('/api/menu')
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.cafe) {
+              setApiMenu(data);
+              if (data.cafe.theme) {
+                applyThemeToDocument(data.cafe.theme);
+              }
+            }
+          })
+          .catch(() => {});
+      });
   }, []);
+
+  // Sync theme changes dynamically
+  useEffect(() => {
+    if (apiMenu?.cafe?.theme) {
+      applyThemeToDocument(apiMenu.cafe.theme);
+    }
+  }, [apiMenu?.cafe?.theme]);
+
 
   const cafeName = apiMenu?.cafe?.name || 'CafeMenu';
 
@@ -42,16 +89,57 @@ export default function MenuApp() {
     }, 2500);
   }, []);
 
-  // Consolidate categories: showcaseCategories + any dynamic custom items from API
+  // Consolidate categories: dynamic items from API with fallback to showcaseCategories
   const categories = useMemo(() => {
-    return showcaseCategories;
-  }, []);
+    if (!apiMenu || !apiMenu.categories || apiMenu.categories.length === 0) {
+      return showcaseCategories;
+    }
+
+    const showcaseMap = new Map();
+    showcaseCategories.forEach((sc) => {
+      showcaseMap.set(sc.id, sc);
+      showcaseMap.set(sc.name.toLowerCase(), sc);
+    });
+
+    return apiMenu.categories.map((cat) => {
+      const showcaseCat = showcaseMap.get(cat.id) || showcaseMap.get(cat.name?.toLowerCase());
+      const bannerImg = showcaseCat?.bannerImg || `/images/${cat.icon || 'coffee'}.jpg`;
+      const currency = apiMenu.cafe?.currency || 'ETB';
+
+      const items = (cat.items || []).map((item) => {
+        const showcaseItem = showcaseCat?.items?.find(
+          (si) => si.id === item.id || si.name.toLowerCase() === item.name.toLowerCase()
+        );
+        return {
+          ...item,
+          image: item.image || showcaseItem?.image || '/images/dishes/classic-beef-burger.jpg',
+          fullDescription: item.description || showcaseItem?.fullDescription || '',
+          price: Number(item.price) || showcaseItem?.price || 0,
+          currency: currency,
+          rating: showcaseItem?.rating || 4.9,
+          reviews: showcaseItem?.reviews || 95,
+          tags: item.badge ? [item.badge, ...(showcaseItem?.tags || [])] : (showcaseItem?.tags || ['Freshly Prepared']),
+          subcategory: showcaseItem?.subcategory || 'All',
+          isPopular: Boolean(item.badge) || Boolean(showcaseItem?.isPopular),
+        };
+      });
+
+      return {
+        id: cat.id,
+        name: cat.name,
+        tagline: cat.description || showcaseCat?.tagline || 'Freshly prepared for you.',
+        bannerImg: bannerImg,
+        subcategories: showcaseCat?.subcategories || ['All'],
+        items,
+      };
+    });
+  }, [apiMenu]);
 
   // Flatten all items for popular or search queries
   const allItems = useMemo(() => {
     const items = [];
     categories.forEach((cat) => {
-      cat.items.forEach((item) => {
+      (cat.items || []).forEach((item) => {
         items.push({ ...item, categoryId: cat.id, categoryName: cat.name });
       });
     });
@@ -108,13 +196,87 @@ export default function MenuApp() {
     }
   };
 
+  const cafeLogo = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return 'coffee';
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') return 'pizza';
+    if (slug === 'artisan-patisserie') return 'cake';
+    if (slug === 'skyline-lounge') return 'flame';
+    return apiMenu?.cafe?.logo || 'coffee';
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.logo, apiMenu?.cafe?.theme?.preset]);
+
+  const cafeCoverImage = useMemo(() => {
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/coffee.jpg';
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
+    if (slug === 'artisan-patisserie') return '/images/desserts.jpg';
+    if (slug === 'skyline-lounge') return '/images/habesha.jpg';
+    return categories[0]?.bannerImg || '/images/coffee.jpg';
+  }, [apiMenu?.cafe?.slug, categories, apiMenu?.cafe?.theme?.preset]);
+
+  const currentLayout = apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento';
+  const currentPreset = apiMenu?.cafe?.theme?.preset || 'showcase';
+
+  const heroImage = useMemo(() => {
+    if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
+    if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+    if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
+    if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
+    if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+    return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
+  }, [currentLayout, allItems]);
+
+  const { heroTitle, heroSub } = useMemo(() => {
+    const slug = apiMenu?.cafe?.slug;
+    if (slug === 'sunset-bistro' || currentLayout === 'rustic') {
+      return {
+        heroTitle: 'Wood-Fired Pizzas & Flame Grills',
+        heroSub: apiMenu?.cafe?.tagline || 'Stone-baked dough, charred prime steaks & hearth comfort.',
+      };
+    }
+    if (slug === 'artisan-patisserie' || currentLayout === 'boutique') {
+      return {
+        heroTitle: 'French Viennoiserie & Tarts',
+        heroSub: apiMenu?.cafe?.tagline || 'Butter croissants, delicate tarts & ceremonial rose tea.',
+      };
+    }
+    if (slug === 'skyline-lounge' || currentLayout === 'noir') {
+      return {
+        heroTitle: 'Tokyo Cyber Lounge & Mixology',
+        heroSub: apiMenu?.cafe?.tagline || 'Late-night molecular cocktails, electric bites & ambient synth.',
+      };
+    }
+    if (currentLayout === 'editorial') {
+      return {
+        heroTitle: 'Curated Reserve & Tasting Menu',
+        heroSub: apiMenu?.cafe?.tagline || 'Grand degustation, rare vintage roasts & dry-aged cuts.',
+      };
+    }
+    return {
+      heroTitle: apiMenu?.cafe?.name === 'Abol Cafe' ? 'Fresh Flavors Every Day' : (apiMenu?.cafe?.name || 'Fresh Flavors Every Day'),
+      heroSub: apiMenu?.cafe?.tagline || 'Quality ingredients, handcrafted with authentic passion.',
+    };
+  }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.tagline, apiMenu?.cafe?.name, currentLayout]);
+
   return (
-    <div class="cm-app">
-      <div class="cm-viewport">
+    <div
+      class={`cm-app cm-app--${currentLayout}`}
+      data-theme-layout={currentLayout}
+      data-theme-preset={currentPreset}
+    >
+      <div
+        class={`cm-viewport cm-viewport--${currentLayout}`}
+        data-theme-layout={currentLayout}
+        data-theme-preset={currentPreset}
+      >
         {/* 1. Welcome Splash / Cover Screen (dismissible) */}
         {showWelcome && (
           <WelcomeCover
             cafeName={cafeName}
+            tagline={apiMenu?.cafe?.tagline || 'Good Food • Great Moments'}
+            coverImage={cafeCoverImage}
+            logo={cafeLogo}
+            theme={apiMenu?.cafe?.theme}
             onStart={() => setShowWelcome(false)}
           />
         )}
@@ -136,6 +298,8 @@ export default function MenuApp() {
           onBack={handleBackToHome}
           onSearchClick={focusSearch}
           tableNumber="04"
+          logo={cafeLogo}
+          theme={apiMenu?.cafe?.theme}
         />
 
         {/* 3. Main Scrollable Screen Content */}
@@ -143,7 +307,18 @@ export default function MenuApp() {
           {activeTab === 'details' ? (
             <ThankYouView
               cafeName={cafeName}
+              tagline={apiMenu?.cafe?.tagline}
+              phone={apiMenu?.cafe?.phone}
+              wifiSSID={apiMenu?.cafe?.wifi_ssid}
+              wifiPass={apiMenu?.cafe?.wifi_pass}
+              currency={apiMenu?.cafe?.currency || 'ETB'}
+              footerText={apiMenu?.cafe?.footer}
+              theme={apiMenu?.cafe?.theme}
+              logo={cafeLogo}
+              layout={currentLayout}
+              tableNumber="04"
               onReturn={() => setActiveTab('home')}
+              onToast={showToast}
             />
           ) : activeCategory ? (
             /* ================= CATEGORY VIEW ================= */
@@ -179,7 +354,7 @@ export default function MenuApp() {
               )}
 
               {/* Dish List for this Category */}
-              <div class="cm-dish-list">
+              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish) => (
                     <DishListItem
@@ -187,6 +362,7 @@ export default function MenuApp() {
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
                       currency={dish.currency || 'ETB'}
+                      layout={currentLayout}
                     />
                   ))
                 ) : (
@@ -199,14 +375,16 @@ export default function MenuApp() {
           ) : (
             /* ================= HOME VIEW ================= */
             <div>
-              {/* Fresh Flavors Hero Banner Card */}
-              <div class="cm-hero-banner">
-                <div class="cm-hero-banner-content">
-                  <h2 class="cm-hero-banner-title">Fresh Flavors Every Day</h2>
-                  <p class="cm-hero-banner-sub">Quality ingredients, Great taste.</p>
-                </div>
-                <div class="cm-hero-banner-image" aria-hidden="true"></div>
-              </div>
+              {/* Distinct Archetype Hero Section */}
+              <MenuHero
+                layout={currentLayout}
+                cafeName={cafeName}
+                tagline={apiMenu?.cafe?.tagline}
+                heroTitle={heroTitle}
+                heroSub={heroSub}
+                heroImage={heroImage}
+                tableNumber="04"
+              />
 
               {/* Search Bar */}
               <div class="cm-search-container">
@@ -277,7 +455,7 @@ export default function MenuApp() {
               </div>
 
               {/* Dish List */}
-              <div class="cm-dish-list">
+              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish) => (
                     <DishListItem
@@ -285,6 +463,7 @@ export default function MenuApp() {
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
                       currency={dish.currency || 'ETB'}
+                      layout={currentLayout}
                     />
                   ))
                 ) : (
@@ -300,6 +479,7 @@ export default function MenuApp() {
         {/* 4. Bottom Navigation Bar */}
         <BottomNav
           activeTab={activeTab}
+          theme={apiMenu?.cafe?.theme}
           onTabChange={(tab) => {
             setActiveTab(tab);
             if (tab === 'home') {

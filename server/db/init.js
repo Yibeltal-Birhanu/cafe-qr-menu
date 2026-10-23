@@ -85,6 +85,7 @@ async function initDB() {
         wifi_ssid VARCHAR(100) DEFAULT '',
         wifi_pass VARCHAR(100) DEFAULT '',
         status VARCHAR(20) NOT NULL DEFAULT 'active',
+        theme JSON NULL,
         owner_id VARCHAR(36) NULL,
         created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
         updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
@@ -94,6 +95,7 @@ async function initDB() {
 
     try {
       await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'active'`);
+      await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS theme JSON NULL`);
     } catch (_) {}
 
     await connection.query(`
@@ -116,6 +118,7 @@ async function initDB() {
         cafeId VARCHAR(36) NOT NULL DEFAULT 'default-abol-cafe',
         name VARCHAR(255) NOT NULL,
         description TEXT,
+        image VARCHAR(500) DEFAULT '',
         price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         badge VARCHAR(100) DEFAULT '',
         prepTime VARCHAR(100) DEFAULT '',
@@ -126,6 +129,10 @@ async function initDB() {
         FOREIGN KEY (cafeId) REFERENCES cafes(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
+
+    try {
+      await connection.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS image VARCHAR(500) DEFAULT ''`);
+    } catch (_) {}
 
     // 3. Seed default cafe (abol-cafe) if none exists
     const [existing] = await connection.query('SELECT id FROM cafes WHERE slug = ?', ['abol-cafe']);
@@ -162,14 +169,15 @@ async function initDB() {
           for (let iIdx = 0; iIdx < cat.items.length; iIdx++) {
             const item = cat.items[iIdx];
             await connection.query(
-              `INSERT INTO items (id, categoryId, cafeId, name, description, price, badge, prepTime, dietary, available, sortOrder)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              `INSERT INTO items (id, categoryId, cafeId, name, description, image, price, badge, prepTime, dietary, available, sortOrder)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               [
                 item.id,
                 cat.id,
                 cafeId,
                 item.name,
                 item.description || '',
+                item.image || '',
                 Number(item.price) || 0,
                 item.badge || '',
                 item.prepTime || '',

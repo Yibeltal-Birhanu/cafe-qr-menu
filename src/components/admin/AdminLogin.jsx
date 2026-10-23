@@ -1,195 +1,216 @@
 import React, { useState } from 'react';
-import { CoffeeIcon } from './AdminIcons.jsx';
+import { CoffeeIcon, ShieldIcon } from './AdminIcons.jsx';
 
 export default function AdminLogin({ onSignIn, onLogin }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const loginFn = onSignIn || onLogin;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!password) {
-      setError('Please enter your admin password.');
+    setError(null);
+
+    if (!email.trim() || !password) {
+      setError('Please enter your email and password.');
       return;
     }
-    setError(null);
+
     setLoading(true);
     try {
-      if (typeof loginFn === 'function') {
-        await loginFn(password);
+      const authFn = onSignIn || onLogin;
+      if (typeof authFn === 'function') {
+        await authFn({ email: email.trim(), password });
       } else {
-        throw new Error('Login handler is not configured.');
+        throw new Error('Authentication handler not provided');
       }
     } catch (err) {
-      setError(err.message || 'Incorrect password.');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      id="loginView"
-      style={{
-        width: '100%',
-        maxWidth: '440px',
+    <div style={{
+      width: '100%',
+      maxWidth: '400px',
+      margin: '0 auto',
+      padding: '1rem',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Segoe UI", Roboto, sans-serif'
+    }}>
+      <div style={{
         background: '#ffffff',
         borderRadius: '20px',
-        padding: '2.5rem 2.2rem',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
-        border: '1px solid #e5e7eb',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}
-    >
-      {/* Brand Icon Header */}
-      <div
-        style={{
-          width: '56px',
-          height: '56px',
-          borderRadius: '16px',
-          background: '#142820',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#10b981',
-          marginBottom: '1.2rem',
-          boxShadow: '0 8px 20px rgba(20, 40, 32, 0.2)',
-        }}
-      >
-        <CoffeeIcon size={28} />
-      </div>
-
-      <h1
-        style={{
-          margin: '0 0 0.4rem',
-          fontSize: '1.6rem',
-          fontWeight: 800,
-          color: '#111827',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        Admin Sign In
-      </h1>
-
-      <p
-        style={{
-          margin: '0 0 1.8rem',
-          fontSize: '0.86rem',
-          color: '#6b7280',
-          lineHeight: 1.45,
-        }}
-      >
-        Enter your admin password to manage categories, dishes, QR templates, and cafe settings.
-      </p>
-
-      {error && (
-        <div
-          id="loginError"
-          style={{
-            width: '100%',
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#dc2626',
-            padding: '0.75rem 1rem',
-            borderRadius: '10px',
-            fontSize: '0.84rem',
-            fontWeight: 600,
-            marginBottom: '1.2rem',
-            textAlign: 'left',
-          }}
-        >
-          {error}
+        padding: '2.6rem 2.2rem',
+        boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 1px 1px rgba(0, 0, 0, 0.04)',
+        border: '1px solid #e2e8f0',
+      }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '14px',
+            background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+            color: '#ffffff',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+            boxShadow: '0 8px 16px -2px rgba(16, 185, 129, 0.3)',
+          }}>
+            <CoffeeIcon size={24} />
+          </div>
+          <h1 style={{
+            margin: '0 0 0.4rem',
+            fontSize: '1.45rem',
+            fontWeight: 800,
+            color: '#0f172a',
+            letterSpacing: '-0.02em'
+          }}>
+            Cafe Admin Portal
+          </h1>
+          <p style={{
+            margin: 0,
+            fontSize: '0.85rem',
+            color: '#64748b',
+            lineHeight: 1.45
+          }}>
+            Sign in to manage dishes, menu categories &amp; QR stands
+          </p>
         </div>
-      )}
 
-      <form
-        id="loginForm"
-        autoComplete="on"
-        onSubmit={handleSubmit}
-        style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}
-      >
-        <div style={{ textAlign: 'left' }}>
-          <label
-            htmlFor="password"
-            style={{
-              display: 'block',
+        {/* Clean Form */}
+        <form onSubmit={handleSubmit} autoComplete="on">
+          <div style={{ marginBottom: '1.1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="username"
+              placeholder="name@cafe.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 0.95rem',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.92rem',
+                color: '#0f172a',
+                background: '#ffffff',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#cbd5e1';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 0.95rem',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.92rem',
+                color: '#0f172a',
+                background: '#ffffff',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#cbd5e1';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          {error && (
+            <div style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#b91c1c',
+              padding: '0.7rem 0.9rem',
+              borderRadius: '8px',
               fontSize: '0.82rem',
-              fontWeight: 700,
-              color: '#374151',
-              marginBottom: '0.4rem',
-            }}
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            autoComplete="current-password"
-            placeholder="Enter password..."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+              fontWeight: 500,
+              marginBottom: '1.3rem',
+              lineHeight: 1.4
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
             style={{
               width: '100%',
-              padding: '0.8rem 1rem',
+              padding: '0.82rem',
               borderRadius: '10px',
-              border: '1px solid #d1d5db',
-              fontSize: '0.95rem',
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.15s, box-shadow 0.15s',
+              border: 'none',
+              background: loading ? '#94a3b8' : '#0f172a',
+              color: '#ffffff',
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              cursor: loading ? 'wait' : 'pointer',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
+              transition: 'background 0.15s ease, transform 0.1s ease',
             }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#10b981';
-              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
+          >
+            {loading ? 'Authenticating...' : 'Sign In'}
+          </button>
+        </form>
+
+        {/* Subtle Link to Super Admin Console */}
+        <div style={{ marginTop: '1.8rem', textAlign: 'center' }}>
+          <a
+            href="/superadmin"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.8rem',
+              color: '#64748b',
+              textDecoration: 'none',
+              fontWeight: 600,
+              transition: 'color 0.15s ease'
             }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = '#d1d5db';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          />
+            onMouseEnter={(e) => (e.target.style.color = '#0f172a')}
+            onMouseLeave={(e) => (e.target.style.color = '#64748b')}
+          >
+            <ShieldIcon size={14} />
+            <span>Platform Console &nearr;</span>
+          </a>
         </div>
-
-        <button
-          type="submit"
-          id="loginBtn"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '0.85rem 1rem',
-            borderRadius: '10px',
-            background: '#142820',
-            color: '#ffffff',
-            border: 'none',
-            fontSize: '0.92rem',
-            fontWeight: 700,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.75 : 1,
-            transition: 'background 0.15s, transform 0.1s',
-            marginTop: '0.4rem',
-          }}
-        >
-          {loading ? 'Verifying...' : 'Sign In to Dashboard'}
-        </button>
-      </form>
-
-      <div
-        style={{
-          marginTop: '1.8rem',
-          paddingTop: '1.2rem',
-          borderTop: '1px solid #f3f4f6',
-          width: '100%',
-          fontSize: '0.78rem',
-          color: '#9ca3af',
-        }}
-      >
-        Default password is <code style={{ color: '#10b981', fontWeight: 700, background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>admin123</code>
       </div>
     </div>
   );

@@ -6,57 +6,74 @@ export default function AdminHeader({
   searchQuery = '',
   onSearchChange = null,
   searchPlaceholder = 'Search menu items, categories...',
+  user = null,
+  cafe = null,
+  cafeSlug = 'abol-cafe',
+  availableCafes = [],
+  onSwitchCafe = null,
   onLogout = null,
   onToggleSidebar = null,
-  user = null,
-  currentCafe = null,
-  onOpenSuperAdmin = null,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const isSuperAdmin = user?.role === 'superadmin' || user?.id === 'legacy-admin' || true;
+  const isSuperAdmin = user?.role === 'superadmin' || user?.id === 'legacy-admin';
+
+  const displayName = user?.name || 'Admin';
+  const displayRole = user?.role === 'superadmin' ? 'Super Admin' : (user?.role === 'manager' ? 'Cafe Manager' : 'Administrator');
+  const avatarInitial = displayName.charAt(0).toUpperCase();
+  const currentSlug = cafeSlug || cafe?.slug || 'abol-cafe';
+  const liveMenuUrl = currentSlug === 'abol-cafe' ? '/abol-cafe' : `/cafe/${currentSlug}`;
 
   return (
-    <header class="ad-topbar">
-      <div class="ad-topbar-left">
+    <header className="ad-topbar">
+      <div className="ad-topbar-left">
         <button
           type="button"
-          class="ad-menu-toggle"
+          className="ad-menu-toggle"
           onClick={onToggleSidebar}
           aria-label="Toggle navigation menu"
         >
           <MenuIcon size={20} />
         </button>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <h2 class="ad-page-title" style={{ margin: 0 }}>{title}</h2>
-            {currentCafe && (
-              <span
-                style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  color: '#065f46',
-                  padding: '2px 8px',
-                  borderRadius: '999px',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                }}
-              >
-                {currentCafe.name || 'Abol Cafe'}
-              </span>
-            )}
+        <h2 className="ad-page-title">{title}</h2>
+
+        {/* Super Admin Cafe Switcher (only shown when multi-cafe super admin) */}
+        {isSuperAdmin && availableCafes.length > 0 && (
+          <div style={{ marginLeft: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: 600 }}>Venue:</span>
+            <select
+              value={currentSlug}
+              onChange={(e) => onSwitchCafe && onSwitchCafe(e.target.value)}
+              style={{
+                padding: '0.35rem 0.7rem',
+                borderRadius: '8px',
+                border: '1px solid #d1d5db',
+                background: '#ffffff',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                color: '#111827',
+                cursor: 'pointer'
+              }}
+              aria-label="Switch active cafe"
+            >
+              {availableCafes.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name} ({c.slug})
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Global Search Pill */}
       {onSearchChange && (
-        <div class="ad-search-pill">
+        <div className="ad-search-pill">
           <span style={{ color: '#9ca3af', display: 'inline-flex' }}>
             <SearchIcon size={16} />
           </span>
           <input
             type="search"
-            class="ad-search-pill-input"
+            className="ad-search-pill-input"
             placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -65,52 +82,74 @@ export default function AdminHeader({
         </div>
       )}
 
-      {/* Right Actions: Notifications & Profile */}
-      <div class="ad-topbar-right">
-        {isSuperAdmin && onOpenSuperAdmin && (
-          <button
-            type="button"
-            onClick={onOpenSuperAdmin}
+      {/* Right Actions: Notifications, Super Admin link & Profile */}
+      <div className="ad-topbar-right">
+        {/* Dedicated Super Admin Console button for super admins */}
+        {isSuperAdmin && (
+          <a
+            href="/superadmin"
             style={{
-              padding: '0.4rem 0.85rem',
-              borderRadius: '999px',
-              background: '#142820',
-              color: '#fbbf24',
-              border: '1px solid rgba(251, 191, 36, 0.3)',
-              fontSize: '0.76rem',
-              fontWeight: 700,
-              cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '5px',
+              gap: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              padding: '0.45rem 0.85rem',
+              background: '#090d16',
+              color: '#f59e0b',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}
-            title="Open Platform Cafes Management"
+            title="Open dedicated Super Admin platform console"
           >
             <ShieldIcon size={14} />
-            <span>Super Admin</span>
-          </button>
+            <span>Super Admin &nearr;</span>
+          </a>
         )}
 
-        <button type="button" class="ad-notify-btn" aria-label="Notifications">
+        {/* Quick link to live customer QR menu */}
+        <a
+          href={liveMenuUrl}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            padding: '0.45rem 0.85rem',
+            background: 'rgba(217, 119, 6, 0.1)',
+            color: '#b45309',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            border: '1px solid rgba(217, 119, 6, 0.2)'
+          }}
+          title={`Open live menu for ${cafe?.name || currentSlug}`}
+        >
+          <span>Live Menu &nearr;</span>
+        </a>
+
+        <button type="button" className="ad-notify-btn" aria-label="Notifications">
           <BellIcon size={20} />
-          <span class="ad-notify-dot" aria-hidden="true"></span>
+          <span className="ad-notify-dot" aria-hidden="true"></span>
         </button>
 
         <div style={{ position: 'relative' }}>
           <div
-            class="ad-profile-dropdown"
+            className="ad-profile-dropdown"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             role="button"
             tabIndex={0}
             aria-haspopup="true"
             aria-expanded={dropdownOpen}
           >
-            <div class="ad-avatar">{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</div>
-            <div class="ad-profile-info">
-              <span class="ad-profile-name">{user?.name || 'Admin'}</span>
-              <span class="ad-profile-role">
-                {isSuperAdmin ? 'Super Admin' : 'Manager'}
-              </span>
+            <div className="ad-avatar">{avatarInitial}</div>
+            <div className="ad-profile-info">
+              <span className="ad-profile-name">{displayName}</span>
+              <span className="ad-profile-role">{displayRole}</span>
             </div>
             <ChevronDownIcon size={14} style={{ color: '#6c757d' }} />
           </div>
@@ -121,48 +160,53 @@ export default function AdminHeader({
                 position: 'absolute',
                 top: '115%',
                 right: 0,
-                width: '190px',
+                width: '220px',
                 background: '#ffffff',
                 borderRadius: '12px',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
                 border: '1px solid #eaedf1',
-                padding: '0.5rem',
+                padding: '0.6rem',
                 zIndex: 100,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '4px',
               }}
             >
-              {isSuperAdmin && onOpenSuperAdmin && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    onOpenSuperAdmin();
-                  }}
+              {/* User Email & Cafe Info Header */}
+              <div style={{ padding: '0.4rem 0.6rem', borderBottom: '1px solid #f3f4f6', marginBottom: '4px' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#111827' }}>{displayName}</div>
+                {user?.email && (
+                  <div style={{ fontSize: '0.74rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {user.email}
+                  </div>
+                )}
+                <div style={{ marginTop: '4px', fontSize: '0.72rem', color: '#b45309', fontWeight: 600 }}>
+                  Venue: {cafe?.name || currentSlug}
+                </div>
+              </div>
+
+              {isSuperAdmin && (
+                <a
+                  href="/superadmin"
                   style={{
                     padding: '0.5rem 0.8rem',
                     fontSize: '0.85rem',
-                    fontWeight: 600,
-                    color: '#121826',
-                    background: 'none',
-                    border: 'none',
+                    fontWeight: 700,
+                    color: '#d97706',
+                    textDecoration: 'none',
                     borderRadius: '8px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '8px',
                   }}
                 >
-                  <ShieldIcon size={14} style={{ color: '#d97706' }} />
-                  <span>Super Admin</span>
-                </button>
+                  <ShieldIcon size={15} />
+                  <span>Platform Console &nearr;</span>
+                </a>
               )}
 
               <a
-                href={currentCafe?.slug && currentCafe.slug !== 'abol-cafe' ? `/cafe/${currentCafe.slug}` : '/abol-cafe'}
+                href={liveMenuUrl}
                 target="_blank"
                 rel="noreferrer"
                 style={{
@@ -194,15 +238,18 @@ export default function AdminHeader({
                   background: 'none',
                   border: 'none',
                   borderRadius: '8px',
-                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   cursor: 'pointer',
+                  textAlign: 'left',
                   width: '100%',
                   borderTop: '1px solid #f3f4f6',
                   marginTop: '4px',
                   paddingTop: '0.6rem',
                 }}
               >
-                Sign out
+                <span>Sign Out</span>
               </button>
             </div>
           )}
