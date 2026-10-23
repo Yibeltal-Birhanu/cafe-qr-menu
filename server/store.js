@@ -374,7 +374,7 @@ async function listCafes(ownerId) {
 async function listAllCafesWithManagers() {
   const [rows] = await pool.query(`
     SELECT 
-      c.id, c.slug, c.name, c.tagline, c.currency, c.status, c.theme, c.created_at, c.updated_at,
+      c.id, c.slug, c.name, c.tagline, c.currency, c.phone, c.wifi_ssid, c.wifi_pass, c.footer, c.logo, c.status, c.theme, c.created_at, c.updated_at,
       u.id AS managerId, u.name AS managerName, u.email AS managerEmail,
       (SELECT COUNT(*) FROM categories cat WHERE cat.cafeId = c.id) AS categoryCount,
       (SELECT COUNT(*) FROM items it WHERE it.cafeId = c.id) AS dishCount
@@ -431,6 +431,45 @@ async function updateCafeTheme(cafeId, theme) {
     writeToDisk(cafe.slug, menus.get(cafe.slug));
   }
   return cafe;
+}
+
+async function updateCafeSettings(cafeId, settings = {}) {
+  const cafe = await getCafeById(cafeId);
+  if (!cafe) return null;
+
+  const updates = [];
+  const values = [];
+
+  const allowedFields = ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass', 'status'];
+  for (const field of allowedFields) {
+    if (settings[field] !== undefined) {
+      updates.push(`${field} = ?`);
+      values.push(settings[field]);
+    }
+  }
+
+  if (settings.theme !== undefined) {
+    updates.push('theme = ?');
+    values.push(settings.theme ? (typeof settings.theme === 'string' ? settings.theme : JSON.stringify(settings.theme)) : null);
+  }
+
+  if (updates.length > 0) {
+    values.push(cafeId);
+    await pool.query(`UPDATE cafes SET ${updates.join(', ')} WHERE id = ?`, values);
+  }
+
+  const updatedCafe = await getCafeById(cafeId);
+  if (updatedCafe && menus.has(updatedCafe.slug)) {
+    const memCafe = menus.get(updatedCafe.slug).cafe;
+    for (const field of allowedFields) {
+      if (settings[field] !== undefined) memCafe[field] = settings[field];
+    }
+    if (settings.theme !== undefined) {
+      memCafe.theme = typeof settings.theme === 'string' ? JSON.parse(settings.theme) : settings.theme;
+    }
+    writeToDisk(updatedCafe.slug, menus.get(updatedCafe.slug));
+  }
+  return updatedCafe;
 }
 
 async function deleteCafe(cafeId) {
@@ -509,6 +548,7 @@ module.exports = {
   updateCafeStatus,
   updateCafeManager,
   updateCafeTheme,
+  updateCafeSettings,
   deleteCafe,
   MENU_FILE,
 };

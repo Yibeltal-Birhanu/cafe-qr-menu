@@ -84,8 +84,8 @@ export default function AdminApp() {
         headers,
         credentials: 'include',
       };
-      if (options.body !== undefined && typeof options.body !== 'string') {
-        config.body = JSON.stringify(options.body);
+      if (options.body !== undefined) {
+        config.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
       }
 
       const res = await fetch(path, config);

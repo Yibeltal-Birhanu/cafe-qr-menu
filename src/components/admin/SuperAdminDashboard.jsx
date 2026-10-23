@@ -16,6 +16,7 @@ import {
   KeyIcon,
   ExternalLinkIcon,
   RefreshIcon,
+  SettingsIcon,
 } from './AdminIcons.jsx';
 import { THEME_PRESETS } from '../common/themePresets.js';
 
@@ -58,6 +59,29 @@ export default function SuperAdminDashboard({
   // Modal: Quick Theme Switcher
   const [themeModalCafe, setThemeModalCafe] = useState(null);
   const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
+
+  // Dedicated Super Admin Cafe Settings Modal
+  const [manageCafe, setManageCafe] = useState(null);
+  const [manageActiveTab, setManageActiveTab] = useState('general'); // 'general' | 'wifi' | 'theme' | 'manager'
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    name: '',
+    slug: '',
+    tagline: '',
+    currency: 'ETB',
+    phone: '',
+    wifi_ssid: '',
+    wifi_pass: '',
+    footer: '',
+    status: 'active',
+    themePreset: 'showcase',
+    primaryColor: '#1c2826',
+    secondaryColor: '#64748b',
+    accentColor: '#e6923c',
+    managerName: '',
+    managerEmail: '',
+    managerPassword: '',
+  });
 
   const loadCafes = useCallback(async (quiet = false) => {
     if (!quiet) setIsLoading(true);
@@ -296,6 +320,88 @@ export default function SuperAdminDashboard({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(fullUrl);
       if (onShowToast) onShowToast(`Copied menu link: /${slug}`);
+    }
+  };
+
+  const handleOpenManageSettings = (cafe) => {
+    setManageCafe(cafe);
+    setManageActiveTab('general');
+    const matchedPreset = THEME_PRESETS.find((p) => p.id === cafe.theme?.preset) || THEME_PRESETS[0];
+    setSettingsForm({
+      name: cafe.name || '',
+      slug: cafe.slug || '',
+      tagline: cafe.tagline || '',
+      currency: cafe.currency || 'ETB',
+      phone: cafe.phone || '',
+      wifi_ssid: cafe.wifi_ssid || '',
+      wifi_pass: cafe.wifi_pass || '',
+      footer: cafe.footer || '',
+      status: cafe.status || 'active',
+      themePreset: cafe.theme?.preset || matchedPreset.id,
+      primaryColor: cafe.theme?.primaryColor || matchedPreset.primaryColor,
+      secondaryColor: cafe.theme?.secondaryColor || matchedPreset.secondaryColor,
+      accentColor: cafe.theme?.accentColor || matchedPreset.accentColor,
+      managerName: cafe.managerName || '',
+      managerEmail: cafe.managerEmail || '',
+      managerPassword: '',
+    });
+  };
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    if (!settingsForm.name.trim()) {
+      if (onShowToast) onShowToast('Venue name is required.', true);
+      return;
+    }
+    setIsUpdatingSettings(true);
+    try {
+      const selectedPreset = THEME_PRESETS.find((p) => p.id === settingsForm.themePreset) || THEME_PRESETS[0];
+      const themePayload = {
+        preset: settingsForm.themePreset,
+        layout: selectedPreset.layout,
+        cardStyle: selectedPreset.cardStyle,
+        navStyle: selectedPreset.navStyle,
+        landingStyle: selectedPreset.landingStyle,
+        backgroundColor: selectedPreset.backgroundColor || '#ffffff',
+        backgroundMode: selectedPreset.backgroundMode || 'light',
+        surfaceColor: selectedPreset.surfaceColor || '#ffffff',
+        textColor: selectedPreset.textColor || '#111827',
+        fontFamily: selectedPreset.fontFamily,
+        primaryColor: settingsForm.primaryColor || selectedPreset.primaryColor,
+        secondaryColor: settingsForm.secondaryColor || selectedPreset.secondaryColor,
+        accentColor: settingsForm.accentColor || selectedPreset.accentColor,
+      };
+
+      const payload = {
+        name: settingsForm.name.trim(),
+        tagline: settingsForm.tagline.trim(),
+        currency: settingsForm.currency.trim(),
+        phone: settingsForm.phone.trim(),
+        wifi_ssid: settingsForm.wifi_ssid.trim(),
+        wifi_pass: settingsForm.wifi_pass.trim(),
+        footer: settingsForm.footer.trim(),
+        status: settingsForm.status,
+        theme: themePayload,
+      };
+
+      if (settingsForm.managerEmail && settingsForm.managerPassword) {
+        payload.managerEmail = settingsForm.managerEmail.trim();
+        payload.managerPassword = settingsForm.managerPassword.trim();
+        payload.managerName = settingsForm.managerName.trim();
+      }
+
+      await apiCall(`/api/superadmin/cafes/${manageCafe.id}`, {
+        method: 'PUT',
+        body: payload,
+      });
+
+      if (onShowToast) onShowToast(`Settings saved for "${settingsForm.name}"`);
+      setManageCafe(null);
+      await loadCafes(true);
+    } catch (err) {
+      if (onShowToast) onShowToast(`Update failed: ${err.message}`, true);
+    } finally {
+      setIsUpdatingSettings(false);
     }
   };
 
@@ -662,9 +768,10 @@ export default function SuperAdminDashboard({
                             <button
                               type="button"
                               className="sad-btn-manage"
-                              onClick={() => onSwitchCafe(cafe.slug)}
-                              title={`Switch admin context to ${cafe.name}`}
+                              onClick={() => handleOpenManageSettings(cafe)}
+                              title="Manage Cafe Settings"
                             >
+                              <SettingsIcon size={13} />
                               <span>Manage</span>
                             </button>
 
@@ -812,10 +919,12 @@ export default function SuperAdminDashboard({
                   <button
                     type="button"
                     className="sad-btn-manage"
-                    onClick={() => onSwitchCafe(cafe.slug)}
+                    onClick={() => handleOpenManageSettings(cafe)}
                     style={{ flex: 1, justifyContent: 'center' }}
+                    title="Manage Cafe Settings"
                   >
-                    <span>Manage Menu</span>
+                    <SettingsIcon size={13} />
+                    <span>Manage Settings</span>
                   </button>
 
                   <a
@@ -1211,7 +1320,503 @@ export default function SuperAdminDashboard({
         </div>
       )}
 
-      {/* 7. Reset Manager Credentials Modal */}
+      {/* 8. Dedicated Super Admin Venue Settings Modal */}
+      {manageCafe && (
+        <div
+          className="sad-modal-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 10000,
+            display: 'grid',
+            placeItems: 'center',
+            background: 'rgba(15, 23, 42, 0.7)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div
+            className="sad-stat-card"
+            style={{
+              width: '90%',
+              maxWidth: '840px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              background: '#ffffff',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              padding: '1.8rem',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
+                    Manage Venue: {manageCafe.name}
+                  </h3>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '3px 8px',
+                      borderRadius: '999px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      background: settingsForm.status === 'active' ? '#ecfdf5' : '#fff1f2',
+                      color: settingsForm.status === 'active' ? '#047857' : '#be123c',
+                      border: `1px solid ${settingsForm.status === 'active' ? '#a7f3d0' : '#fecdd3'}`,
+                    }}
+                  >
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: settingsForm.status === 'active' ? '#10b981' : '#f43f5e' }} />
+                    {settingsForm.status === 'active' ? 'Active' : 'Suspended'}
+                  </span>
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+                  URL Path: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#0f172a', fontWeight: 600 }}>/{manageCafe.slug}</code> &bull; {manageCafe.dishCount || 0} menu items across {manageCafe.categoryCount || 0} categories
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <a
+                  href={`/cafe/${manageCafe.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sad-btn-ghost"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none' }}
+                  title="Open public guest menu"
+                >
+                  <EyeIcon size={14} />
+                  <span>View Menu</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setManageCafe(null)}
+                  style={{
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '1.4rem',
+                    cursor: 'pointer',
+                    color: '#64748b',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'grid',
+                    placeItems: 'center',
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+
+            {/* Tab Controls */}
+            <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
+              {[
+                { id: 'general', label: 'General & Profile' },
+                { id: 'wifi', label: 'Wi-Fi & Connectivity' },
+                { id: 'theme', label: 'Theme & Architecture' },
+                { id: 'manager', label: 'Manager Credentials' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setManageActiveTab(tab.id)}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: manageActiveTab === tab.id ? '#4f46e5' : '#f1f5f9',
+                    color: manageActiveTab === tab.id ? '#ffffff' : '#475569',
+                    fontWeight: manageActiveTab === tab.id ? 700 : 500,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {/* TAB 1: GENERAL */}
+              {manageActiveTab === 'general' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label className="ad-field-label">Venue Name *</label>
+                      <input
+                        type="text"
+                        required
+                        className="ad-form-input"
+                        value={settingsForm.name}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+                        placeholder="e.g. Abol Cafe & Roasters"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">URL Slug (System Handle)</label>
+                      <input
+                        type="text"
+                        disabled
+                        className="ad-form-input"
+                        value={`/${settingsForm.slug}`}
+                        style={{ background: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label className="ad-field-label">Tagline / Slogan</label>
+                      <input
+                        type="text"
+                        className="ad-form-input"
+                        value={settingsForm.tagline}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                        placeholder="e.g. Freshly brewed, freshly grilled"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">Currency</label>
+                      <select
+                        className="ad-form-input"
+                        value={settingsForm.currency}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                      >
+                        <option value="ETB">ETB (Ethiopian Birr)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="KES">KES (KSh)</option>
+                        <option value="AED">AED (د.إ)</option>
+                        <option value="SAR">SAR (﷼)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label className="ad-field-label">Contact Phone / Support</label>
+                      <input
+                        type="text"
+                        className="ad-form-input"
+                        value={settingsForm.phone}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                        placeholder="e.g. +251 911 234 567"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">Operational Status</label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setSettingsForm({ ...settingsForm, status: 'active' })}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: settingsForm.status === 'active' ? '2px solid #10b981' : '1px solid #cbd5e1',
+                            background: settingsForm.status === 'active' ? '#ecfdf5' : '#ffffff',
+                            color: settingsForm.status === 'active' ? '#047857' : '#64748b',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                          }}
+                        >
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} />
+                          Active
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSettingsForm({ ...settingsForm, status: 'suspended' })}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: settingsForm.status === 'suspended' ? '2px solid #ef4444' : '1px solid #cbd5e1',
+                            background: settingsForm.status === 'suspended' ? '#fff1f2' : '#ffffff',
+                            color: settingsForm.status === 'suspended' ? '#be123c' : '#64748b',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                          }}
+                        >
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
+                          Suspended
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="ad-field-label">Footer / Welcome Brand Note</label>
+                    <textarea
+                      rows={2}
+                      className="ad-form-input"
+                      style={{ resize: 'vertical' }}
+                      value={settingsForm.footer}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, footer: e.target.value })}
+                      placeholder="Scan, browse, enjoy. Ask our staff for today's special."
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: WIFI */}
+              {manageActiveTab === 'wifi' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
+                    Set guest Wi-Fi details. When entered, guest mobile menus will display instant connect cards.
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label className="ad-field-label">Wi-Fi Network Name (SSID)</label>
+                      <input
+                        type="text"
+                        className="ad-form-input"
+                        value={settingsForm.wifi_ssid}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, wifi_ssid: e.target.value })}
+                        placeholder="e.g. AbolGuestWiFi"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">Wi-Fi Password</label>
+                      <input
+                        type="text"
+                        className="ad-form-input"
+                        value={settingsForm.wifi_pass}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, wifi_pass: e.target.value })}
+                        placeholder="e.g. Coffee2026!"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '1rem', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#e0e7ff', display: 'grid', placeItems: 'center', color: '#4338ca', fontSize: '1.2rem' }}>
+                      📶
+                    </div>
+                    <div style={{ fontSize: '0.84rem', color: '#334155' }}>
+                      <strong>Guest Menu Preview:</strong> {settingsForm.wifi_ssid ? `Connect to "${settingsForm.wifi_ssid}" using password "${settingsForm.wifi_pass || '(No password)'}"` : 'No guest Wi-Fi configured yet.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: THEME */}
+              {manageActiveTab === 'theme' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <label className="ad-field-label">Choose Theme Architecture Preset</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.8rem' }}>
+                    {THEME_PRESETS.map((preset) => {
+                      const isSelected = settingsForm.themePreset === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => {
+                            setSettingsForm({
+                              ...settingsForm,
+                              themePreset: preset.id,
+                              primaryColor: preset.primaryColor,
+                              secondaryColor: preset.secondaryColor,
+                              accentColor: preset.accentColor,
+                            });
+                          }}
+                          style={{
+                            padding: '12px',
+                            borderRadius: '10px',
+                            border: isSelected ? `2px solid ${preset.primaryColor}` : '1px solid #e2e8f0',
+                            background: isSelected ? '#faf5ff' : '#ffffff',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '6px',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: preset.primaryColor }} />
+                              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>{preset.name.split(' (')[0]}</span>
+                            </div>
+                            {isSelected && <span style={{ color: '#4f46e5', fontWeight: 800, fontSize: '0.85rem' }}>✓</span>}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                            {preset.archetype}
+                          </div>
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                            {preset.previewColors?.map((c, i) => (
+                              <span key={i} style={{ width: '16px', height: '8px', borderRadius: '2px', background: c, border: '1px solid #e2e8f0' }} />
+                            ))}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.5rem' }}>
+                    <div>
+                      <label className="ad-field-label">1st Color (Primary)</label>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={settingsForm.primaryColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, primaryColor: e.target.value })}
+                          style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                        />
+                        <input
+                          type="text"
+                          className="ad-form-input"
+                          value={settingsForm.primaryColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, primaryColor: e.target.value })}
+                          style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.82rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">2nd Color (Secondary)</label>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={settingsForm.secondaryColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, secondaryColor: e.target.value })}
+                          style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                        />
+                        <input
+                          type="text"
+                          className="ad-form-input"
+                          value={settingsForm.secondaryColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, secondaryColor: e.target.value })}
+                          style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.82rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">3rd Color (Accent)</label>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={settingsForm.accentColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, accentColor: e.target.value })}
+                          style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer', padding: '2px' }}
+                        />
+                        <input
+                          type="text"
+                          className="ad-form-input"
+                          value={settingsForm.accentColor}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, accentColor: e.target.value })}
+                          style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.82rem' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: MANAGER */}
+              {manageActiveTab === 'manager' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
+                    Manage assigned venue manager credentials. Any changes sync directly to the Better Auth authentication table.
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label className="ad-field-label">Manager Display Name</label>
+                      <input
+                        type="text"
+                        className="ad-form-input"
+                        value={settingsForm.managerName}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, managerName: e.target.value })}
+                        placeholder="e.g. Venue General Manager"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="ad-field-label">Manager Email Account</label>
+                      <input
+                        type="email"
+                        className="ad-form-input"
+                        value={settingsForm.managerEmail}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, managerEmail: e.target.value })}
+                        placeholder="e.g. manager@venue.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="ad-field-label">Reset Password (Optional)</label>
+                    <input
+                      type="password"
+                      className="ad-form-input"
+                      value={settingsForm.managerPassword}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, managerPassword: e.target.value })}
+                      placeholder="Leave blank to preserve current password"
+                      autoComplete="new-password"
+                    />
+                    <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                      Only fill this in if you want to set a brand new password for this manager.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Footer Actions */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '1.2rem', marginTop: '0.5rem' }}>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setManageCafe(null);
+                      if (onSwitchCafe) onSwitchCafe(manageCafe.slug);
+                    }}
+                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.8rem', color: '#4f46e5', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                    title="Switch to cafe context to edit individual dishes"
+                  >
+                    <span>Full Manager Menu Editor</span>
+                    <ExternalLinkIcon size={12} />
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="sad-btn-ghost"
+                    onClick={() => setManageCafe(null)}
+                    disabled={isUpdatingSettings}
+                    style={{ color: '#64748b', background: '#f1f5f9', border: 'none' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="sad-btn-deploy"
+                    disabled={isUpdatingSettings}
+                    style={{ minWidth: '130px' }}
+                  >
+                    {isUpdatingSettings ? 'Saving...' : 'Save Settings'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {credentialModalCafe && (
         <div className="sad-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'grid', placeItems: 'center', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)' }}>
           <div

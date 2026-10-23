@@ -365,7 +365,26 @@ test('Super Admin: creates a cafe and provisions its manager user', async () => 
   const forbiddenRes = await call('/api/superadmin/cafes', {}, loginRes.body.token);
   assert.equal(forbiddenRes.status, 403);
 
-  // 5. Clean up temporary test cafe
+  // 5. Super Admin updates venue settings directly from the management modal
+  const updateRes = await call(`/api/superadmin/cafes/${res.body.cafe.id}`, {
+    method: 'PUT',
+    body: {
+      name: `Updated Lounge ${timestamp}`,
+      tagline: 'Refreshed Tagline',
+      currency: 'USD',
+      phone: '+251911998877',
+      wifi_ssid: 'LoungeGuest',
+      wifi_pass: 'LoungeSecret1',
+      status: 'active',
+    },
+  }, token);
+  assert.equal(updateRes.status, 200);
+  assert.equal(updateRes.body.cafe.name, `Updated Lounge ${timestamp}`);
+  assert.equal(updateRes.body.cafe.tagline, 'Refreshed Tagline');
+  assert.equal(updateRes.body.cafe.currency, 'USD');
+  assert.equal(updateRes.body.cafe.wifi_ssid, 'LoungeGuest');
+
+  // 6. Clean up temporary test cafe
   if (res.body?.cafe?.id) {
     const delRes = await call(`/api/superadmin/cafes/${res.body.cafe.id}`, { method: 'DELETE' }, token);
     assert.equal(delRes.status, 200);

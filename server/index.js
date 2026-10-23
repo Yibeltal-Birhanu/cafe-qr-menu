@@ -202,6 +202,40 @@ app.post('/api/superadmin/cafes', async (req, res) => {
   }
 });
 
+/** Update full cafe settings from Super Admin */
+app.put('/api/superadmin/cafes/:id', async (req, res) => {
+  const body = req.body || {};
+  try {
+    let manager = null;
+    if (body.managerEmail && body.managerPassword) {
+      manager = await createManagerUser({
+        email: body.managerEmail,
+        password: body.managerPassword,
+        name: body.managerName || 'Cafe Manager',
+      });
+      await store.updateCafeManager(req.params.id, manager.id);
+    }
+
+    const cafe = await store.updateCafeSettings(req.params.id, {
+      name: body.name,
+      tagline: body.tagline,
+      currency: body.currency,
+      phone: body.phone,
+      wifi_ssid: body.wifi_ssid,
+      wifi_pass: body.wifi_pass,
+      footer: body.footer,
+      logo: body.logo,
+      status: body.status,
+      theme: body.theme,
+    });
+
+    if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
+    res.json({ cafe, manager });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 /** Update cafe status (active / suspended) */
 app.put('/api/superadmin/cafes/:id/status', async (req, res) => {
   const status = req.body && req.body.status;
