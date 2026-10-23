@@ -462,6 +462,31 @@ function reset(cafeSlug = 'abol-cafe') {
   return save(slug, seed);
 }
 
+async function getPlatformStats() {
+  const [[{ count: totalCafes }]] = await pool.query('SELECT COUNT(*) AS count FROM cafes');
+  const [[{ count: activeCafes }]] = await pool.query("SELECT COUNT(*) AS count FROM cafes WHERE status = 'active'");
+  const [[{ count: totalUsers }]] = await pool.query('SELECT COUNT(*) AS count FROM user');
+  const [[{ count: totalManagers }]] = await pool.query("SELECT COUNT(*) AS count FROM user WHERE role = 'manager'");
+  const [[{ count: activeSessions }]] = await pool.query('SELECT COUNT(*) AS count FROM session WHERE expiresAt > NOW()');
+  const [[{ count: totalCategories }]] = await pool.query('SELECT COUNT(*) AS count FROM categories');
+  const [[{ count: totalDishes }]] = await pool.query('SELECT COUNT(*) AS count FROM items');
+  const [[{ avgPrice }]] = await pool.query('SELECT AVG(price) AS avgPrice FROM items');
+
+  return {
+    totalCafes: Number(totalCafes) || 0,
+    activeCafes: Number(activeCafes) || 0,
+    suspendedCafes: Math.max(0, (Number(totalCafes) || 0) - (Number(activeCafes) || 0)),
+    totalUsers: Number(totalUsers) || 0,
+    totalManagers: Number(totalManagers) || 0,
+    activeSessions: Number(activeSessions) || 0,
+    totalCategories: Number(totalCategories) || 0,
+    totalDishes: Number(totalDishes) || 0,
+    avgPrice: Math.round(Number(avgPrice) || 0),
+    dbEngine: 'MySQL 8.0 InnoDB Multi-Tenant',
+    authVersion: 'Better Auth v1.7 (Bearer + Cookie)',
+  };
+}
+
 module.exports = {
   load,
   get,
@@ -477,6 +502,7 @@ module.exports = {
   createCafe,
   listCafes,
   listAllCafesWithManagers,
+  getPlatformStats,
   getCafeById,
   getCafeBySlug,
   findCafeForUser,

@@ -1,6 +1,6 @@
 module.exports = {
   "cafe": {
-    "name": "Prism Cafe",
+    "name": "Abol Cafe & Roasters",
     "tagline": "Freshly brewed, freshly grilled",
     "currency": "ETB",
     "footer": "Scan, browse, enjoy. Ask our staff for today’s special.",

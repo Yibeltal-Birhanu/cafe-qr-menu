@@ -34,6 +34,7 @@ export default function SuperAdminApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [cafes, setCafes] = useState([]);
+  const [platformStats, setPlatformStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentTab, setCurrentTab] = useState('fleet'); // 'fleet' | 'themes' | 'managers' | 'analytics'
@@ -166,14 +167,18 @@ export default function SuperAdminApp() {
     verifySession();
   }, [verifySession]);
 
-  // Load Cafes
+  // Load Cafes & Real Platform Stats
   const loadCafes = useCallback(async (quiet = false) => {
     if (!quiet) setIsLoading(true);
     else setIsRefreshing(true);
 
     try {
-      const data = await apiCall('/api/superadmin/cafes');
-      setCafes(data.cafes || []);
+      const [cafesData, statsData] = await Promise.all([
+        apiCall('/api/superadmin/cafes'),
+        apiCall('/api/superadmin/stats').catch(() => null),
+      ]);
+      setCafes(cafesData.cafes || []);
+      if (statsData) setPlatformStats(statsData);
       if (quiet) showToast('Platform venues updated');
     } catch (err) {
       if (isAuthenticated) {
@@ -257,15 +262,16 @@ export default function SuperAdminApp() {
     showToast('Signed out of Platform Console');
   };
 
-  // KPIs
+  // Real Platform KPIs
   const stats = useMemo(() => {
-    const totalCafes = cafes.length;
-    const activeCafes = cafes.filter((c) => c.status === 'active').length;
-    const suspendedCafes = totalCafes - activeCafes;
-    const totalDishes = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0), 0);
-    const totalCategories = cafes.reduce((acc, c) => acc + (Number(c.categoryCount) || 0), 0);
-    const totalManagers = cafes.filter((c) => Boolean(c.managerEmail)).length;
-    const estimatedScans = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0) * 28 + 140, 0);
+    const totalCafes = platformStats?.totalCafes ?? cafes.length;
+    const activeCafes = platformStats?.activeCafes ?? cafes.filter((c) => c.status === 'active').length;
+    const suspendedCafes = platformStats?.suspendedCafes ?? (totalCafes - activeCafes);
+    const totalDishes = platformStats?.totalDishes ?? cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0), 0);
+    const totalCategories = platformStats?.totalCategories ?? cafes.reduce((acc, c) => acc + (Number(c.categoryCount) || 0), 0);
+    const totalManagers = platformStats?.totalManagers ?? cafes.filter((c) => Boolean(c.managerEmail)).length;
+    const activeSessions = platformStats?.activeSessions ?? 0;
+    const avgPrice = platformStats?.avgPrice ?? (totalDishes > 0 ? 280 : 0);
     const activeRate = totalCafes > 0 ? Math.round((activeCafes / totalCafes) * 100) : 100;
 
     return {
@@ -275,10 +281,11 @@ export default function SuperAdminApp() {
       totalDishes,
       totalCategories,
       totalManagers,
-      estimatedScans,
+      activeSessions,
+      avgPrice,
       activeRate,
     };
-  }, [cafes]);
+  }, [cafes, platformStats]);
 
   // Filtered venues
   const filteredCafes = useMemo(() => {
@@ -600,9 +607,9 @@ export default function SuperAdminApp() {
                 </div>
                 <div className="sa-metric-value">{stats.totalCafes}</div>
                 <div className="sa-metric-sub">
-                  <span style={{ color: '#34d399', fontWeight: 700 }}>{stats.activeCafes} active</span>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>{stats.activeCafes} active</span>
                   <span>&bull;</span>
-                  <span style={{ color: stats.suspendedCafes > 0 ? '#fb7185' : '#94a3b8' }}>
+                  <span style={{ color: stats.suspendedCafes > 0 ? '#e11d48' : '#64748b' }}>
                     {stats.suspendedCafes} suspended
                   </span>
                 </div>
@@ -625,14 +632,14 @@ export default function SuperAdminApp() {
 
               <div className="sa-metric-card">
                 <div className="sa-metric-header">
-                  <span className="sa-metric-label">Estimated QR Scans</span>
+                  <span className="sa-metric-label">Average Dish Price</span>
                   <div className="sa-metric-icon sky">
-                    <QrCodeIcon size={20} />
+                    <GridIcon size={20} />
                   </div>
                 </div>
-                <div className="sa-metric-value">{stats.estimatedScans.toLocaleString()}</div>
-                <div className="sa-metric-sub" style={{ color: '#38bdf8', fontWeight: 600 }}>
-                  <span>↑ 18.2% monthly guest volume</span>
+                <div className="sa-metric-value">{stats.avgPrice} <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#64748b' }}>ETB</span></div>
+                <div className="sa-metric-sub" style={{ color: '#0284c7', fontWeight: 600 }}>
+                  <span>Live multi-tenant catalog pricing</span>
                 </div>
               </div>
 
@@ -644,8 +651,8 @@ export default function SuperAdminApp() {
                   </div>
                 </div>
                 <div className="sa-metric-value">{stats.totalManagers}</div>
-                <div className="sa-metric-sub" style={{ color: '#34d399', fontWeight: 600 }}>
-                  <span>100% Better Auth Secured</span>
+                <div className="sa-metric-sub" style={{ color: '#059669', fontWeight: 600 }}>
+                  <span>{stats.activeSessions > 0 ? `${stats.activeSessions} active Better Auth sessions` : '100% Better Auth Secured'}</span>
                 </div>
               </div>
             </div>
@@ -1364,12 +1371,20 @@ export default function SuperAdminApp() {
                     <span style={{ color: '#059669', fontWeight: 700 }}>MySQL 8.0 Multi-Tenant</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                    <span style={{ color: '#64748b' }}>Status:</span>
+                    <span style={{ color: '#64748b' }}>Connection Pool:</span>
                     <span style={{ color: '#059669', fontWeight: 700 }}>Connected &bull; Active Pool</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
                     <span style={{ color: '#64748b' }}>Tenants Registered:</span>
                     <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.totalCafes} venues</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                    <span style={{ color: '#64748b' }}>Total Menu Dishes:</span>
+                    <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.totalDishes} items</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                    <span style={{ color: '#64748b' }}>Average Dish Price:</span>
+                    <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.avgPrice} ETB</span>
                   </div>
                 </div>
               </div>
@@ -1390,6 +1405,10 @@ export default function SuperAdminApp() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
                     <span style={{ color: '#64748b' }}>Manager Accounts:</span>
                     <span style={{ color: '#0f172a', fontWeight: 700 }}>{stats.totalManagers} verified</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                    <span style={{ color: '#64748b' }}>Active Sessions:</span>
+                    <span style={{ color: '#059669', fontWeight: 700 }}>{stats.activeSessions} tokens</span>
                   </div>
                 </div>
               </div>

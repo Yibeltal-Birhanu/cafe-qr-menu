@@ -66,7 +66,7 @@ after(() => {
 test('serves the seed menu and the static pages', async () => {
   const menu = await call('/api/menu');
   assert.equal(menu.status, 200);
-  assert.equal(menu.body.cafe.name, 'Prism Cafe');
+  assert.equal(menu.body.cafe.name, 'Abol Cafe & Roasters');
   assert.equal(menu.body.categories.length, 7);
   assert.ok(menu.body.categories.every((category) => category.items.length > 0));
 
@@ -225,11 +225,11 @@ test('persists changes to disk and can reset to the sample menu', async () => {
   assert.equal((await call('/api/menu')).body.cafe.name, 'Persisted Cafe');
 
   const reset = await call('/api/admin/reset', { method: 'POST' }, token);
-  assert.equal(reset.body.menu.cafe.name, 'Prism Cafe');
+  assert.equal(reset.body.menu.cafe.name, 'Abol Cafe & Roasters');
   assert.equal(reset.body.menu.categories.length, 7);
 
   const afterReset = await call('/api/menu');
-  assert.equal(afterReset.body.cafe.name, 'Prism Cafe');
+  assert.equal(afterReset.body.cafe.name, 'Abol Cafe & Roasters');
   assert.deepEqual(afterReset.body.categories.map((category) => category.id), [
     'habesha', 'burgers', 'pizza', 'coffee', 'breakfast', 'desserts', 'drinks',
   ]);
@@ -271,6 +271,11 @@ test('multi-tenant: fetches scoped menu and generated QR code for specific cafe'
   assert.equal(listRes.status, 200);
   assert.ok(Array.isArray(listRes.body.cafes));
   assert.ok(listRes.body.cafes.some((c) => c.slug === cafeSlug));
+
+  // Clean up temporary test cafe
+  if (createRes.body?.cafe?.id) {
+    await call(`/api/superadmin/cafes/${createRes.body.cafe.id}`, { method: 'DELETE' }, token);
+  }
 });
 
 test('multi-tenant theming: updates cafe visual theme and reflects in public menu', async () => {
@@ -302,6 +307,9 @@ test('multi-tenant theming: updates cafe visual theme and reflects in public men
   assert.equal(publicMenu.status, 200);
   assert.equal(publicMenu.body.cafe.theme.preset, 'emerald');
   assert.equal(publicMenu.body.cafe.theme.primaryColor, '#10b981');
+
+  // Reset cafe back to sample menu
+  await call('/api/admin/reset', { method: 'POST' }, token);
 });
 
 
@@ -356,6 +364,12 @@ test('Super Admin: creates a cafe and provisions its manager user', async () => 
   // 4. Non-superadmin cannot access Super Admin endpoints
   const forbiddenRes = await call('/api/superadmin/cafes', {}, loginRes.body.token);
   assert.equal(forbiddenRes.status, 403);
+
+  // 5. Clean up temporary test cafe
+  if (res.body?.cafe?.id) {
+    const delRes = await call(`/api/superadmin/cafes/${res.body.cafe.id}`, { method: 'DELETE' }, token);
+    assert.equal(delRes.status, 200);
+  }
 });
 
 test('Manager: performs CRUD on categories and dishes, and generates dynamic table QR codes', async () => {
@@ -471,6 +485,12 @@ test('Manager: performs CRUD on categories and dishes, and generates dynamic tab
 
   const delCat = await call(`/api/admin/categories/${categoryId}`, { method: 'DELETE' }, managerToken);
   assert.equal(delCat.status, 200);
+
+  // 10. Clean up temporary test cafe
+  if (createRes.body?.cafe?.id) {
+    const cleanupRes = await call(`/api/superadmin/cafes/${createRes.body.cafe.id}`, { method: 'DELETE' }, token);
+    assert.equal(cleanupRes.status, 200);
+  }
 });
 
 test('rejects unknown API routes with JSON', async () => {

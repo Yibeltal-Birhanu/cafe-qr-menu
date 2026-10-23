@@ -154,6 +154,12 @@ app.get('/api/superadmin/cafes', async (req, res) => {
   res.json({ cafes });
 });
 
+/** Live platform infrastructure, database, and user metrics */
+app.get('/api/superadmin/stats', async (req, res) => {
+  const stats = await store.getPlatformStats();
+  res.json(stats);
+});
+
 /** Create a new cafe AND its manager user simultaneously */
 app.post('/api/superadmin/cafes', async (req, res) => {
   const body = req.body || {};

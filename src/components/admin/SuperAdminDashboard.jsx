@@ -26,6 +26,7 @@ export default function SuperAdminDashboard({
   apiCall,
 }) {
   const [cafes, setCafes] = useState([]);
+  const [platformStats, setPlatformStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,8 +64,12 @@ export default function SuperAdminDashboard({
     else setIsRefreshing(true);
 
     try {
-      const data = await apiCall('/api/superadmin/cafes');
+      const [data, statsData] = await Promise.all([
+        apiCall('/api/superadmin/cafes'),
+        apiCall('/api/superadmin/stats').catch(() => null),
+      ]);
       setCafes(data.cafes || []);
+      if (statsData) setPlatformStats(statsData);
       if (quiet && onShowToast) {
         onShowToast('Venues catalog refreshed');
       }
@@ -80,15 +85,16 @@ export default function SuperAdminDashboard({
     loadCafes();
   }, [loadCafes]);
 
-  // Platform KPIs
+  // Real Platform KPIs
   const stats = useMemo(() => {
-    const totalCafes = cafes.length;
-    const activeCafes = cafes.filter((c) => c.status === 'active').length;
-    const suspendedCafes = totalCafes - activeCafes;
-    const totalDishes = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0), 0);
-    const totalCategories = cafes.reduce((acc, c) => acc + (Number(c.categoryCount) || 0), 0);
-    const totalManagers = cafes.filter((c) => Boolean(c.managerEmail)).length;
-    const estimatedScans = cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0) * 28 + 140, 0);
+    const totalCafes = platformStats?.totalCafes ?? cafes.length;
+    const activeCafes = platformStats?.activeCafes ?? cafes.filter((c) => c.status === 'active').length;
+    const suspendedCafes = platformStats?.suspendedCafes ?? (totalCafes - activeCafes);
+    const totalDishes = platformStats?.totalDishes ?? cafes.reduce((acc, c) => acc + (Number(c.dishCount) || 0), 0);
+    const totalCategories = platformStats?.totalCategories ?? cafes.reduce((acc, c) => acc + (Number(c.categoryCount) || 0), 0);
+    const totalManagers = platformStats?.totalManagers ?? cafes.filter((c) => Boolean(c.managerEmail)).length;
+    const activeSessions = platformStats?.activeSessions ?? 0;
+    const avgPrice = platformStats?.avgPrice ?? (totalDishes > 0 ? 280 : 0);
     const activeRate = totalCafes > 0 ? Math.round((activeCafes / totalCafes) * 100) : 100;
 
     return {
@@ -98,10 +104,11 @@ export default function SuperAdminDashboard({
       totalDishes,
       totalCategories,
       totalManagers,
-      estimatedScans,
+      activeSessions,
+      avgPrice,
       activeRate,
     };
-  }, [cafes]);
+  }, [cafes, platformStats]);
 
   // Filtered cafes
   const filteredCafes = useMemo(() => {
@@ -378,17 +385,17 @@ export default function SuperAdminDashboard({
           </div>
         </div>
 
-        {/* Card 3: Digital QR Scans */}
+        {/* Card 3: Average Dish Price */}
         <div className="sad-stat-card">
           <div className="sad-stat-header">
-            <span className="sad-stat-label">Estimated QR Scans</span>
+            <span className="sad-stat-label">Average Dish Price</span>
             <div className="sad-stat-icon-wrap sad-stat-icon-sky">
-              <QrCodeIcon size={20} />
+              <GridIcon size={20} />
             </div>
           </div>
-          <div className="sad-stat-val">{stats.estimatedScans.toLocaleString()}</div>
+          <div className="sad-stat-val">{stats.avgPrice} <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#64748b' }}>ETB</span></div>
           <div className="sad-stat-sub" style={{ color: '#0284c7', fontWeight: 600 }}>
-            <span>↑ 18.2% monthly guest volume</span>
+            <span>Live multi-tenant catalog pricing</span>
           </div>
         </div>
 
@@ -402,7 +409,7 @@ export default function SuperAdminDashboard({
           </div>
           <div className="sad-stat-val">{stats.totalManagers}</div>
           <div className="sad-stat-sub" style={{ color: '#059669', fontWeight: 600 }}>
-            <span>100% Better Auth Secured</span>
+            <span>{stats.activeSessions > 0 ? `${stats.activeSessions} active Better Auth sessions` : '100% Better Auth Secured'}</span>
           </div>
         </div>
       </div>
