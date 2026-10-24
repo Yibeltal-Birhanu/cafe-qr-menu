@@ -1621,17 +1621,31 @@ export default function SuperAdminDashboard({
                       onChange={(e) => setSettingsForm({ ...settingsForm, hero_image: e.target.value })}
                       placeholder="https://res.cloudinary.com/... or paste image URL"
                     />
-                    {settingsForm.hero_image && (
-                      <div style={{ marginTop: '0.8rem', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', height: '140px', position: 'relative' }}>
-                        <img
-                          src={settingsForm.hero_image}
-                          alt="Hero banner preview"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px' }}>
-                          Banner Preview
+                    {/* Current Hero Image Preview */}
+                    {settingsForm.hero_image ? (
+                      <div style={{ marginTop: '0.8rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0.8rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span>🖼️</span> Current Hero Image Preview
+                          </span>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: '999px' }}>
+                            ● Active on Menu
+                          </span>
                         </div>
+                        <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', height: '160px', position: 'relative', background: '#000' }}>
+                          <img
+                            src={settingsForm.hero_image}
+                            alt="Hero banner preview"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                          <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                            Hero Banner Preview
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '0.8rem', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '10px', padding: '0.9rem', textAlign: 'center', fontSize: '0.75rem', color: '#64748b' }}>
+                        No hero image set. Mobile menu displays a clean title-only banner.
                       </div>
                     )}
                   </div>

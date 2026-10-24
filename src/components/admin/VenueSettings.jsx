@@ -393,22 +393,54 @@ export default function VenueSettings({
                   </div>
                 )}
 
+                {/* Current Hero Image Preview Card */}
                 {formData.hero_image ? (
-                  <div style={{ marginTop: '0.8rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', height: '140px', position: 'relative' }}>
-                    <img
-                      src={formData.hero_image}
-                      alt="Hero banner preview"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                    <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px' }}>
-                      Hero Banner Preview
+                  <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🖼️</span> Current Hero Image Preview
+                      </span>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: '999px' }}>
+                        ● Active on Customer Menu
+                      </span>
+                    </div>
+                    <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #cbd5e1', maxHeight: '200px', position: 'relative', background: '#000' }}>
+                      <img
+                        src={formData.hero_image}
+                        alt="Current Hero Banner Preview"
+                        style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.opacity = '0.5';
+                        }}
+                      />
+                      <div style={{ position: 'absolute', bottom: '10px', right: '12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.72rem', padding: '3px 10px', borderRadius: '6px', fontWeight: 600 }}>
+                        Hero Banner Preview
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
+                      <span style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {formData.hero_image}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleChange('hero_image', '')}
+                        style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                      >
+                        Remove image
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', display: 'block' }}>
-                    Leave empty to use the active theme layout's signature hero image.
-                  </span>
+                  <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '14px', padding: '1.2rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🖼️</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', marginBottom: '2px' }}>
+                      No Custom Hero Image
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', maxWidth: '380px', marginInline: 'auto' }}>
+                      The customer menu currently displays a clean typographic title card. Upload an image or select one of your dish photos above to display a photo banner.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -877,6 +909,99 @@ export default function VenueSettings({
               </div>
 
               <div className="ad-phone-sim-body">
+                {/* Simulated Customer Hero Showcase Card */}
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid rgba(230, 146, 60, 0.35)',
+                    borderRadius: '12px',
+                    padding: '0.8rem',
+                    marginBottom: '0.8rem',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        color: '#c46816',
+                        background: 'rgba(230, 146, 60, 0.12)',
+                        padding: '2px 6px',
+                        borderRadius: '999px',
+                        display: 'inline-block',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      ✨ Chef's Daily Special
+                    </span>
+                    <h5
+                      style={{
+                        margin: '0 0 2px',
+                        fontSize: '0.88rem',
+                        fontWeight: 800,
+                        color: '#111827',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {formData.hero_title || formData.name || 'Fresh Flavors Every Day'}
+                    </h5>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: '0.7rem',
+                        color: '#64748b',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {formData.hero_description || formData.tagline || 'Quality ingredients & authentic craft.'}
+                    </p>
+                  </div>
+                  {formData.hero_image ? (
+                    <div
+                      style={{
+                        width: '68px',
+                        height: '62px',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        position: 'relative',
+                        border: '1px solid #e2e8f0',
+                      }}
+                    >
+                      <img
+                        src={formData.hero_image}
+                        alt="Hero preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                      <span
+                        style={{
+                          position: 'absolute',
+                          bottom: '2px',
+                          right: '2px',
+                          background: '#e6923c',
+                          color: '#fff',
+                          fontSize: '0.55rem',
+                          fontWeight: 800,
+                          padding: '1px 4px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        🔥
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                   <span style={{ color: '#6b7280' }}>Active Currency:</span>
                   <strong>{formData.currency || 'ETB'}</strong>
