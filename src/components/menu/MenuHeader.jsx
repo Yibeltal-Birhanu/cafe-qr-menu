@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, SearchIcon, ChevronLeftIcon, WifiIcon, BatteryIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, SearchIcon, ChevronLeftIcon } from '../common/Icons.jsx';
 
 export default function MenuHeader({
   cafeName = 'CafeMenu',
@@ -52,15 +52,6 @@ export default function MenuHeader({
 
   return (
     <>
-      {/* iOS Status Bar (Visible only on native phone screen) */}
-      <div class="cm-status-bar">
-        <span>9:41</span>
-        <div class="cm-status-icons">
-          <WifiIcon size={14} />
-          <BatteryIcon size={16} />
-        </div>
-      </div>
-
       {activeCategory ? (
         /* Category View Header: < [Category Name] [Search] */
         <header class={`cm-category-nav-header cm-category-nav-header--${layout}`}>

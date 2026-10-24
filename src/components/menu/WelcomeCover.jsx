@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon, WifiIcon, BatteryIcon, StarIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon, StarIcon } from '../common/Icons.jsx';
 
 export default function WelcomeCover({
   cafeName = 'CafeMenu',
@@ -92,15 +92,6 @@ export default function WelcomeCover({
       aria-label="Welcome screen"
       style={bgStyle}
     >
-      {/* iOS Status Bar */}
-      <div class="cm-status-bar cm-status-bar--light" style={{ padding: '0 0 1rem 0' }}>
-        <span>9:41</span>
-        <div class="cm-status-icons">
-          <WifiIcon size={14} />
-          <BatteryIcon size={16} />
-        </div>
-      </div>
-
       {/* Brand Header */}
       <div class="cm-welcome-header">
         <span
