@@ -180,28 +180,21 @@ export default function MenuApp() {
   const displayedItems = useMemo(() => {
     let list = [];
     if (currentCategory) {
-      list = currentCategory.items;
+      list = currentCategory.items || [];
       if (activeSubcategory && activeSubcategory !== 'All') {
         list = list.filter((item) => item.subcategory === activeSubcategory);
       }
     } else {
-      // Home screen: showcase popular items + featured items
-      list = allItems.filter((item) => item.isPopular || ['classic-burger', 'chicken-sandwich', 'pasta-alfredo', 'caesar-salad', 'latte', 'chocolate-cake'].includes(item.id));
+      // Home screen / "All" category: render all food items across all categories
+      list = allItems;
     }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      if (!currentCategory) {
-        list = allItems.filter((item) =>
-          item.name.toLowerCase().includes(q) ||
-          (item.description && item.description.toLowerCase().includes(q))
-        );
-      } else {
-        list = list.filter((item) =>
-          item.name.toLowerCase().includes(q) ||
-          (item.description && item.description.toLowerCase().includes(q))
-        );
-      }
+      list = list.filter((item) =>
+        (item.name && item.name.toLowerCase().includes(q)) ||
+        (item.description && item.description.toLowerCase().includes(q))
+      );
     }
 
     return list;
@@ -488,19 +481,17 @@ export default function MenuApp() {
                 ))}
               </div>
 
-              {/* Popular Items Section Head */}
+              {/* Menu Items Section Head */}
               <div class="cm-section-head">
                 <h3 class="cm-section-title">
-                  {searchQuery ? `Search Results (${displayedItems.length})` : 'Popular Items'}
+                  {searchQuery ? `Search Results (${displayedItems.length})` : 'All Foods'}
                 </h3>
-                {!searchQuery && (
+                {!searchQuery && displayedItems.length > 0 && (
                   <span
                     class="cm-section-link"
-                    onClick={() => handleSelectCategory(categories[0])}
-                    role="button"
-                    tabIndex={0}
+                    style={{ cursor: 'default' }}
                   >
-                    See all &rarr;
+                    {displayedItems.length} {displayedItems.length === 1 ? 'item' : 'items'}
                   </span>
                 )}
               </div>
@@ -508,9 +499,9 @@ export default function MenuApp() {
               {/* Dish List */}
               <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
-                  displayedItems.map((dish) => (
+                  displayedItems.map((dish, index) => (
                     <DishListItem
-                      key={dish.id}
+                      key={dish.id || `dish-${index}`}
                       dish={dish}
                       onSelect={(item) => setSelectedDish(item)}
                       currency={dish.currency || 'ETB'}
@@ -519,7 +510,7 @@ export default function MenuApp() {
                   ))
                 ) : (
                   <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#6b7280', fontSize: '0.9rem' }}>
-                    No dishes found matching "{searchQuery}".
+                    {searchQuery ? `No dishes found matching "${searchQuery}".` : 'No dishes available yet.'}
                   </div>
                 )}
               </div>
