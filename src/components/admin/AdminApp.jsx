@@ -428,7 +428,11 @@ export default function AdminApp() {
         });
         showToast(`Category "${formData.name}" updated`);
       } else if (modalMode === 'addDish') {
-        await apiCall(`/api/admin/categories/${formData.categoryId}/items?cafe=${selectedCafeSlug}`, {
+        const catId = formData.categoryId || (categories[0]?.id || '');
+        const targetUrl = catId
+          ? `/api/admin/categories/${catId}/items?cafe=${selectedCafeSlug}`
+          : `/api/admin/items?cafe=${selectedCafeSlug}`;
+        await apiCall(targetUrl, {
           method: 'POST',
           body: {
             name: formData.name,
@@ -438,6 +442,7 @@ export default function AdminApp() {
             badge: formData.badge,
             dietary: formData.dietary,
             prepTime: formData.prepTime,
+            categoryId: catId,
           },
         });
         showToast(`Dish "${formData.name}" added`);

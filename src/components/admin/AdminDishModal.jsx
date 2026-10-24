@@ -224,11 +224,15 @@ export default function AdminDishModal({
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
                     >
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
+                      {categories.length === 0 ? (
+                        <option value="">General (Default)</option>
+                      ) : (
+                        categories.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
 

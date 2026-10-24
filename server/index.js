@@ -528,32 +528,86 @@ app.post('/api/admin/categories/reorder', (req, res) => {
  * Admin: items / dishes / drinks (CRUD)
  * ------------------------------------------------------------------ */
 
-app.post('/api/admin/categories/:id/items', (req, res) => {
-  const body = req.body || {};
-  if (!body.name || !String(body.name).trim()) {
-    return res.status(400).json({ error: 'An item name is required.' });
-  }
-  const item = store.update(req.cafeSlug, (data) => {
-    const category = store.findCategory(data, req.params.id);
-    if (!category) return null;
-    const taken = new Set(data.categories.flatMap((entry) => entry.items.map((it) => it.id)));
-    const created = {
-      id: store.newId(body.name, taken),
-      name: String(body.name).trim(),
-      description: String(body.description || ''),
-      image: body.image ? String(body.image).trim() : '',
-      price: Number(body.price) || 0,
-      badge: body.badge ? String(body.badge).trim() : '',
-      prepTime: body.prepTime ? String(body.prepTime).trim() : '',
-      dietary: body.dietary ? String(body.dietary).trim() : '',
-      available: body.available !== undefined ? Boolean(body.available) : true,
-    };
-    category.items.push(created);
-    return created;
-  });
-  if (!item) return res.status(404).json({ error: 'Category not found.' });
-  return res.status(201).json({ item });
+/** List all dishes/items across categories for the active cafe */
+app.get('/api/admin/items', (req, res) => {
+  const menu = store.get(req.cafeSlug) || { categories: [] };
+  const items = (menu.categories || []).flatMap((cat) =>
+    (cat.items || []).map((item) => ({ ...item, categoryId: cat.id, categoryName: cat.name }))
+  );
+  res.json({ items });
 });
+
+/**
+ * Create a new menu item / dish.
+ * Supports:
+ * - POST /api/admin/items (with optional categoryId in body)
+ * - POST /api/admin/categories/:id/items
+ * - POST /api/admin/categories//items (empty category ID fallback)
+ * - POST /api/admin/categories/items
+ */
+app.post(
+  [
+    '/api/admin/items',
+    '/api/admin/categories/:id/items',
+    '/api/admin/categories//items',
+    '/api/admin/categories/items',
+  ],
+  (req, res) => {
+    const body = req.body || {};
+    if (!body.name || !String(body.name).trim()) {
+      return res.status(400).json({ error: 'An item name is required.' });
+    }
+
+    const rawParamId = req.params && typeof req.params.id === 'string' ? req.params.id.trim() : '';
+    const rawBodyCatId = body.categoryId && typeof body.categoryId === 'string' ? body.categoryId.trim() : '';
+    const explicitCategoryId = rawParamId || rawBodyCatId || null;
+
+    const item = store.update(req.cafeSlug, (data) => {
+      let category = null;
+
+      if (explicitCategoryId) {
+        category = store.findCategory(data, explicitCategoryId);
+        if (!category) return null;
+      } else {
+        // No explicit category specified; fallback to first existing category
+        if (Array.isArray(data.categories) && data.categories.length > 0) {
+          category = data.categories[0];
+        } else {
+          // If cafe has no categories yet, auto-create a default category
+          const takenCats = new Set((data.categories || []).map((c) => c.id));
+          category = {
+            id: store.newId('general', takenCats),
+            name: 'General',
+            icon: 'coffee',
+            description: 'Main menu items',
+            items: [],
+          };
+          data.categories = data.categories || [];
+          data.categories.push(category);
+        }
+      }
+
+      const taken = new Set((data.categories || []).flatMap((entry) => (entry.items || []).map((it) => it.id)));
+      const created = {
+        id: store.newId(body.name, taken),
+        categoryId: category.id,
+        name: String(body.name).trim(),
+        description: String(body.description || ''),
+        image: body.image ? String(body.image).trim() : '',
+        price: Number(body.price) || 0,
+        badge: body.badge ? String(body.badge).trim() : '',
+        prepTime: body.prepTime ? String(body.prepTime).trim() : '',
+        dietary: body.dietary ? String(body.dietary).trim() : '',
+        available: body.available !== undefined ? Boolean(body.available) : true,
+      };
+      category.items.push(created);
+      return created;
+    });
+
+    if (!item) return res.status(404).json({ error: 'Category not found.' });
+    return res.status(201).json({ item });
+  }
+);
 
 app.put('/api/admin/items/:id', (req, res) => {
   const body = req.body || {};

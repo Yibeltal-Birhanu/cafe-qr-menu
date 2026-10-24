@@ -210,6 +210,87 @@ test('adds, edits, moves and deletes a dish', async () => {
   await call(`/api/admin/categories/${categoryId}`, { method: 'DELETE' }, token);
 });
 
+test('creates dishes via /api/admin/categories//items and /api/admin/items', async () => {
+  // 1. Direct dish creation via /api/admin/items with body.categoryId
+  const dish1 = await call('/api/admin/items', {
+    method: 'POST',
+    body: {
+      name: 'Avocado Toast',
+      description: 'fresh sourdough',
+      price: 240,
+      categoryId: 'breakfast',
+    },
+  }, token);
+  assert.equal(dish1.status, 201);
+  assert.equal(dish1.body.item.name, 'Avocado Toast');
+  assert.equal(dish1.body.item.price, 240);
+
+  // 2. Dish creation via double-slash URL (/api/admin/categories//items) without explicit category
+  const dish2 = await call('/api/admin/categories//items', {
+    method: 'POST',
+    body: {
+      name: 'Crispy Fries',
+      description: 'salted & golden',
+      price: 150,
+      image: 'https://res.cloudinary.com/example/fries.jpg',
+      prepTime: '10 min',
+    },
+  }, token);
+  assert.equal(dish2.status, 201);
+  assert.equal(dish2.body.item.name, 'Crispy Fries');
+  assert.equal(dish2.body.item.price, 150);
+
+  // 3. Verify GET /api/admin/items returns items including the created dishes
+  const list = await call('/api/admin/items', {}, token);
+  assert.equal(list.status, 200);
+  assert.ok(Array.isArray(list.body.items));
+  assert.ok(list.body.items.some((it) => it.id === dish1.body.item.id));
+  assert.ok(list.body.items.some((it) => it.id === dish2.body.item.id));
+
+  // Clean up
+  await call(`/api/admin/items/${dish1.body.item.id}`, { method: 'DELETE' }, token);
+  await call(`/api/admin/items/${dish2.body.item.id}`, { method: 'DELETE' }, token);
+});
+
+test('auto-creates default category when creating dish in empty cafe', async () => {
+  const emptySlug = `empty-cafe-${Date.now()}`;
+  const cafeRes = await call(
+    '/api/admin/cafes',
+    { method: 'POST', body: { slug: emptySlug, name: 'Empty Cafe', template: 'empty' } },
+    token
+  );
+  assert.equal(cafeRes.status, 201);
+
+  // Add dish via /api/admin/categories//items?cafe=...
+  const dishRes = await call(`/api/admin/categories//items?cafe=${emptySlug}`, {
+    method: 'POST',
+    body: {
+      name: 'Signature Burger',
+      description: 'grilled to perfection',
+      price: 450,
+      image: 'https://res.cloudinary.com/zsyultue/image/upload/sample.jpg',
+      prepTime: '15 min',
+    },
+  }, token);
+
+  assert.equal(dishRes.status, 201);
+  assert.equal(dishRes.body.item.name, 'Signature Burger');
+  assert.equal(dishRes.body.item.price, 450);
+
+  // Verify cafe now has a default category containing the dish
+  const menuRes = await call(`/api/${emptySlug}/menu`);
+  assert.equal(menuRes.status, 200);
+  assert.equal(menuRes.body.categories.length, 1);
+  assert.equal(menuRes.body.categories[0].name, 'General');
+  assert.equal(menuRes.body.categories[0].items.length, 1);
+  assert.equal(menuRes.body.categories[0].items[0].name, 'Signature Burger');
+
+  // Clean up
+  if (cafeRes.body?.cafe?.id) {
+    await call(`/api/superadmin/cafes/${cafeRes.body.cafe.id}`, { method: 'DELETE' }, token);
+  }
+});
+
 test('reorders categories', async () => {
   const ids = (await call('/api/menu')).body.categories.map((category) => category.id);
   const reversed = [...ids].reverse();
