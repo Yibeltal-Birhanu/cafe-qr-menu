@@ -3405,3 +3405,470 @@
   object-fit: cover;
   border-radius: 12px;
 }
+
+/* ==========================================================================
+   14. Cafe Brand Preloader & Splash Intro
+   ========================================================================== */
+.cm-preloader {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+  background: var(--cm-bg, #ffffff) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.cm-preloader--hiding {
+  opacity: 0 !important;
+  transform: scale(1.03) !important;
+  pointer-events: none !important;
+}
+
+.cm-preloader__ambient-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cm-preloader__glow-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(85px);
+  opacity: 0.14;
+}
+
+.cm-preloader__glow-circle--1 {
+  width: 320px;
+  height: 320px;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: cmGlowFloat 6s ease-in-out infinite alternate;
+}
+
+.cm-preloader__glow-circle--2 {
+  width: 260px;
+  height: 260px;
+  bottom: 20%;
+  left: 45%;
+  transform: translateX(-50%);
+  animation: cmGlowFloat 8s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes cmGlowFloat {
+  0% { transform: translateX(-50%) translateY(0) scale(1); }
+  100% { transform: translateX(-46%) translateY(-25px) scale(1.1); }
+}
+
+.cm-preloader__card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: cmPreloaderCardEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cmPreloaderCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.cm-preloader__emblem-stage {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-preloader__icon-box {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  transition: transform 0.2s ease;
+}
+
+.cm-preloader__pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 30px;
+  border: 1.5px solid;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cm-preloader__pulse-ring--outer {
+  animation: cmEmblemPulse 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+.cm-preloader__pulse-ring--inner {
+  animation: cmEmblemPulse 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite 0.7s;
+}
+
+@keyframes cmEmblemPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+  60% {
+    transform: scale(1.36);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.36);
+    opacity: 0;
+  }
+}
+
+.cm-preloader__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #475569;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.cm-preloader__name {
+  font-family: var(--cm-font-serif, 'Playfair Display', Georgia, serif);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: 0 0 0.55rem;
+}
+
+.cm-preloader__tagline {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0 0 1.75rem;
+  line-height: 1.45;
+  max-width: 300px;
+}
+
+.cm-preloader__progress-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.cm-preloader__bar {
+  width: 170px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cm-preloader__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.cm-preloader__bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: cmBarShimmer 1.4s ease infinite;
+}
+
+@keyframes cmBarShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.cm-preloader__status-text {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Section 15: Responsive Image Optimization & Auto-Fit Engine
+   Automatically scales, fits, and crops all card & hero images to match
+   their containers with zero distortion, adaptive aspect ratios, and fluid resize.
+   ========================================================================== */
+
+/* 1. Global Card Image Container Normalization */
+.cm-dish-thumb-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  background-color: #f1f5f9 !important;
+}
+
+.cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+  backface-visibility: hidden !important;
+  transform: translateZ(0);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* 2. Bento Layout: Fluid Aspect-Ratio Card Images */
+[data-theme-layout="bento"] .cm-dish-thumb-wrap,
+.cm-dish-card--bento .cm-dish-thumb-wrap,
+.cm-viewport--bento .cm-dish-thumb-wrap {
+  width: 100% !important;
+  aspect-ratio: 16 / 10 !important;
+  height: auto !important;
+  min-height: 110px !important;
+  max-height: 180px !important;
+  border-top-left-radius: 18px !important;
+  border-top-right-radius: 18px !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme-layout="bento"] .cm-dish-thumb,
+.cm-dish-card--bento .cm-dish-thumb,
+.cm-viewport--bento .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 3. Editorial Layout: Full Vertical Stretch with Fixed Aspect */
+[data-theme-layout="editorial"] .cm-dish-thumb-wrap,
+.cm-dish-card--editorial .cm-dish-thumb-wrap,
+.cm-viewport--editorial .cm-dish-thumb-wrap {
+  width: clamp(100px, 30vw, 135px) !important;
+  min-width: 100px !important;
+  max-width: 135px !important;
+  align-self: stretch !important;
+  height: auto !important;
+  min-height: 110px !important;
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme-layout="editorial"] .cm-dish-thumb,
+.cm-dish-card--editorial .cm-dish-thumb,
+.cm-viewport--editorial .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 4. Rustic Layout: Chunky Hearth Auto-Fit */
+[data-theme-layout="rustic"] .cm-dish-thumb-wrap,
+.cm-dish-card--rustic .cm-dish-thumb-wrap,
+.cm-viewport--rustic .cm-dish-thumb-wrap {
+  width: clamp(95px, 28vw, 130px) !important;
+  min-width: 95px !important;
+  max-width: 130px !important;
+  align-self: stretch !important;
+  height: auto !important;
+  min-height: 105px !important;
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme-layout="rustic"] .cm-dish-thumb,
+.cm-dish-card--rustic .cm-dish-thumb,
+.cm-viewport--rustic .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 5. Boutique Layout: Circular Responsive Avatar Thumbs */
+[data-theme-layout="boutique"] .cm-dish-thumb-wrap,
+.cm-dish-card--boutique .cm-dish-thumb-wrap,
+.cm-viewport--boutique .cm-dish-thumb-wrap {
+  width: clamp(72px, 20vw, 90px) !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  border: 2.5px solid var(--cm-primary, #db2777) !important;
+  box-shadow: 0 0 12px rgba(219, 39, 119, 0.15) !important;
+  flex-shrink: 0 !important;
+  margin: 0.5rem 0.25rem 0.5rem 0.75rem !important;
+}
+
+[data-theme-layout="boutique"] .cm-dish-thumb,
+.cm-dish-card--boutique .cm-dish-thumb,
+.cm-viewport--boutique .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 6. Noir Layout: Cyber / Lounge Auto-Fit */
+[data-theme-layout="noir"] .cm-dish-thumb-wrap,
+.cm-dish-card--noir .cm-dish-thumb-wrap,
+.cm-viewport--noir .cm-dish-thumb-wrap {
+  width: clamp(95px, 28vw, 130px) !important;
+  min-width: 95px !important;
+  max-width: 130px !important;
+  align-self: stretch !important;
+  height: auto !important;
+  min-height: 105px !important;
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme-layout="noir"] .cm-dish-thumb,
+.cm-dish-card--noir .cm-dish-thumb,
+.cm-viewport--noir .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 7. Minimal Layout: Rounded Square Proportional Thumbs */
+[data-theme-layout="minimal"] .cm-dish-thumb-wrap,
+.cm-dish-card--minimal .cm-dish-thumb-wrap,
+.cm-viewport--minimal .cm-dish-thumb-wrap {
+  width: clamp(75px, 22vw, 92px) !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme-layout="minimal"] .cm-dish-thumb,
+.cm-dish-card--minimal .cm-dish-thumb,
+.cm-viewport--minimal .cm-dish-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 8. Dish Detail Modal Hero Image Auto-Fit */
+.cm-modal-hero {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 16 / 10 !important;
+  height: auto !important;
+  min-height: 180px !important;
+  max-height: 38vh !important;
+  background: #111 !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+
+.cm-modal-hero-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 9. Hero Banner Media Auto-Fit */
+.cm-hero-bento__media,
+.cm-hero-editorial__media,
+.cm-hero-rustic__media,
+.cm-hero-boutique__media,
+.cm-hero-noir__media,
+.cm-hero-minimal__media {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.cm-hero-bento__img,
+.cm-hero-rustic__img,
+.cm-hero-boutique__img,
+.cm-hero-noir__img,
+.cm-hero-minimal__img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* 10. Category Header Banner Auto-Fit */
+.cm-category-banner {
+  position: relative !important;
+  width: 100% !important;
+  height: clamp(140px, 30vw, 220px) !important;
+  overflow: hidden !important;
+}
+
+.cm-category-banner-bg {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}

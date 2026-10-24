@@ -507,15 +507,23 @@ async function updateCafeSettings(cafeId, settings = {}) {
   }
 
   const updatedCafe = await getCafeById(cafeId);
-  if (updatedCafe && menus.has(updatedCafe.slug)) {
-    const memCafe = menus.get(updatedCafe.slug).cafe;
+  if (updatedCafe) {
     for (const field of allowedFields) {
-      if (settings[field] !== undefined) memCafe[field] = settings[field];
+      if (settings[field] !== undefined) updatedCafe[field] = settings[field];
     }
     if (settings.theme !== undefined) {
-      memCafe.theme = typeof settings.theme === 'string' ? JSON.parse(settings.theme) : settings.theme;
+      updatedCafe.theme = typeof settings.theme === 'string' ? JSON.parse(settings.theme) : settings.theme;
     }
-    writeToDisk(updatedCafe.slug, menus.get(updatedCafe.slug));
+    if (menus.has(updatedCafe.slug)) {
+      const memCafe = menus.get(updatedCafe.slug).cafe;
+      for (const field of allowedFields) {
+        if (settings[field] !== undefined) memCafe[field] = settings[field];
+      }
+      if (settings.theme !== undefined) {
+        memCafe.theme = typeof settings.theme === 'string' ? JSON.parse(settings.theme) : settings.theme;
+      }
+      writeToDisk(updatedCafe.slug, menus.get(updatedCafe.slug));
+    }
   }
   return updatedCafe;
 }

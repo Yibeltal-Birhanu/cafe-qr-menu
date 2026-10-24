@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangleIcon, CheckCircleIcon, InfoIcon, LockIcon } from '../common/Icons.jsx';
+import { AlertTriangleIcon, CheckCircleIcon, LockIcon } from '../common/Icons.jsx';
 
 export default function OnboardingForm() {
   const [cafeName, setCafeName] = useState('');
@@ -65,7 +65,7 @@ export default function OnboardingForm() {
       <div className="l-wrap contact-sec__grid">
         {/* Left Column: Copy & Onboarding Info */}
         <div className="contact-sec__left">
-          <h2>Ready to modernise your cafe's menu?</h2>
+          <h2>Ready to modernize your cafe's menu?</h2>
           <p>
             Join forward-thinking cafes and restaurants delivering a premium digital menu experience. Submit your venue details to explore how CafeMenu fits your dining room.
           </p>
@@ -73,7 +73,7 @@ export default function OnboardingForm() {
           <div className="contact-sec__direct-card">
             <strong>Direct Partner Inquiries</strong>
             <span>
-              Looking for multi-branch rollouts, enterprise white-labeling, or specialized hardware stands? Contact our onboarding team through the form or review the live Cafe reference implementation.
+              Looking for multi-branch rollouts, enterprise white-labeling, or specialized hardware stands? Contact our onboarding team through the form or review the live Cafe reference menu.
             </span>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function OnboardingForm() {
                   type="text"
                   id="contactInput"
                   className="form-input"
-                  placeholder="e.g. sara@bluenile.com or 0911234567"
+                  placeholder="e.g. 0911234567 or sara@example.com"
                   required
                   value={contact}
                   onChange={(e) => {
@@ -155,7 +155,7 @@ export default function OnboardingForm() {
 
               <div className="form-group">
                 <label htmlFor="tablesInput" className="form-label">
-                  Approximate Number of Tables
+                  Number of Tables (Approx.)
                 </label>
                 <select
                   id="tablesInput"
@@ -163,10 +163,10 @@ export default function OnboardingForm() {
                   value={tables}
                   onChange={(e) => setTables(e.target.value)}
                 >
-                  <option value="1-10">1 &ndash; 10 tables (Boutique / Coffee Bar)</option>
-                  <option value="11-25">11 &ndash; 25 tables (Mid-size Cafe / Bistro)</option>
+                  <option value="1-10">1 &ndash; 10 tables (Boutique Cafe)</option>
+                  <option value="11-25">11 &ndash; 25 tables (Bistro / Mid-size)</option>
                   <option value="26-50">26 &ndash; 50 tables (Full Restaurant)</option>
-                  <option value="50+">50+ tables (Multi-zone / Chain)</option>
+                  <option value="50+">50+ tables (Multi-story / Chain)</option>
                 </select>
               </div>
 
@@ -190,12 +190,12 @@ export default function OnboardingForm() {
 
               <div className="form-notice">
                 <LockIcon size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-                Prototype Preview: This is a client-side prototype demonstration. No information is transmitted to a server or saved to external databases.
+                Your contact details are kept strictly private and used only for onboarding your cafe.
               </div>
             </form>
           </div>
 
-          {/* Honest, Privacy-Aware Confirmation Feedback Box */}
+          {/* Clean, Professional Confirmation Box */}
           <div
             className="form-success-box"
             id="leadSuccess"
@@ -205,45 +205,16 @@ export default function OnboardingForm() {
             <div className="form-success-box__icon">
               <CheckCircleIcon size={34} />
             </div>
-            <h4>Prototype Preview Confirmed</h4>
+            <h4>Setup Request Received</h4>
             <p>
-              Thank you for exploring the demo setup for <strong id="leadSuccessCafe">{submittedCafe}</strong>!
+              Thank you for requesting setup for <strong id="leadSuccessCafe">{submittedCafe}</strong>!
             </p>
-            <div
-              style={{
-                background: 'rgba(22, 78, 56, 0.06)',
-                border: '1px solid var(--b-border)',
-                borderRadius: 'var(--r-sm)',
-                padding: '0.85rem 1rem',
-                margin: '1rem 0',
-                textAlign: 'left',
-                fontSize: '0.85rem',
-                color: 'var(--c-text)',
-                lineHeight: 1.5,
-              }}
-            >
-              <strong
-                style={{
-                  color: 'var(--c-forest)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginBottom: '0.25rem',
-                }}
-              >
-                <InfoIcon size={16} />
-                Client-Side Prototype Notice:
-              </strong>
-              <span>
-                This demonstration was validated locally in your browser. Your request was <strong>NOT</strong> transmitted to CafeMenu or logged on a remote server, and no personal contact details were retained. In the production release, this workflow will submit your venue onboarding inquiry directly to the CafeMenu onboarding team.
-              </span>
-            </div>
-            <p style={{ fontSize: '0.88rem', color: 'var(--c-text-muted)', marginTop: '0.5rem' }}>
-              Tour the working Cafe reference menu to experience our camera-first digital dining presentation.
+            <p style={{ fontSize: '0.9rem', color: 'var(--c-text-muted)', margin: '1rem 0' }}>
+              Our onboarding specialist will review your details and reach out with your custom menu preview within 24 hours.
             </p>
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.8rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href="/cafe" className="l-btn l-btn--primary">
-                <span>Open Cafe Demo</span>
+                <span>Explore Live Cafe Demo</span>
                 <span aria-hidden="true">&rarr;</span>
               </a>
               <button
@@ -252,7 +223,7 @@ export default function OnboardingForm() {
                 id="resetFormBtn"
                 onClick={handleReset}
               >
-                <span>Test Another Venue</span>
+                <span>Submit Another Request</span>
               </button>
             </div>
           </div>

@@ -5,10 +5,10 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
   const activeColor = theme?.primaryColor;
 
   return (
-    <nav class="cm-bottom-nav" aria-label="Bottom Navigation">
+    <nav className="cm-bottom-nav" aria-label="Bottom Navigation">
       <button
         type="button"
-        class={`cm-nav-item ${activeTab === 'home' ? 'is-active' : ''}`}
+        className={`cm-nav-item ${activeTab === 'home' ? 'is-active' : ''}`}
         onClick={() => onTabChange('home')}
         aria-label="Home"
         style={activeTab === 'home' && activeColor ? { color: activeColor } : {}}
@@ -17,7 +17,7 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
         <span>Home</span>
         {activeTab === 'home' && (
           <span
-            class="cm-nav-dot"
+            className="cm-nav-dot"
             style={activeColor ? { backgroundColor: activeColor } : {}}
             aria-hidden="true"
           />
@@ -26,7 +26,7 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
 
       <button
         type="button"
-        class={`cm-nav-item ${activeTab === 'menu' ? 'is-active' : ''}`}
+        className={`cm-nav-item ${activeTab === 'menu' ? 'is-active' : ''}`}
         onClick={() => onTabChange('menu')}
         aria-label="Full Menu"
         style={activeTab === 'menu' && activeColor ? { color: activeColor } : {}}
@@ -35,7 +35,7 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
         <span>Menu</span>
         {activeTab === 'menu' && (
           <span
-            class="cm-nav-dot"
+            className="cm-nav-dot"
             style={activeColor ? { backgroundColor: activeColor } : {}}
             aria-hidden="true"
           />
@@ -44,7 +44,7 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
 
       <button
         type="button"
-        class={`cm-nav-item ${activeTab === 'details' ? 'is-active' : ''}`}
+        className={`cm-nav-item ${activeTab === 'details' ? 'is-active' : ''}`}
         onClick={() => onTabChange('details')}
         aria-label="Cafe Details and Info"
         style={activeTab === 'details' && activeColor ? { color: activeColor } : {}}
@@ -53,7 +53,7 @@ export default function BottomNav({ activeTab = 'home', onTabChange, theme = nul
         <span>Details</span>
         {activeTab === 'details' && (
           <span
-            class="cm-nav-dot"
+            className="cm-nav-dot"
             style={activeColor ? { backgroundColor: activeColor } : {}}
             aria-hidden="true"
           />

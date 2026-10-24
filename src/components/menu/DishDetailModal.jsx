@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import {
   ChevronLeftIcon,
-  HeartIcon,
-  StarIcon,
-  FlameIcon,
   XIcon,
+  HeartIcon,
   ClockIcon,
-  CheckIcon,
 } from '../common/Icons.jsx';
+import { getDetailModalImage } from '../common/imageUtils.js';
 
-export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToast }) {
+export default function DishDetailModal({
+  dish,
+  onClose,
+  onToast,
+  currency = 'ETB',
+}) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    if (!dish) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -31,9 +33,8 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
   if (!dish) return null;
 
   const formattedPrice = `${Number(dish.price).toLocaleString()} ${dish.currency || currency || 'ETB'}`;
-  const rating = dish.rating || 4.8;
-  const reviews = dish.reviews || 120;
-  const tags = dish.tags && dish.tags.length > 0 ? dish.tags : ['Chef Special', 'Freshly Prepared'];
+  const tags = dish.tags && dish.tags.length > 0 ? dish.tags : [];
+  const optimizedModalImg = getDetailModalImage(dish);
 
   const toggleFavorite = () => {
     const nextFav = !isFavorite;
@@ -45,7 +46,7 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
 
   return (
     <div
-      class="cm-modal-backdrop"
+      className="cm-modal-backdrop"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modalDishTitle"
@@ -53,24 +54,26 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div class="cm-modal-sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="cm-modal-sheet" onClick={(e) => e.stopPropagation()}>
         {/* Top Drag Indicator for Phone Bottom-Sheet View */}
-        <div class="cm-modal-drag-bar" aria-hidden="true" />
+        <div className="cm-modal-drag-bar" aria-hidden="true" />
 
         {/* Hero image with back & favorite floating buttons */}
-        <div class="cm-modal-hero">
+        <div className="cm-modal-hero">
           <img
-            src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
+            src={optimizedModalImg}
             alt={dish.name}
-            class="cm-modal-hero-img"
+            className="cm-modal-hero-img"
+            loading="eager"
+            decoding="async"
             onError={(e) => {
               e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
             }}
           />
-          <div class="cm-modal-top-actions">
+          <div className="cm-modal-top-actions">
             <button
               type="button"
-              class="cm-circle-btn"
+              className="cm-circle-btn"
               onClick={onClose}
               aria-label="Close details"
               title="Close"
@@ -81,7 +84,7 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button
                 type="button"
-                class="cm-circle-btn"
+                className="cm-circle-btn"
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Remove from favorites' : 'Save to favorites'}
                 title={isFavorite ? 'Remove from favorites' : 'Save to favorites'}
@@ -91,7 +94,7 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
               </button>
               <button
                 type="button"
-                class="cm-circle-btn"
+                className="cm-circle-btn"
                 onClick={onClose}
                 aria-label="Close"
                 title="Close"
@@ -103,62 +106,48 @@ export default function DishDetailModal({ dish, onClose, currency = 'ETB', onToa
         </div>
 
         {/* Modal Sheet Body */}
-        <div class="cm-modal-body">
+        <div className="cm-modal-body">
           {/* Title & Price */}
-          <div class="cm-modal-row-head">
-            <h2 class="cm-modal-title" id="modalDishTitle">{dish.name}</h2>
-            <div class="cm-modal-price">{formattedPrice}</div>
+          <div className="cm-modal-row-head">
+            <h2 className="cm-modal-title" id="modalDishTitle">{dish.name}</h2>
+            <div className="cm-modal-price">{formattedPrice}</div>
           </div>
 
-          {/* Rating & Prep Meta */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-            <div class="cm-modal-rating" style={{ marginBottom: 0 }}>
-              <span class="cm-star-icon" aria-hidden="true">
-                <StarIcon size={16} />
-              </span>
-              <span>{rating}</span>
-              <span class="cm-rating-count">({reviews} reviews)</span>
+          {/* Prep Time Meta */}
+          {dish.prepTime ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.85rem', fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
+              <ClockIcon size={14} />
+              <span>Prepared fresh in {dish.prepTime}</span>
             </div>
-
-            {dish.prepTime && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#6b7280', fontWeight: 600 }}>
-                <ClockIcon size={14} />
-                <span>{dish.prepTime}</span>
-              </span>
-            )}
-          </div>
+          ) : null}
 
           {/* Description */}
-          <p class="cm-modal-description">
-            {dish.fullDescription || dish.description || 'Expertly prepared with fresh, premium ingredients for your dining enjoyment.'}
-          </p>
+          {dish.fullDescription || dish.description ? (
+            <p className="cm-modal-description">
+              {dish.fullDescription || dish.description}
+            </p>
+          ) : null}
 
-          {/* Dietary & Highlight Badges */}
-          <div class="cm-modal-tags">
-            {tags.map((tag, idx) => (
-              <span key={idx} class="cm-diet-tag">
-                {tag.toLowerCase().includes('spicy') && <FlameIcon size={13} style={{ color: '#ef4444' }} />}
-                {tag.toLowerCase().includes('popular') && <StarIcon size={13} style={{ color: '#eab308' }} />}
-                <span>{tag}</span>
-              </span>
-            ))}
-            {dish.dietary && (
-              <span class="cm-diet-tag" style={{ background: '#ecfdf5', borderColor: '#a7f3d0', color: '#065f46' }}>
-                <CheckIcon size={13} />
-                <span>{dish.dietary}</span>
-              </span>
-            )}
-          </div>
+          {/* Dietary / Feature Tags */}
+          {tags.length > 0 && (
+            <div className="cm-modal-tags">
+              {tags.map((tag) => (
+                <span key={tag} className="cm-modal-tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
-          {/* View-only Close / Back action */}
-          <div style={{ marginTop: '1.2rem', paddingTop: '0.5rem' }}>
+          {/* Close Action */}
+          <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
             <button
               type="button"
-              class="cm-btn-order"
+              className="cm-btn cm-btn--primary"
+              style={{ width: '100%', padding: '0.85rem', borderRadius: '12px' }}
               onClick={onClose}
-              aria-label="Back to menu"
             >
-              <span>Back to Menu</span>
+              Back to Menu
             </button>
           </div>
         </div>

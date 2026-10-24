@@ -516,7 +516,7 @@ export default function AdminApp() {
       <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
         <AdminLogin onLogin={handleLogin} onSignIn={handleLogin} />
         {toast && (
-          <div class={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
+          <div className={`ad-toast is-visible`} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.isBad ? '#ef4444' : '#13221e', color: '#ffffff', padding: '0.8rem 1.4rem', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 999 }}>
             {toast.text}
           </div>
         )}
@@ -588,14 +588,14 @@ export default function AdminApp() {
         {/* Regular Cafe Dashboard */}
         {activeTab === 'dashboard' && (
 
-          <div class="ad-content-wrapper">
+          <div className="ad-content-wrapper">
             {/* Left Main Dashboard Column */}
-            <div class="ad-content-left">
+            <div className="ad-content-left">
               {/* Hero Welcome Card */}
-              <div class="ad-hero-card">
-                <h2 class="ad-hero-title">Welcome back, {currentUser?.name || 'Admin'}!</h2>
-                <p class="ad-hero-sub">Managing <strong>{cafe.name}</strong> &bull; {selectedCafeSlug}</p>
-                <div class="ad-hero-date">
+              <div className="ad-hero-card">
+                <h2 className="ad-hero-title">Welcome back, {currentUser?.name || 'Admin'}!</h2>
+                <p className="ad-hero-sub">Managing <strong>{cafe.name}</strong> &bull; {selectedCafeSlug}</p>
+                <div className="ad-hero-date">
                   <CalendarIcon size={14} />
                   <span>{todayDateString}</span>
                 </div>
@@ -644,8 +644,8 @@ export default function AdminApp() {
 
         {/* Dedicated Menu Items View */}
         {activeTab === 'items' && (
-          <div class="ad-content-wrapper">
-            <div class="ad-content-left">
+          <div className="ad-content-wrapper">
+            <div className="ad-content-left">
               <AdminItemsTable
                 dishes={allDishes}
                 currency={cafe.currency || 'ETB'}
@@ -664,8 +664,8 @@ export default function AdminApp() {
 
         {/* Dedicated Categories View */}
         {activeTab === 'categories' && (
-          <div class="ad-content-wrapper">
-            <div class="ad-content-left">
+          <div className="ad-content-wrapper">
+            <div className="ad-content-left">
               <CategoryManagerView
                 categories={categories}
                 currency={cafe.currency || 'ETB'}

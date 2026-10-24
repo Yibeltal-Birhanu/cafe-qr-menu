@@ -98,7 +98,7 @@ export default function CategoryManagerView({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* 1. Header Bar with Stats */}
       <div
-        class="ad-panel-card"
+        className="ad-panel-card"
         style={{
           padding: '1.6rem 1.8rem',
           display: 'flex',
@@ -116,17 +116,17 @@ export default function CategoryManagerView({
           }}
         >
           <div>
-            <h2 class="ad-card-title" style={{ fontSize: '1.4rem' }}>
+            <h2 className="ad-card-title" style={{ fontSize: '1.4rem' }}>
               Menu Categories
             </h2>
-            <p class="ad-card-sub">
+            <p className="ad-card-sub">
               Curate and order your digital menu sections. Customers explore your dishes in this exact sequence.
             </p>
           </div>
 
           <button
             type="button"
-            class="ad-btn-add"
+            className="ad-btn-add"
             onClick={onAddCategory}
             style={{ padding: '0.65rem 1.4rem' }}
           >
@@ -173,21 +173,21 @@ export default function CategoryManagerView({
 
           {/* Search & View Toggle */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <div class="ad-header-search" style={{ width: '220px' }}>
+            <div className="ad-header-search" style={{ width: '220px' }}>
               <SearchIcon size={14} className="ad-header-search-icon" />
               <input
                 type="text"
-                class="ad-header-search-input"
+                className="ad-header-search-input"
                 placeholder="Search categories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <div class="ad-filter-pills-row" style={{ margin: 0 }}>
+            <div className="ad-filter-pills-row" style={{ margin: 0 }}>
               <button
                 type="button"
-                class={`ad-filter-pill-btn ${viewMode === 'grid' ? 'is-active' : ''}`}
+                className={`ad-filter-pill-btn ${viewMode === 'grid' ? 'is-active' : ''}`}
                 onClick={() => setViewMode('grid')}
                 title="Grid visual view"
               >
@@ -195,7 +195,7 @@ export default function CategoryManagerView({
               </button>
               <button
                 type="button"
-                class={`ad-filter-pill-btn ${viewMode === 'list' ? 'is-active' : ''}`}
+                className={`ad-filter-pill-btn ${viewMode === 'list' ? 'is-active' : ''}`}
                 onClick={() => setViewMode('list')}
                 title="Compact list view"
               >
@@ -210,7 +210,7 @@ export default function CategoryManagerView({
       {filteredCategories.length > 0 ? (
         viewMode === 'grid' ? (
           /* ================= GRID VIEW ================= */
-          <div class="ad-cat-grid">
+          <div className="ad-cat-grid">
             {filteredCategories.map((cat) => {
               const originalIndex = categories.findIndex((c) => c.id === cat.id);
               const items = cat.items || [];
@@ -220,20 +220,20 @@ export default function CategoryManagerView({
               const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
 
               return (
-                <div key={cat.id} class="ad-cat-card">
+                <div key={cat.id} className="ad-cat-card">
                   {/* Visual Header Banner */}
                   <div
-                    class="ad-cat-banner"
+                    className="ad-cat-banner"
                     style={{ backgroundImage: `url(${getCategoryCover(cat)})` }}
                   >
-                    <div class="ad-cat-banner-gradient" />
+                    <div className="ad-cat-banner-gradient" />
 
                     {/* Sequence Badge with Up/Down buttons */}
-                    <div class="ad-cat-seq-badge">
+                    <div className="ad-cat-seq-badge">
                       <span>#{originalIndex + 1}</span>
                       <button
                         type="button"
-                        class="ad-btn-arrow"
+                        className="ad-btn-arrow"
                         disabled={originalIndex === 0}
                         onClick={() => handleMoveUp(originalIndex)}
                         title="Move left/up"
@@ -243,7 +243,7 @@ export default function CategoryManagerView({
                       </button>
                       <button
                         type="button"
-                        class="ad-btn-arrow"
+                        className="ad-btn-arrow"
                         disabled={originalIndex === categories.length - 1}
                         onClick={() => handleMoveDown(originalIndex)}
                         title="Move right/down"
@@ -275,21 +275,21 @@ export default function CategoryManagerView({
                           📷 Image
                         </span>
                       )}
-                      <span class="ad-cat-count-pill" style={{ position: 'static' }}>
+                      <span className="ad-cat-count-pill" style={{ position: 'static' }}>
                         {itemCount} {itemCount === 1 ? 'dish' : 'dishes'}
                       </span>
                     </div>
 
                     {/* Category Icon Badge */}
-                    <div class="ad-cat-icon-badge">{getCategoryIcon(cat.icon)}</div>
+                    <div className="ad-cat-icon-badge">{getCategoryIcon(cat.icon)}</div>
                   </div>
 
                   {/* Body */}
-                  <div class="ad-cat-body">
-                    <div class="ad-cat-header-row">
-                      <h3 class="ad-cat-title">{cat.name}</h3>
+                  <div className="ad-cat-body">
+                    <div className="ad-cat-header-row">
+                      <h3 className="ad-cat-title">{cat.name}</h3>
                       {minPrice !== null && (
-                        <span class="ad-cat-price-pill">
+                        <span className="ad-cat-price-pill">
                           {minPrice === maxPrice
                             ? `${minPrice} ${currency}`
                             : `${minPrice} – ${maxPrice} ${currency}`}
@@ -303,24 +303,24 @@ export default function CategoryManagerView({
                       </p>
                     )}
 
-                    <div class="ad-cat-id-tag">ID: {cat.id}</div>
+                    <div className="ad-cat-id-tag">ID: {cat.id}</div>
 
                     {/* Dishes Strip */}
-                    <div class="ad-cat-dishes-strip">
+                    <div className="ad-cat-dishes-strip">
                       {items.slice(0, 3).map((dish) => (
-                        <div key={dish.id} class="ad-cat-dish-item">
+                        <div key={dish.id} className="ad-cat-dish-item">
                           <img
                             src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
                             alt={dish.name}
-                            class="ad-cat-dish-thumb"
+                            className="ad-cat-dish-thumb"
                             onError={(e) => {
                               e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
                             }}
                           />
-                          <div class="ad-cat-dish-info">
-                            <p class="ad-cat-dish-name">{dish.name}</p>
+                          <div className="ad-cat-dish-info">
+                            <p className="ad-cat-dish-name">{dish.name}</p>
                           </div>
-                          <span class="ad-cat-dish-price">
+                          <span className="ad-cat-dish-price">
                             {dish.price} {currency}
                           </span>
                         </div>
@@ -343,10 +343,10 @@ export default function CategoryManagerView({
                   </div>
 
                   {/* Footer Actions */}
-                  <div class="ad-cat-footer">
+                  <div className="ad-cat-footer">
                     <button
                       type="button"
-                      class="ad-btn-action-secondary"
+                      className="ad-btn-action-secondary"
                       onClick={() => onAddDish(cat.id)}
                       style={{ padding: '0.45rem 0.9rem', fontSize: '0.78rem', width: 'auto' }}
                     >
@@ -357,7 +357,7 @@ export default function CategoryManagerView({
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <button
                         type="button"
-                        class="ad-icon-action"
+                        className="ad-icon-action"
                         onClick={() => onEditCategory(cat)}
                         title={`Edit ${cat.name}`}
                       >
@@ -365,7 +365,7 @@ export default function CategoryManagerView({
                       </button>
                       <button
                         type="button"
-                        class="ad-icon-action ad-icon-action--delete"
+                        className="ad-icon-action ad-icon-action--delete"
                         onClick={() => onDeleteCategory(cat)}
                         title={`Delete ${cat.name}`}
                       >
@@ -379,8 +379,8 @@ export default function CategoryManagerView({
           </div>
         ) : (
           /* ================= LIST VIEW ================= */
-          <div class="ad-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
-            <table class="ad-table" style={{ width: '100%' }}>
+          <div className="ad-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
+            <table className="ad-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
                   <th style={{ width: '70px', textAlign: 'center' }}>Order</th>
@@ -405,7 +405,7 @@ export default function CategoryManagerView({
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                           <button
                             type="button"
-                            class="ad-btn-arrow"
+                            className="ad-btn-arrow"
                             disabled={originalIndex === 0}
                             onClick={() => handleMoveUp(originalIndex)}
                             title="Move up"
@@ -415,7 +415,7 @@ export default function CategoryManagerView({
                           <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>#{originalIndex + 1}</span>
                           <button
                             type="button"
-                            class="ad-btn-arrow"
+                            className="ad-btn-arrow"
                             disabled={originalIndex === categories.length - 1}
                             onClick={() => handleMoveDown(originalIndex)}
                             title="Move down"
@@ -441,7 +441,7 @@ export default function CategoryManagerView({
                         </div>
                       </td>
                       <td>
-                        <span class="ad-tag-dish" style={{ background: '#f3f4f6', color: '#374151', fontWeight: 700 }}>
+                        <span className="ad-tag-dish" style={{ background: '#f3f4f6', color: '#374151', fontWeight: 700 }}>
                           {items.length} items
                         </span>
                       </td>
@@ -460,7 +460,7 @@ export default function CategoryManagerView({
                         <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
                           <button
                             type="button"
-                            class="ad-btn-action-secondary"
+                            className="ad-btn-action-secondary"
                             onClick={() => onAddDish(cat.id)}
                             style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', width: 'auto' }}
                           >
@@ -468,7 +468,7 @@ export default function CategoryManagerView({
                           </button>
                           <button
                             type="button"
-                            class="ad-icon-action"
+                            className="ad-icon-action"
                             onClick={() => onEditCategory(cat)}
                             title="Edit"
                           >
@@ -476,7 +476,7 @@ export default function CategoryManagerView({
                           </button>
                           <button
                             type="button"
-                            class="ad-icon-action ad-icon-action--delete"
+                            className="ad-icon-action ad-icon-action--delete"
                             onClick={() => onDeleteCategory(cat)}
                             title="Delete"
                           >
@@ -492,7 +492,7 @@ export default function CategoryManagerView({
           </div>
         )
       ) : (
-        <div class="ad-panel-card" style={{ textAlign: 'center', padding: '3.5rem', color: '#6b7280' }}>
+        <div className="ad-panel-card" style={{ textAlign: 'center', padding: '3.5rem', color: '#6b7280' }}>
           <p style={{ margin: 0, fontSize: '0.95rem' }}>
             No categories matched "{searchQuery}".
           </p>

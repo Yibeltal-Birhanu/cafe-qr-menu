@@ -143,7 +143,7 @@ async function uploadImage(file, options = {}) {
 
   return {
     url: `/uploads/${cafeSlug}/${folderType}/${filename}`,
-    folder: `${cafeSlug}/${folderType}`,
+    folder: targetFolder,
     cafeSlug,
     folderType,
     provider: 'local',

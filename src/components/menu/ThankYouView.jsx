@@ -65,10 +65,10 @@ export default function ThankYouView({
   };
 
   return (
-    <div class="cm-details-screen" role="region" aria-label="Cafe Details & Information">
+    <div className="cm-details-screen" role="region" aria-label="Cafe Details & Information">
       {/* 1. Hero Brand Card */}
-      <div class="cm-details-hero-card">
-        <span class="cm-details-pill-tag">
+      <div className="cm-details-hero-card">
+        <span className="cm-details-pill-tag">
           <InfoIcon size={13} />
           <span>Dining Room &bull; Table {tableNumber}</span>
         </span>
@@ -77,41 +77,41 @@ export default function ThankYouView({
           <span style={{ color: theme?.primaryColor || 'var(--cm-primary, #e6923c)' }}>
             {renderLogo()}
           </span>
-          <h1 class="cm-details-brand-title">{cafeName}</h1>
+          <h1 className="cm-details-brand-title">{cafeName}</h1>
         </div>
 
-        <p class="cm-details-tagline">{tagline || 'Fresh flavors, handcrafted daily with authentic passion.'}</p>
+        <p className="cm-details-tagline">{tagline || 'Fresh flavors, handcrafted daily with authentic passion.'}</p>
       </div>
 
       {/* 2. Key Venue Details Grid */}
-      <div class="cm-details-grid">
+      <div className="cm-details-grid">
         {/* Guest Wi-Fi Card */}
-        <div class="cm-details-card">
-          <div class="cm-details-card-head">
-            <div class="cm-details-card-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
+        <div className="cm-details-card">
+          <div className="cm-details-card-head">
+            <div className="cm-details-card-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
               <WifiIcon size={20} />
             </div>
             <div>
-              <h2 class="cm-details-card-title">Complimentary Guest Wi-Fi</h2>
+              <h2 className="cm-details-card-title">Complimentary Guest Wi-Fi</h2>
               <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>Fast connection for all dining guests</span>
             </div>
           </div>
 
-          <div class="cm-details-wifi-row">
-            <div class="cm-details-wifi-info">
-              <span class="cm-details-wifi-label">Network (SSID)</span>
-              <span class="cm-details-wifi-val">{effectiveWifiSSID}</span>
+          <div className="cm-details-wifi-row">
+            <div className="cm-details-wifi-info">
+              <span className="cm-details-wifi-label">Network (SSID)</span>
+              <span className="cm-details-wifi-val">{effectiveWifiSSID}</span>
             </div>
           </div>
 
-          <div class="cm-details-wifi-row">
-            <div class="cm-details-wifi-info">
-              <span class="cm-details-wifi-label">Password</span>
-              <span class="cm-details-wifi-val">{effectiveWifiPass}</span>
+          <div className="cm-details-wifi-row">
+            <div className="cm-details-wifi-info">
+              <span className="cm-details-wifi-label">Password</span>
+              <span className="cm-details-wifi-val">{effectiveWifiPass}</span>
             </div>
             <button
               type="button"
-              class="cm-copy-pill-btn"
+              className="cm-copy-pill-btn"
               onClick={copyWifiPassword}
               aria-label="Copy Wi-Fi password"
             >
@@ -131,48 +131,48 @@ export default function ThankYouView({
         </div>
 
         {/* Operating Hours & Dining Service */}
-        <div class="cm-details-card">
-          <div class="cm-details-card-head">
-            <div class="cm-details-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+        <div className="cm-details-card">
+          <div className="cm-details-card-head">
+            <div className="cm-details-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
               <ClockIcon size={20} />
             </div>
             <div>
-              <h2 class="cm-details-card-title">Hours &amp; Service</h2>
+              <h2 className="cm-details-card-title">Hours &amp; Service</h2>
               <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>Open 7 days a week</span>
             </div>
           </div>
 
-          <div class="cm-details-info-row">
+          <div className="cm-details-info-row">
             <span>Hours:</span>
             <strong>7:00 AM &ndash; 11:00 PM (Daily)</strong>
           </div>
-          <div class="cm-details-info-row">
+          <div className="cm-details-info-row">
             <span>Dining:</span>
             <span>Dine-in table service, takeaway &amp; digital ordering</span>
           </div>
         </div>
 
         {/* Contact & Table Assistance */}
-        <div class="cm-details-card">
-          <div class="cm-details-card-head">
-            <div class="cm-details-card-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+        <div className="cm-details-card">
+          <div className="cm-details-card-head">
+            <div className="cm-details-card-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
               <PhoneIcon size={20} />
             </div>
             <div>
-              <h2 class="cm-details-card-title">Table Assistance &amp; Inquiries</h2>
+              <h2 className="cm-details-card-title">Table Assistance &amp; Inquiries</h2>
               <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>Need assistance? We are happy to help</span>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem' }}>
-            <div class="cm-details-info-row" style={{ margin: 0 }}>
+            <div className="cm-details-info-row" style={{ margin: 0 }}>
               <span>Phone:</span>
               <strong>{effectivePhone}</strong>
             </div>
 
             <a
               href={`tel:${effectivePhone.replace(/\s+/g, '')}`}
-              class="cm-copy-pill-btn"
+              className="cm-copy-pill-btn"
               style={{ textDecoration: 'none', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#15803d' }}
               aria-label={`Call ${effectivePhone}`}
             >
@@ -183,7 +183,7 @@ export default function ThankYouView({
         </div>
 
         {/* Kitchen & Dietary Quality */}
-        <div class="cm-details-card" style={{ background: '#fafafa', borderStyle: 'dashed' }}>
+        <div className="cm-details-card" style={{ background: '#fafafa', borderStyle: 'dashed' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
             <span style={{ color: '#6b7280', marginTop: '2px' }}>
               <InfoIcon size={16} />
@@ -199,10 +199,10 @@ export default function ThankYouView({
       </div>
 
       {/* 3. Action Buttons & Warm Closing */}
-      <div class="cm-details-actions">
+      <div className="cm-details-actions">
         <button
           type="button"
-          class="cm-details-return-btn"
+          className="cm-details-return-btn"
           onClick={onReturn}
           aria-label="Return to menu"
         >

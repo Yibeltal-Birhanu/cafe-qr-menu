@@ -28,22 +28,22 @@ export default function AdminItemsTable({
   }, [filteredDishes, currentPage, itemsPerPage]);
 
   return (
-    <div class="ad-table-card">
+    <div className="ad-table-card">
       {/* Toolbar */}
-      <div class="ad-table-toolbar">
+      <div className="ad-table-toolbar">
         <div>
-          <h3 class="ad-card-title">Menu Items</h3>
-          <p class="ad-card-sub">Manage your cafe menu items and pricing</p>
+          <h3 className="ad-card-title">Menu Items</h3>
+          <p className="ad-card-sub">Manage your cafe menu items and pricing</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div class="ad-search-pill" style={{ width: '240px', padding: '0.45rem 1rem' }}>
+          <div className="ad-search-pill" style={{ width: '240px', padding: '0.45rem 1rem' }}>
             <span style={{ color: '#9ca3af', display: 'inline-flex' }}>
               <SearchIcon size={14} />
             </span>
             <input
               type="search"
-              class="ad-search-pill-input"
+              className="ad-search-pill-input"
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => {
@@ -56,7 +56,7 @@ export default function AdminItemsTable({
 
           <button
             type="button"
-            class="ad-btn-add"
+            className="ad-btn-add"
             onClick={onAddItem}
             aria-label="Add new item"
           >
@@ -67,8 +67,8 @@ export default function AdminItemsTable({
       </div>
 
       {/* Table */}
-      <div class="ad-table-container">
-        <table class="ad-table">
+      <div className="ad-table-container">
+        <table className="ad-table">
           <thead>
             <tr>
               <th style={{ width: '40px' }}>
@@ -93,17 +93,17 @@ export default function AdminItemsTable({
                     <img
                       src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
                       alt={dish.name}
-                      class="ad-table-thumb"
+                      className="ad-table-thumb"
                       onError={(e) => {
                         e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
                       }}
                     />
                   </td>
                   <td>
-                    <div class="ad-table-name">{dish.name}</div>
+                    <div className="ad-table-name">{dish.name}</div>
                   </td>
                   <td>
-                    <span class="ad-category-badge">{dish.categoryName || 'General'}</span>
+                    <span className="ad-category-badge">{dish.categoryName || 'General'}</span>
                   </td>
                   <td>
                     <strong style={{ color: '#121826' }}>
@@ -111,13 +111,13 @@ export default function AdminItemsTable({
                     </strong>
                   </td>
                   <td>
-                    <span class="ad-status-pill">Active</span>
+                    <span className="ad-status-pill">Active</span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <div class="ad-action-btns" style={{ justifyContent: 'flex-end' }}>
+                    <div className="ad-action-btns" style={{ justifyContent: 'flex-end' }}>
                       <button
                         type="button"
-                        class="ad-icon-action"
+                        className="ad-icon-action"
                         onClick={() => onEditDish(dish)}
                         title="Edit dish"
                         aria-label={`Edit ${dish.name}`}
@@ -126,7 +126,7 @@ export default function AdminItemsTable({
                       </button>
                       <button
                         type="button"
-                        class="ad-icon-action ad-icon-action--delete"
+                        className="ad-icon-action ad-icon-action--delete"
                         onClick={() => onDeleteDish(dish)}
                         title="Delete dish"
                         aria-label={`Delete ${dish.name}`}
@@ -135,7 +135,7 @@ export default function AdminItemsTable({
                       </button>
                       <button
                         type="button"
-                        class="ad-icon-action"
+                        className="ad-icon-action"
                         title="More options"
                         aria-label="More options"
                       >
@@ -157,14 +157,14 @@ export default function AdminItemsTable({
       </div>
 
       {/* Pagination Footer */}
-      <div class="ad-pagination">
+      <div className="ad-pagination">
         <span>
           Showing {currentDishes.length} of {filteredDishes.length} items
         </span>
-        <div class="ad-page-numbers">
+        <div className="ad-page-numbers">
           <button
             type="button"
-            class="ad-page-btn"
+            className="ad-page-btn"
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             aria-label="Previous page"
@@ -175,7 +175,7 @@ export default function AdminItemsTable({
             <button
               key={i + 1}
               type="button"
-              class={`ad-page-btn ${currentPage === i + 1 ? 'is-active' : ''}`}
+              className={`ad-page-btn ${currentPage === i + 1 ? 'is-active' : ''}`}
               onClick={() => setCurrentPage(i + 1)}
             >
               {i + 1}
@@ -183,7 +183,7 @@ export default function AdminItemsTable({
           ))}
           <button
             type="button"
-            class="ad-page-btn"
+            className="ad-page-btn"
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             aria-label="Next page"

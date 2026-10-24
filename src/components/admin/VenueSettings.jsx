@@ -167,15 +167,15 @@ export default function VenueSettings({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* 1. Hero Header Banner */}
       <div
-        class="ad-hero-card"
+        className="ad-hero-card"
         style={{
           background:
             'linear-gradient(to right, rgba(14, 20, 17, 0.96) 0%, rgba(14, 20, 17, 0.8) 55%, rgba(14, 20, 17, 0.3) 100%), url("/images/coffee.jpg") center/cover no-repeat',
           minHeight: '160px',
         }}
       >
-        <h2 class="ad-hero-title">Venue &amp; Menu Settings</h2>
-        <p class="ad-hero-sub" style={{ maxWidth: '520px' }}>
+        <h2 className="ad-hero-title">Venue &amp; Menu Settings</h2>
+        <p className="ad-hero-sub" style={{ maxWidth: '520px' }}>
           Configure your café brand identity, default currency, guest Wi-Fi details, and ordering contact. Changes reflect immediately on customer menus.
         </p>
       </div>
@@ -185,21 +185,21 @@ export default function VenueSettings({
         {/* Left Column: Settings Forms */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Card A: Cafe Identity & Branding */}
-          <div class="ad-panel-card" style={{ padding: '1.8rem' }}>
-            <div class="ad-card-header" style={{ marginBottom: '1.4rem' }}>
+          <div className="ad-panel-card" style={{ padding: '1.8rem' }}>
+            <div className="ad-card-header" style={{ marginBottom: '1.4rem' }}>
               <div>
-                <h3 class="ad-card-title">Brand Identity</h3>
-                <p class="ad-card-sub">Core branding shown on digital menu headers and stand cards</p>
+                <h3 className="ad-card-title">Brand Identity</h3>
+                <p className="ad-card-sub">Core branding shown on digital menu headers and stand cards</p>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div>
-                <label class="ad-field-label">Cafe Name *</label>
+                <label className="ad-field-label">Cafe Name *</label>
                 <input
                   data-cafe="name"
                   type="text"
-                  class="ad-form-input"
+                  className="ad-form-input"
                   placeholder="e.g. Abol Cafe & Bistro"
                   value={formData.name}
                   onChange={(e) => handleChange('name', e.target.value)}
@@ -208,11 +208,11 @@ export default function VenueSettings({
               </div>
 
               <div>
-                <label class="ad-field-label">Tagline / Slogan</label>
+                <label className="ad-field-label">Tagline / Slogan</label>
                 <input
                   data-cafe="tagline"
                   type="text"
-                  class="ad-form-input"
+                  className="ad-form-input"
                   placeholder="e.g. Good Food • Great Moments"
                   value={formData.tagline}
                   onChange={(e) => handleChange('tagline', e.target.value)}
@@ -221,21 +221,21 @@ export default function VenueSettings({
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label class="ad-field-label">Default Currency</label>
+                  <label className="ad-field-label">Default Currency</label>
                   <input
                     data-cafe="currency"
                     type="text"
-                    class="ad-form-input"
+                    className="ad-form-input"
                     placeholder="ETB"
                     value={formData.currency}
                     onChange={(e) => handleChange('currency', e.target.value)}
                   />
-                  <div class="ad-currency-selector">
+                  <div className="ad-currency-selector">
                     {['ETB', 'USD', 'EUR'].map((cur) => (
                       <button
                         key={cur}
                         type="button"
-                        class={`ad-currency-btn ${formData.currency === cur ? 'is-active' : ''}`}
+                        className={`ad-currency-btn ${formData.currency === cur ? 'is-active' : ''}`}
                         onClick={() => handleChange('currency', cur)}
                       >
                         {cur}
@@ -245,11 +245,11 @@ export default function VenueSettings({
                 </div>
 
                 <div>
-                  <label class="ad-field-label">WhatsApp / Order Phone</label>
+                  <label className="ad-field-label">WhatsApp / Order Phone</label>
                   <input
                     data-cafe="phone"
                     type="tel"
-                    class="ad-form-input"
+                    className="ad-form-input"
                     placeholder="+251 91 123 4567"
                     value={formData.phone}
                     onChange={(e) => handleChange('phone', e.target.value)}
@@ -924,20 +924,7 @@ export default function VenueSettings({
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span
-                      style={{
-                        fontSize: '0.62rem',
-                        fontWeight: 800,
-                        color: '#c46816',
-                        background: 'rgba(230, 146, 60, 0.12)',
-                        padding: '2px 6px',
-                        borderRadius: '999px',
-                        display: 'inline-block',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      ✨ Chef's Daily Special
-                    </span>
+                    
                     <h5
                       style={{
                         margin: '0 0 2px',

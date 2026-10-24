@@ -56,23 +56,23 @@ export default function AdminAnalyticsRow({ topItems = [], chartData: customChar
   const activePoint = points[hoverIndex] || points[5];
 
   return (
-    <div class="ad-analytics-row">
+    <div className="ad-analytics-row">
       {/* Left: Traffic / Sales Overview */}
-      <div class="ad-panel-card">
-        <div class="ad-card-header">
+      <div className="ad-panel-card">
+        <div className="ad-card-header">
           <div>
-            <h3 class="ad-card-title">Menu Traffic Overview</h3>
-            <p class="ad-card-sub">Daily customer scans &amp; views</p>
+            <h3 className="ad-card-title">Menu Traffic Overview</h3>
+            <p className="ad-card-sub">Daily customer scans &amp; views</p>
           </div>
-          <select class="ad-select-dropdown" aria-label="Select timeframe">
+          <select className="ad-select-dropdown" aria-label="Select timeframe">
             <option>Last 7 days</option>
             <option>Last 30 days</option>
             <option>This Month</option>
           </select>
         </div>
 
-        <div class="ad-chart-container">
-          <svg class="ad-chart-svg" viewBox={`0 0 ${width} ${height}`}>
+        <div className="ad-chart-container">
+          <svg className="ad-chart-svg" viewBox={`0 0 ${width} ${height}`}>
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#10b981" stopOpacity="0.28" />
@@ -131,36 +131,36 @@ export default function AdminAnalyticsRow({ topItems = [], chartData: customChar
       </div>
 
       {/* Right: Top Viewed Items */}
-      <div class="ad-panel-card">
-        <div class="ad-card-header">
+      <div className="ad-panel-card">
+        <div className="ad-card-header">
           <div>
-            <h3 class="ad-card-title">Top Viewed Items</h3>
-            <p class="ad-card-sub">Most explored menu items</p>
+            <h3 className="ad-card-title">Top Viewed Items</h3>
+            <p className="ad-card-sub">Most explored menu items</p>
           </div>
         </div>
 
-        <div class="ad-top-items-list">
+        <div className="ad-top-items-list">
           {rankedItems.map((item, index) => {
             const pct = Math.min(100, Math.round((item.count / (item.max || 50)) * 100));
             return (
-              <div key={item.id || index} class="ad-top-item-row">
+              <div key={item.id || index} className="ad-top-item-row">
                 <img
                   src={item.image || '/images/dishes/classic-beef-burger.jpg'}
                   alt={item.name}
-                  class="ad-top-item-thumb"
+                  className="ad-top-item-thumb"
                   onError={(e) => {
                     e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
                   }}
                 />
-                <div class="ad-top-item-info">
-                  <div class="ad-top-item-name">
+                <div className="ad-top-item-info">
+                  <div className="ad-top-item-name">
                     {index + 1}. {item.name}
                   </div>
-                  <div class="ad-top-item-bar-bg">
-                    <div class="ad-top-item-bar-fill" style={{ width: `${pct}%` }}></div>
+                  <div className="ad-top-item-bar-bg">
+                    <div className="ad-top-item-bar-fill" style={{ width: `${pct}%` }}></div>
                   </div>
                 </div>
-                <span class="ad-top-item-count">{item.count}</span>
+                <span className="ad-top-item-count">{item.count}</span>
               </div>
             );
           })}

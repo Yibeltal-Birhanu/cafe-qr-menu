@@ -73,15 +73,15 @@ export default function TableQrStudio({ cafeName = 'Cafe', cafeSlug = 'abol-cafe
         </style>
       </head>
       <body>
-        <div class="card">
-          <div class="cafe-name">${cafeName}</div>
-          <div class="table-num">TABLE #${selectedTable}</div>
-          <img class="qr-img" src="${qrSrc}" alt="QR code" />
-          <div class="instructions">
+        <div className="card">
+          <div className="cafe-name">${cafeName}</div>
+          <div className="table-num">TABLE #${selectedTable}</div>
+          <img className="qr-img" src="${qrSrc}" alt="QR code" />
+          <div className="instructions">
             <strong>Open Phone Camera</strong><br>
             Point at the QR code to browse our digital menu
           </div>
-          <div class="url-hint">${tableUrl}</div>
+          <div className="url-hint">${tableUrl}</div>
         </div>
         <script>
           window.onload = function() {

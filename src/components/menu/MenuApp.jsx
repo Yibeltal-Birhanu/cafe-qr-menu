@@ -6,11 +6,15 @@ import DishDetailModal from './DishDetailModal.jsx';
 import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
 import MenuHero from './MenuHero.jsx';
+import Preloader from './Preloader.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
 import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
+import { getHeroBannerImage } from '../common/imageUtils.js';
 
 export default function MenuApp() {
+  const [showPreloader, setShowPreloader] = useState(true);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'menu' | 'details'
   const [activeCategory, setActiveCategory] = useState(null); // null or category object
@@ -46,9 +50,9 @@ export default function MenuApp() {
 
   // Determine table number from query params (e.g. ?table=3 or ?table=VIP-1)
   const tableNumber = useMemo(() => {
-    if (typeof window === 'undefined') return '01';
+    if (typeof window === 'undefined') return '';
     const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get('table') || searchParams.get('tbl') || '01';
+    return searchParams.get('table') || searchParams.get('tbl') || '';
   }, []);
 
   // Fetch API menu to keep synced with admin updates
@@ -62,6 +66,7 @@ export default function MenuApp() {
       .then((data) => {
         if (data && data.cafe) {
           setApiMenu(data);
+          setIsDataLoaded(true);
           if (data.cafe.theme) {
             applyThemeToDocument(data.cafe.theme);
           }
@@ -73,12 +78,15 @@ export default function MenuApp() {
           .then((data) => {
             if (data && data.cafe) {
               setApiMenu(data);
+              setIsDataLoaded(true);
               if (data.cafe.theme) {
                 applyThemeToDocument(data.cafe.theme);
               }
             }
           })
-          .catch(() => {});
+          .catch(() => {
+            setIsDataLoaded(true);
+          });
       });
 
     // Count every QR scan / menu view as a real visitor in DB
@@ -101,7 +109,24 @@ export default function MenuApp() {
   }, [apiMenu?.cafe?.theme]);
 
 
-  const cafeName = apiMenu?.cafe?.name || 'CafeMenu';
+  const fallbackCafeName = useMemo(() => {
+    const slug = getActiveCafeSlug();
+    if (!slug || slug === 'abol-cafe') return 'Abol Cafe & Roasters';
+    if (slug === 'sunset-bistro') return 'Sunset Bistro & Grill';
+    if (slug === 'artisan-patisserie') return 'Artisan Pâtisserie';
+    if (slug === 'skyline-lounge') return 'Skyline Lounge';
+    if (slug === 'template-bento') return 'Bento Modern';
+    if (slug === 'template-editorial') return 'The Reserve';
+    if (slug === 'template-rustic') return 'Rustic Hearth';
+    if (slug === 'template-boutique') return 'Salon Boutique';
+    if (slug === 'template-noir') return 'Noir Cyber Lounge';
+    return slug
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }, []);
+
+  const cafeName = apiMenu?.cafe?.name || fallbackCafeName;
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
@@ -138,9 +163,7 @@ export default function MenuApp() {
           fullDescription: item.description || showcaseItem?.fullDescription || '',
           price: Number(item.price) || showcaseItem?.price || 0,
           currency: currency,
-          rating: showcaseItem?.rating || 4.9,
-          reviews: showcaseItem?.reviews || 95,
-          tags: item.badge ? [item.badge, ...(showcaseItem?.tags || [])] : (showcaseItem?.tags || ['Freshly Prepared']),
+          tags: item.badge ? [item.badge] : [],
           subcategory: showcaseItem?.subcategory || 'All',
           isPopular: Boolean(item.badge) || Boolean(showcaseItem?.isPopular),
         };
@@ -306,12 +329,25 @@ export default function MenuApp() {
 
   return (
     <div
-      class={`cm-app cm-app--${currentLayout}`}
+      className={`cm-app cm-app--${currentLayout}`}
       data-theme-layout={currentLayout}
       data-theme-preset={currentPreset}
     >
+      {/* 0. Brand Preloader Screen */}
+      {showPreloader && (
+        <Preloader
+          cafeName={cafeName}
+          tagline={apiMenu?.cafe?.tagline}
+          logo={cafeLogo}
+          theme={apiMenu?.cafe?.theme}
+          tableNumber={tableNumber}
+          isReady={isDataLoaded}
+          onFinish={() => setShowPreloader(false)}
+        />
+      )}
+
       <div
-        class={`cm-viewport cm-viewport--${currentLayout}`}
+        className={`cm-viewport cm-viewport--${currentLayout}`}
         data-theme-layout={currentLayout}
         data-theme-preset={currentPreset}
       >
@@ -349,7 +385,7 @@ export default function MenuApp() {
         />
 
         {/* 3. Main Scrollable Screen Content */}
-        <div class="cm-screen-content">
+        <div className="cm-screen-content">
           {activeTab === 'details' ? (
             <ThankYouView
               cafeName={cafeName}
@@ -370,30 +406,32 @@ export default function MenuApp() {
             /* ================= CATEGORY VIEW ================= */
             <div>
               {/* Category Hero Banner Card */}
-              <div class="cm-category-banner">
+              <div className="cm-category-banner">
                 <img
-                  src={currentCategory.image || currentCategory.bannerImg || '/images/coffee.jpg'}
+                  src={getHeroBannerImage(currentCategory.image || currentCategory.bannerImg || '/images/coffee.jpg')}
+                  loading="lazy"
+                  decoding="async"
                   alt={currentCategory.name}
-                  class="cm-category-banner-bg"
+                  className="cm-category-banner-bg"
                   onError={(e) => {
                     e.currentTarget.src = `/images/${currentCategory.icon || 'coffee'}.jpg`;
                   }}
                 />
-                <div class="cm-category-banner-overlay"></div>
-                <div class="cm-category-banner-text">
-                  <h1 class="cm-category-banner-title">{currentCategory.name}</h1>
-                  <p class="cm-category-banner-sub">{currentCategory.tagline}</p>
+                <div className="cm-category-banner-overlay"></div>
+                <div className="cm-category-banner-text">
+                  <h1 className="cm-category-banner-title">{currentCategory.name}</h1>
+                  <p className="cm-category-banner-sub">{currentCategory.tagline}</p>
                 </div>
               </div>
 
               {/* Subcategory Pills */}
               {currentCategory.subcategories && (
-                <div class="cm-subcategories" role="tablist">
+                <div className="cm-subcategories" role="tablist">
                   {currentCategory.subcategories.map((sub) => (
                     <button
                       key={sub}
                       type="button"
-                      class={`cm-sub-pill ${activeSubcategory === sub ? 'is-active' : ''}`}
+                      className={`cm-sub-pill ${activeSubcategory === sub ? 'is-active' : ''}`}
                       onClick={() => setActiveSubcategory(sub)}
                     >
                       {sub}
@@ -403,7 +441,7 @@ export default function MenuApp() {
               )}
 
               {/* Dish List for this Category */}
-              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
+              <div className={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish) => (
                     <DishListItem
@@ -436,15 +474,15 @@ export default function MenuApp() {
               />
 
               {/* Search Bar */}
-              <div class="cm-search-container">
-                <div class="cm-search-box">
+              <div className="cm-search-container">
+                <div className="cm-search-box">
                   <span style={{ color: '#9ca3af', display: 'inline-flex' }}>
                     <SearchIcon size={16} />
                   </span>
                   <input
                     ref={searchInputRef}
                     type="search"
-                    class="cm-search-input"
+                    className="cm-search-input"
                     placeholder="Search menu items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -463,10 +501,10 @@ export default function MenuApp() {
               </div>
 
               {/* Horizontal Category Filter Pills */}
-              <div class="cm-category-pills" role="tablist" aria-label="Menu categories">
+              <div className="cm-category-pills" role="tablist" aria-label="Menu categories">
                 <button
                   type="button"
-                  class={`cm-pill ${!currentCategory && !searchQuery ? 'is-active' : ''}`}
+                  className={`cm-pill ${!currentCategory && !searchQuery ? 'is-active' : ''}`}
                   onClick={() => {
                     setActiveCategory(null);
                     setSearchQuery('');
@@ -478,7 +516,7 @@ export default function MenuApp() {
                   <button
                     key={cat.id}
                     type="button"
-                    class={`cm-pill ${currentCategory?.id === cat.id ? 'is-active' : ''}`}
+                    className={`cm-pill ${currentCategory?.id === cat.id ? 'is-active' : ''}`}
                     onClick={() => handleSelectCategory(cat)}
                   >
                     {(cat.image || cat.bannerImg) && (
@@ -505,13 +543,13 @@ export default function MenuApp() {
               </div>
 
               {/* Menu Items Section Head */}
-              <div class="cm-section-head">
-                <h3 class="cm-section-title">
+              <div className="cm-section-head">
+                <h3 className="cm-section-title">
                   {searchQuery ? `Search Results (${displayedItems.length})` : 'All Foods'}
                 </h3>
                 {!searchQuery && displayedItems.length > 0 && (
                   <span
-                    class="cm-section-link"
+                    className="cm-section-link"
                     style={{ cursor: 'default' }}
                   >
                     {displayedItems.length} {displayedItems.length === 1 ? 'item' : 'items'}
@@ -520,7 +558,7 @@ export default function MenuApp() {
               </div>
 
               {/* Dish List */}
-              <div class={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
+              <div className={`cm-dish-list cm-dish-list--${currentLayout}`} data-layout={currentLayout}>
                 {displayedItems.length > 0 ? (
                   displayedItems.map((dish, index) => (
                     <DishListItem
@@ -568,7 +606,7 @@ export default function MenuApp() {
 
         {/* 6. Toast Notification */}
         <div
-          class={`cm-toast ${toastMessage ? 'is-visible' : ''}`}
+          className={`cm-toast ${toastMessage ? 'is-visible' : ''}`}
           role="status"
           aria-live="polite"
         >

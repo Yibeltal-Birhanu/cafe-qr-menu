@@ -11,3 +11,4 @@ data/cloudinary-map.json
 Thumbs.db
 *.log
 agents.md
+public/uploads/

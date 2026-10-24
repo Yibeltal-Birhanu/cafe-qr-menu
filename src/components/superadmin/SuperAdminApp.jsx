@@ -1372,7 +1372,7 @@ export default function SuperAdminApp() {
               desc: 'Delicate crisp pastry filled with light Sicilian pistachio cream, infused with organic damask rose water.',
               price: '190 ETB',
               prepTime: '5 min',
-              badge: 'Fresh Baked ✨',
+              badge: 'Fresh Baked',
               image: '/images/dishes/tiramisu.jpg',
               category: 'Desserts',
             },
@@ -1767,7 +1767,7 @@ export default function SuperAdminApp() {
                           {activeLayout === 'editorial' && (
                             <div style={{ background: '#fbfaf8', border: `1.5px solid ${secondaryCol}`, borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
                               <div style={{ fontSize: '0.65rem', letterSpacing: '0.12em', color: secondaryCol, fontWeight: 800 }}>
-                                ✦ RESERVE GASTRONOMIQUE ✦
+                                RESERVE TASTING MENU
                               </div>
                               <h3 style={{ margin: '4px 0', fontFamily: 'serif', fontSize: '1.15rem', color: primaryCol, fontWeight: 800 }}>
                                 Curated Tasting Menu
@@ -1796,7 +1796,7 @@ export default function SuperAdminApp() {
                           {activeLayout === 'boutique' && (
                             <div style={{ background: '#fdf2f8', border: `1.5px solid ${primaryCol}40`, borderRadius: '14px', padding: '12px 14px' }}>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: primaryCol }}>
-                                ✨ MAISON DE DÉLICES
+                                ARTISAN BAKES & PATISSERIE
                               </div>
                               <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
                                 Parisian Bakes &amp; Patisserie
@@ -1810,13 +1810,13 @@ export default function SuperAdminApp() {
                           {activeLayout === 'noir' && (
                             <div style={{ background: '#0f172a', border: `1.5px solid ${primaryCol}`, borderRadius: '12px', padding: '12px 14px', color: '#ffffff' }}>
                               <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: primaryCol, fontWeight: 700 }}>
-                                [SYS: CYBER_LOUNGE // ACTIVE]
+                                EVENING LOUNGE & BEVERAGES
                               </div>
                               <h3 style={{ margin: '3px 0', fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>
-                                NEON NIGHTS &amp; MIXOLOGY
+                                SIGNATURE COCKTAILS & DINING
                               </h3>
                               <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
-                                Late-night ambient fusion soundscapes.
+                                Handcrafted cocktails and evening dining.
                               </div>
                             </div>
                           )}
@@ -1824,10 +1824,10 @@ export default function SuperAdminApp() {
                           {activeLayout === 'minimal' && (
                             <div style={{ background: '#f8fafc', border: `1px solid ${secondaryCol}40`, borderRadius: '12px', padding: '12px 14px' }}>
                               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: accentCol, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                                NORDIC BOTANICAL &bull; ORGANIC
+                                SEASONAL KITCHEN &amp; COFFEE
                               </div>
                               <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 800, color: primaryCol }}>
-                                Pure, Minimalist &amp; Honest
+                                Fresh &amp; Thoughtfully Sourced
                               </h3>
                               <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
                                 Clean stone-ground grains &amp; single origins.
@@ -1838,7 +1838,7 @@ export default function SuperAdminApp() {
                           {activeLayout === 'bento' && (
                             <div style={{ background: '#faf5ff', border: `1.5px solid ${primaryCol}30`, borderRadius: '14px', padding: '12px 14px' }}>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: accentCol }}>
-                                ✨ CHEF'S DAILY SPECIAL
+                                FEATURED SPECIALTIES
                               </div>
                               <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 900, color: primaryCol }}>
                                 Fresh Flavors Every Day

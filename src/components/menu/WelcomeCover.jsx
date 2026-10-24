@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon, StarIcon } from '../common/Icons.jsx';
+import { CoffeeIcon, PizzaIcon, CakeIcon, FlameIcon, ArrowRightIcon } from '../common/Icons.jsx';
 
 export default function WelcomeCover({
   cafeName = 'CafeMenu',
@@ -34,39 +34,39 @@ export default function WelcomeCover({
 
   const layoutContent = {
     editorial: {
-      badge: 'HAUTE CUISINE & RESERVE',
-      title: "L'Édition Gastronomique",
-      sub: 'An exquisite gastronomic experience featuring curated dishes and reserve selections.',
-      btnText: 'Explore the Collection',
+      badge: 'RESERVE & TASTING MENU',
+      title: 'Seasonal Reserve Menu',
+      sub: 'An exquisite culinary experience featuring curated dishes and reserve selections.',
+      btnText: 'View Selections',
     },
     rustic: {
-      badge: 'WOOD-FIRED HEARTH & GRILL',
-      title: 'Wood-Fired. Crafted by Flame.',
-      sub: 'Smoked cuts, stone-baked sourdough pizzas, and open-flame comfort food.',
-      btnText: 'Enter Hearth & Menu 🔥',
+      badge: 'WOOD-FIRED KITCHEN & GRILL',
+      title: 'Wood-Fired Specialties & Grill',
+      sub: 'Stone-baked pizzas, flame-grilled specialties, and fresh comfort food.',
+      btnText: 'Explore Menu',
     },
     boutique: {
-      badge: 'PATISSERIE & SALON DE THÉ',
-      title: 'Sweet Delicacies & Bakes',
-      sub: 'Freshly laminated viennoiserie, strawberry cream choux, and fine artisanal teas.',
-      btnText: 'Discover Our Delicacies ✨',
+      badge: 'PATISSERIE & SPECIALTY COFFEE',
+      title: 'Fresh Bakes & Specialty Coffee',
+      sub: 'Freshly baked viennoiserie, delicate pastries, and artisan coffee.',
+      btnText: 'Explore Delicacies',
     },
     noir: {
-      badge: 'CYBER LOUNGE & COCKTAIL BAR',
-      title: 'Neon Nights & Craft Mixology',
-      sub: 'Ultra-modern craft beverages, fusion bites, and ambient late-night lounge.',
-      btnText: 'Access Lounge Menu ⚡',
+      badge: 'EVENING LOUNGE & COCKTAILS',
+      title: 'Signature Beverages & Small Plates',
+      sub: 'Craft beverages, late-night bites, and relaxed evening dining.',
+      btnText: 'View Lounge Menu',
     },
     bento: {
       badge: 'DIGITAL QR MENU',
       title: 'Scan. Browse. Enjoy.',
-      sub: 'Explore our curated selections crafted fresh for your table.',
+      sub: 'Explore our full selection of dishes and beverages freshly prepared for your table.',
       btnText: 'View Menu',
     },
   }[layout] || {
     badge: 'DIGITAL QR MENU',
     title: 'Scan. Browse. Enjoy.',
-    sub: 'Explore our curated selections crafted fresh for your table.',
+    sub: 'Explore our full selection of dishes and beverages freshly prepared for your table.',
     btnText: 'View Menu',
   };
 
@@ -86,26 +86,26 @@ export default function WelcomeCover({
 
   return (
     <div
-      class={`cm-welcome-screen cm-welcome-screen--${layout}`}
+      className={`cm-welcome-screen cm-welcome-screen--${layout}`}
       data-theme-layout={layout}
       role="region"
       aria-label="Welcome screen"
       style={bgStyle}
     >
       {/* Brand Header */}
-      <div class="cm-welcome-header">
+      <div className="cm-welcome-header">
         <span
-          class="cm-welcome-logo"
+          className="cm-welcome-logo"
           aria-hidden="true"
           style={{ color: theme?.accentColor || theme?.primaryColor || '#ffffff' }}
         >
           {renderLogo()}
         </span>
-        <div class="cm-welcome-badge-pill">
+        <div className="cm-welcome-badge-pill">
           {layoutContent.badge}
         </div>
         <h1
-          class="cm-welcome-brand"
+          className="cm-welcome-brand"
           style={{
             fontFamily: layout === 'editorial' || theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
           }}
@@ -113,7 +113,7 @@ export default function WelcomeCover({
           {cafeName}
         </h1>
         <span
-          class="cm-welcome-tagline"
+          className="cm-welcome-tagline"
           style={{ color: theme?.accentColor || 'rgba(255, 255, 255, 0.8)' }}
         >
           {tagline}
@@ -121,19 +121,19 @@ export default function WelcomeCover({
       </div>
 
       {/* Hero Welcome Message */}
-      <div class="cm-welcome-body">
+      <div className="cm-welcome-body">
         <h2
-          class="cm-welcome-title"
+          className="cm-welcome-title"
           style={{
             fontFamily: layout === 'editorial' || theme?.fontFamily === 'Playfair Display' ? '"Playfair Display", Georgia, serif' : undefined,
           }}
         >
           {layoutContent.title}
         </h2>
-        <p class="cm-welcome-sub">{layoutContent.sub}</p>
+        <p className="cm-welcome-sub">{layoutContent.sub}</p>
         <button
           type="button"
-          class={`cm-welcome-btn cm-welcome-btn--${layout}`}
+          className={`cm-welcome-btn cm-welcome-btn--${layout}`}
           onClick={onStart}
           aria-label={layoutContent.btnText}
           style={btnStyle}

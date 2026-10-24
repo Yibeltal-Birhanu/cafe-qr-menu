@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ShieldIcon, KeyIcon } from '../admin/AdminIcons.jsx';
+import { ShieldIcon } from '../admin/AdminIcons.jsx';
 
 export default function SuperAdminLogin({ onLogin }) {
-  const [loginMode, setLoginMode] = useState('email'); // 'email' | 'master'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -12,22 +11,14 @@ export default function SuperAdminLogin({ onLogin }) {
     e.preventDefault();
     setError(null);
 
-    if (loginMode === 'email' && !email.trim()) {
-      setError('Please enter your Super Admin email address.');
-      return;
-    }
-    if (!password) {
-      setError('Please enter your password.');
+    if (!email.trim() || !password) {
+      setError('Please enter your email address and password.');
       return;
     }
 
     setLoading(true);
     try {
-      if (loginMode === 'email') {
-        await onLogin({ email: email.trim(), password });
-      } else {
-        await onLogin({ password });
-      }
+      await onLogin({ email: email.trim(), password });
     } catch (err) {
       setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
@@ -48,7 +39,7 @@ export default function SuperAdminLogin({ onLogin }) {
       <div
         style={{
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '400px',
           background: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: '20px',
@@ -57,7 +48,7 @@ export default function SuperAdminLogin({ onLogin }) {
         }}
       >
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.8rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div
             style={{
               width: '48px',
@@ -74,104 +65,54 @@ export default function SuperAdminLogin({ onLogin }) {
           >
             <ShieldIcon size={24} />
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
-            Super Admin Console
+          <h1 style={{ margin: '0 0 0.4rem', fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            Super Admin Portal
           </h1>
-          <p style={{ margin: '6px 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-            Executive multi-tenant platform administration
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.45 }}>
+            Sign in to manage cafes, managers &amp; platform settings
           </p>
-        </div>
-
-        {/* Mode Selector Tabs */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '6px',
-          background: '#f1f5f9',
-          padding: '4px',
-          borderRadius: '12px',
-          marginBottom: '1.5rem',
-        }}>
-          <button
-            type="button"
-            onClick={() => { setLoginMode('email'); setError(null); }}
-            style={{
-              padding: '0.55rem',
-              border: 'none',
-              borderRadius: '9px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              background: loginMode === 'email' ? '#ffffff' : 'transparent',
-              color: loginMode === 'email' ? '#0f172a' : '#64748b',
-              boxShadow: loginMode === 'email' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            Better Auth Email
-          </button>
-          <button
-            type="button"
-            onClick={() => { setLoginMode('master'); setError(null); }}
-            style={{
-              padding: '0.55rem',
-              border: 'none',
-              borderRadius: '9px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              background: loginMode === 'master' ? '#ffffff' : 'transparent',
-              color: loginMode === 'master' ? '#0f172a' : '#64748b',
-              boxShadow: loginMode === 'master' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            Master Key
-          </button>
         </div>
 
         {/* Clean Form */}
         <form onSubmit={handleSubmit} autoComplete="on">
-          {loginMode === 'email' && (
-            <div style={{ marginBottom: '1.1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                Executive Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                autoComplete="username"
-                placeholder="superadmin@cafemenu.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 0.95rem',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#0f172a',
-                  fontSize: '0.92rem',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#2563eb';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#cbd5e1';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-          )}
+          <div style={{ marginBottom: '1.1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="username"
+              placeholder="admin@cafemenu.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 0.95rem',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#0f172a',
+                fontSize: '0.92rem',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#2563eb';
+                e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#cbd5e1';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-              {loginMode === 'email' ? 'Account Password' : 'Master Admin Password'}
+              Password
             </label>
             <input
               type="password"
@@ -239,7 +180,7 @@ export default function SuperAdminLogin({ onLogin }) {
               transition: 'background 0.15s ease, transform 0.1s ease',
             }}
           >
-            {loading ? 'Authenticating...' : loginMode === 'email' ? 'Sign In to Console' : 'Authenticate with Master Key'}
+            {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
 

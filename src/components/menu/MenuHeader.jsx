@@ -8,7 +8,7 @@ export default function MenuHeader({
   onTabChange = null,
   onBack = null,
   onSearchClick = null,
-  tableNumber = '04',
+  tableNumber = '',
   logo = 'coffee',
   theme = null,
 }) {
@@ -35,57 +35,43 @@ export default function MenuHeader({
     }
   };
 
-  const getTableBadgeLabel = () => {
-    switch (layout) {
-      case 'editorial':
-        return `RESERVE • TABLE ${tableNumber}`;
-      case 'rustic':
-        return `HEARTH #${tableNumber}`;
-      case 'boutique':
-        return `SALON #${tableNumber}`;
-      case 'noir':
-        return `BOOTH // ${tableNumber}`;
-      default:
-        return `Table ${tableNumber}`;
-    }
-  };
-
   return (
     <>
       {activeCategory ? (
         /* Category View Header: < [Category Name] [Search] */
-        <header class={`cm-category-nav-header cm-category-nav-header--${layout}`}>
+        <header className={`cm-category-nav-header cm-category-nav-header--${layout}`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <button
               type="button"
-              class="cm-icon-btn"
+              className="cm-icon-btn"
               onClick={onBack}
               aria-label="Back to home"
             >
               <ChevronLeftIcon size={22} />
             </button>
-            <h2 class="cm-category-nav-title">{activeCategory.name}</h2>
+            <h2 className="cm-category-nav-title">{activeCategory.name}</h2>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {/* Desktop Navigation Links */}
-            <nav class="cm-desktop-nav" aria-label="Desktop Navigation">
+            <nav className="cm-desktop-nav" aria-label="Desktop Navigation">
               <button
                 type="button"
-                class="cm-desktop-nav-link"
+                className="cm-desktop-nav-link"
                 onClick={onBack}
               >
                 Home
               </button>
               <button
                 type="button"
-                class="cm-desktop-nav-link is-active"
+                className="cm-desktop-nav-link is-active"
+                onClick={() => onTabChange && onTabChange('menu')}
               >
-                Menu
+                Full Menu
               </button>
               <button
                 type="button"
-                class="cm-desktop-nav-link"
+                className="cm-desktop-nav-link"
                 onClick={() => onTabChange && onTabChange('details')}
               >
                 Details &amp; Wi-Fi
@@ -94,33 +80,33 @@ export default function MenuHeader({
 
             <button
               type="button"
-              class="cm-icon-btn"
+              className="cm-icon-btn"
               onClick={onSearchClick}
-              aria-label="Search category"
+              aria-label="Search items"
             >
-              <SearchIcon size={18} />
+              <SearchIcon size={20} />
             </button>
           </div>
         </header>
       ) : (
         /* Home Header: Logo + CafeMenu + Table / Badge + Desktop Nav */
-        <header class={`cm-header cm-header--${layout}`}>
-          <div class="cm-brand-group">
+        <header className={`cm-header cm-header--${layout}`}>
+          <div className="cm-brand-group">
             <span
-              class="cm-welcome-logo"
+              className="cm-welcome-logo"
               style={{ color: theme?.primaryColor || 'var(--cm-amber)' }}
               aria-hidden="true"
             >
               {renderLogo()}
             </span>
-            <span class="cm-brand-name" id="cafeName">{cafeName}</span>
+            <span className="cm-brand-name" id="cafeName">{cafeName}</span>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav class="cm-desktop-nav" aria-label="Desktop Navigation">
+          <nav className="cm-desktop-nav" aria-label="Desktop Navigation">
             <button
               type="button"
-              class={`cm-desktop-nav-link ${activeTab === 'home' ? 'is-active' : ''}`}
+              className={`cm-desktop-nav-link ${activeTab === 'home' ? 'is-active' : ''}`}
               onClick={() => {
                 if (onBack) onBack();
                 if (onTabChange) onTabChange('home');
@@ -130,31 +116,33 @@ export default function MenuHeader({
             </button>
             <button
               type="button"
-              class={`cm-desktop-nav-link ${activeTab === 'menu' ? 'is-active' : ''}`}
+              className={`cm-desktop-nav-link ${activeTab === 'menu' ? 'is-active' : ''}`}
               onClick={() => onTabChange && onTabChange('menu')}
             >
               Full Menu
             </button>
             <button
               type="button"
-              class={`cm-desktop-nav-link ${activeTab === 'details' ? 'is-active' : ''}`}
+              className={`cm-desktop-nav-link ${activeTab === 'details' ? 'is-active' : ''}`}
               onClick={() => onTabChange && onTabChange('details')}
             >
               Details &amp; Wi-Fi
             </button>
           </nav>
 
-          <div class="cm-header-actions">
+          <div className="cm-header-actions">
             {/* Digital Menu View Badge for test compliance and customer clarity */}
-            <div class="menu-view-badge" id="menuViewBadge" style={{ margin: 0 }}>
-              <span class="badge-dot"></span>
+            <div className="menu-view-badge" id="menuViewBadge" style={{ margin: 0 }}>
+              <span className="badge-dot"></span>
               <span id="menuViewBadgeText">Digital Menu</span>
             </div>
 
-            <div class={`cm-table-badge cm-table-badge--${layout}`} title="Table number">
-              <span class="cm-badge-dot"></span>
-              <span>{getTableBadgeLabel()}</span>
-            </div>
+            {tableNumber ? (
+              <div className={`cm-table-badge cm-table-badge--${layout}`} title={`Table ${tableNumber}`}>
+                <span className="cm-badge-dot"></span>
+                <span>Table #{tableNumber}</span>
+              </div>
+            ) : null}
           </div>
         </header>
       )}

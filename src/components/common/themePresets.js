@@ -22,83 +22,83 @@ export const THEME_PRESETS = [
     textColor: '#111827',
     primaryColor: '#1c2826',     // 1st color (Brand Primary / Buttons / Titles)
     secondaryColor: '#64748b',   // 2nd color (Borders / Sub-Pills / Frames)
-    accentColor: '#e6923c',      // 3rd color (Prices / Stars / Highlights)
+    accentColor: '#e6923c',      // 3rd color (Prices / Highlights)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'emerald',
     layout: 'editorial',
-    name: 'Haute Cuisine Editorial (White & Gold)',
+    name: 'Editorial Reserve (White & Gold)',
     archetype: 'Fine Dining, Rooftops & Wine Lounges',
     cardStyle: 'Magazine Split Cards with Serif Typography',
     navStyle: 'Minimalist Centered Serif Header with Gold Hairlines',
-    landingStyle: 'Grand Haute Cuisine Editorial Cover',
-    tagline: 'Clean white canvas, deep emerald typography, gold hairline framing & champagne tags.',
+    landingStyle: 'Editorial Reserve Cover',
+    tagline: 'Clean white canvas, deep emerald typography, gold hairline framing & warm amber tags.',
     previewColors: ['#ffffff', '#064e3b', '#92400e', '#d97706'],
     backgroundColor: '#ffffff',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
     textColor: '#111827',
     primaryColor: '#064e3b',     // 1st color (Haute Emerald)
-    secondaryColor: '#92400e',   // 2nd color (Gold Hairline / Crests)
-    accentColor: '#d97706',      // 3rd color (Champagne Tasting Badges & Prices)
+    secondaryColor: '#92400e',   // 2nd color (Gold Hairline / Borders)
+    accentColor: '#d97706',      // 3rd color (Amber Highlights & Prices)
     fontFamily: 'Playfair Display',
   },
   {
     id: 'terracotta',
     layout: 'rustic',
-    name: 'Wood-Fired Rustic Hearth (White & Flame)',
-    archetype: 'Pizzerias, Smash Burgers & Steakhouses',
-    cardStyle: 'Bold Hearth Cards with Flame Badges & Tactile Borders',
-    navStyle: 'Sturdy Bistro Header with Fire Badges & Stamp Tags',
-    landingStyle: 'Glowing Embers & Wood-Fired Hearth Cover',
-    tagline: 'Clean white canvas, bold flame orange buttons, charred clay borders & ember gold tags.',
+    name: 'Wood-Fired Hearth (White & Terracotta)',
+    archetype: 'Pizzerias, Smash Burgers & Grills',
+    cardStyle: 'Bold Cards with Flame Badges & Clean Borders',
+    navStyle: 'Sturdy Bistro Header with Stamp Tags',
+    landingStyle: 'Wood-Fired Kitchen Cover',
+    tagline: 'Clean white canvas, warm terracotta buttons, clay borders & amber accents.',
     previewColors: ['#ffffff', '#ea580c', '#7c2d12', '#f59e0b'],
     backgroundColor: '#ffffff',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
     textColor: '#111827',
-    primaryColor: '#ea580c',     // 1st color (Flame Orange)
-    secondaryColor: '#7c2d12',   // 2nd color (Charred Clay / Terracotta Borders)
-    accentColor: '#f59e0b',      // 3rd color (Ember Gold Price Tags & Stars)
+    primaryColor: '#ea580c',     // 1st color (Flame Terracotta)
+    secondaryColor: '#7c2d12',   // 2nd color (Charred Clay Borders)
+    accentColor: '#f59e0b',      // 3rd color (Amber Price Tags)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'pastel',
     layout: 'boutique',
-    name: 'Parisian Patisserie (White & Rose)',
-    archetype: 'Bakeries, Confectioneries & Brunch Tea Rooms',
-    cardStyle: 'Soft Rounded Pill Cards with Delicate Rose Badges',
-    navStyle: 'Boutique Blush Header with Sweet Confectionery Branding',
-    landingStyle: 'Pastel Vignette & French Patisserie Cover',
-    tagline: 'Clean white canvas, blush rose branding, velvet petal borders & sweet mint tags.',
+    name: 'Artisan Patisserie (White & Rose)',
+    archetype: 'Bakeries, Confectioneries & Brunch Cafes',
+    cardStyle: 'Soft Rounded Cards with Rose Badges',
+    navStyle: 'Boutique Header with Clean Branding',
+    landingStyle: 'Artisan Patisserie Cover',
+    tagline: 'Clean white canvas, blush rose branding, velvet mauve borders & mint accents.',
     previewColors: ['#ffffff', '#db2777', '#831843', '#059669'],
     backgroundColor: '#ffffff',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
     textColor: '#111827',
     primaryColor: '#db2777',     // 1st color (Blush Rose)
-    secondaryColor: '#831843',   // 2nd color (Velvet Mauve Borders & Rings)
-    accentColor: '#059669',      // 3rd color (Mint Pistachio & Sweet Tags)
+    secondaryColor: '#831843',   // 2nd color (Velvet Mauve Borders)
+    accentColor: '#059669',      // 3rd color (Mint Green Highlights)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
     id: 'neon-noir',
     layout: 'noir',
-    name: 'Tokyo Neon Tech (White & Cyan)',
-    archetype: 'Cocktail Lounges, Cyber Cafes & Late-Night Bars',
-    cardStyle: 'Glassmorphic Clean Cards with Glowing Cyan Edges',
-    navStyle: 'Cyberpunk Luminous App Bar with Neon Cyan Badges',
-    landingStyle: 'Tokyo Midnight Skyline & Neon Hologram Cover',
-    tagline: 'Clean white canvas, electric cyan cyber borders, neon violet accents & digital teal HUD.',
+    name: 'Evening Lounge & Cyan (White & Teal)',
+    archetype: 'Cocktail Lounges, Rooftops & Evening Dining',
+    cardStyle: 'Clean Modern Cards with Cyan Accents',
+    navStyle: 'Modern Lounge App Bar with Cyan Badges',
+    landingStyle: 'Evening Lounge & Signature Drinks Cover',
+    tagline: 'Clean white canvas, ocean cyan buttons, violet accents & teal highlights.',
     previewColors: ['#ffffff', '#0891b2', '#7c3aed', '#0d9488'],
     backgroundColor: '#ffffff',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
     textColor: '#0f172a',
-    primaryColor: '#0891b2',     // 1st color (Electric Cyan)
-    secondaryColor: '#7c3aed',   // 2nd color (Neon Violet Scanlines & Accents)
-    accentColor: '#0d9488',      // 3rd color (Digital Teal HUD Price Chips)
+    primaryColor: '#0891b2',     // 1st color (Ocean Cyan)
+    secondaryColor: '#7c3aed',   // 2nd color (Violet Accents)
+    accentColor: '#0d9488',      // 3rd color (Teal Price Chips)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
@@ -124,10 +124,10 @@ export const THEME_PRESETS = [
     id: 'minimalist',
     layout: 'minimal',
     name: 'Scandinavian Minimalist (Pure White & Sage)',
-    archetype: 'High-Concept Cafes & Concept Bakeries',
+    archetype: 'Specialty Cafes & Modern Kitchens',
     cardStyle: 'Ultra-Clean Borderless List with Subtle Sage Dividers',
     navStyle: 'Typography-First Floating Header with Minimal Sans Badges',
-    landingStyle: 'Whitespace-Driven Nordic Botanical Cover',
+    landingStyle: 'Minimalist Dining Cover',
     tagline: 'Pure white canvas, deep charcoal typography, cool slate framing & calm sage accents.',
     previewColors: ['#ffffff', '#0f172a', '#94a3b8', '#059669'],
     backgroundColor: '#ffffff',

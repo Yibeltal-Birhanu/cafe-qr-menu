@@ -178,24 +178,24 @@ export default function AdminDishModal({
 
   return (
     <div
-      class="ad-modal-backdrop"
+      className="ad-modal-backdrop"
       role="dialog"
       aria-modal="true"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div class="ad-dish-modal-box">
+      <div className="ad-dish-modal-box">
         {/* Header */}
-        <div class="ad-modal-header-row">
+        <div className="ad-modal-header-row">
           <div>
-            <h3 class="ad-modal-heading">
+            <h3 className="ad-modal-heading">
               {mode === 'addDish' && 'Add New Menu Item'}
               {mode === 'editDish' && 'Edit Menu Item'}
               {mode === 'addCategory' && 'Add New Category'}
               {mode === 'editCategory' && 'Edit Category'}
             </h3>
-            <p class="ad-modal-subheading">
+            <p className="ad-modal-subheading">
               {isDishMode
                 ? 'Fill in the item details to publish or update on your live digital menu.'
                 : 'Configure the category name and icon for your digital menu sections.'}
@@ -203,7 +203,7 @@ export default function AdminDishModal({
           </div>
           <button
             type="button"
-            class="ad-modal-close-btn"
+            className="ad-modal-close-btn"
             onClick={onClose}
             aria-label="Close"
           >
@@ -220,14 +220,14 @@ export default function AdminDishModal({
         <form onSubmit={handleSubmit}>
           {isDishMode ? (
             /* ================= 2-COLUMN DISH FORM ================= */
-            <div class="ad-form-split-layout">
+            <div className="ad-form-split-layout">
               {/* Left Column: Form Fields */}
-              <div class="ad-form-col">
+              <div className="ad-form-col">
                 <div>
-                  <label class="ad-field-label">Item Name *</label>
+                  <label className="ad-field-label">Item Name *</label>
                   <input
                     type="text"
-                    class="ad-form-input"
+                    className="ad-form-input"
                     placeholder="e.g. Special Beef Tibs"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -237,9 +237,9 @@ export default function AdminDishModal({
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label class="ad-field-label">Category *</label>
+                    <label className="ad-field-label">Category *</label>
                     <select
-                      class="ad-form-input"
+                      className="ad-form-input"
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
                     >
@@ -256,10 +256,10 @@ export default function AdminDishModal({
                   </div>
 
                   <div>
-                    <label class="ad-field-label">Price (ETB) *</label>
+                    <label className="ad-field-label">Price (ETB) *</label>
                     <input
                       type="number"
-                      class="ad-form-input"
+                      className="ad-form-input"
                       placeholder="e.g. 450"
                       min="0"
                       step="any"
@@ -271,9 +271,9 @@ export default function AdminDishModal({
                 </div>
 
                 <div>
-                  <label class="ad-field-label">Description</label>
+                  <label className="ad-field-label">Description</label>
                   <textarea
-                    class="ad-form-input ad-form-textarea"
+                    className="ad-form-input ad-form-textarea"
                     placeholder="Describe the flavors, ingredients, and preparation..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -282,13 +282,13 @@ export default function AdminDishModal({
 
                 {/* Dietary Tags Pill Selector */}
                 <div>
-                  <label class="ad-field-label">Tags &amp; Badges</label>
-                  <div class="ad-tags-picker">
+                  <label className="ad-field-label">Tags &amp; Badges</label>
+                  <div className="ad-tags-picker">
                     {TAG_OPTIONS.map((tag) => (
                       <button
                         key={tag}
                         type="button"
-                        class={`ad-tag-pill ${selectedTags.includes(tag) ? 'is-active' : ''}`}
+                        className={`ad-tag-pill ${selectedTags.includes(tag) ? 'is-active' : ''}`}
                         onClick={() => toggleTag(tag)}
                       >
                         {tag}
@@ -300,7 +300,7 @@ export default function AdminDishModal({
                 {/* Photo Presets & URL & Cloudinary Upload */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                    <label class="ad-field-label" style={{ margin: 0 }}>Food Photography</label>
+                    <label className="ad-field-label" style={{ margin: 0 }}>Food Photography</label>
                     {uploadProvider && (
                       <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600 }}>
                         {uploadProvider === 'cloudinary' ? '✓ Uploaded to Cloudinary' : '✓ Image Uploaded'}
@@ -319,7 +319,7 @@ export default function AdminDishModal({
                     />
                     <button
                       type="button"
-                      class="ad-btn-action-primary"
+                      className="ad-btn-action-primary"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -343,12 +343,12 @@ export default function AdminDishModal({
                     </span>
                   </div>
 
-                  <div class="ad-photo-presets-grid">
+                  <div className="ad-photo-presets-grid">
                     {PHOTO_PRESETS.map((preset) => (
                       <button
                         key={preset.path}
                         type="button"
-                        class={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
+                        className={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
                         onClick={() => {
                           setImage(preset.path);
                           setUploadProvider(null);
@@ -362,7 +362,7 @@ export default function AdminDishModal({
                   <div style={{ marginTop: '0.6rem' }}>
                     <input
                       type="text"
-                      class="ad-form-input"
+                      className="ad-form-input"
                       style={{ fontSize: '0.8rem', padding: '0.45rem 0.8rem' }}
                       placeholder="Or enter custom image / Cloudinary URL: https://res.cloudinary.com/..."
                       value={image}
@@ -373,9 +373,9 @@ export default function AdminDishModal({
               </div>
 
               {/* Right Column: Live Menu Card Preview */}
-              <div class="ad-form-col">
-                <div class="ad-live-preview-box">
-                  <span class="ad-live-preview-title">Live Customer Card Preview</span>
+              <div className="ad-form-col">
+                <div className="ad-live-preview-box">
+                  <span className="ad-live-preview-title">Live Customer Card Preview</span>
 
                   {/* Customer Card Simulator */}
                   <div
@@ -470,14 +470,14 @@ export default function AdminDishModal({
             </div>
           ) : (
             /* ================= 2-COLUMN CATEGORY FORM ================= */
-            <div class="ad-form-split-layout">
+            <div className="ad-form-split-layout">
               {/* Left Column: Form Fields */}
-              <div class="ad-form-col">
+              <div className="ad-form-col">
                 <div>
-                  <label class="ad-field-label">Category Name *</label>
+                  <label className="ad-field-label">Category Name *</label>
                   <input
                     type="text"
-                    class="ad-form-input"
+                    className="ad-form-input"
                     placeholder="e.g. Traditional Specialties"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -486,9 +486,9 @@ export default function AdminDishModal({
                 </div>
 
                 <div>
-                  <label class="ad-field-label">Category Icon</label>
+                  <label className="ad-field-label">Category Icon</label>
                   <select
-                    class="ad-form-input"
+                    className="ad-form-input"
                     value={icon}
                     onChange={(e) => setIcon(e.target.value)}
                   >
@@ -503,9 +503,9 @@ export default function AdminDishModal({
                 </div>
 
                 <div>
-                  <label class="ad-field-label">Description (Optional)</label>
+                  <label className="ad-field-label">Description (Optional)</label>
                   <textarea
-                    class="ad-form-input ad-form-textarea"
+                    className="ad-form-input ad-form-textarea"
                     placeholder="Brief description or highlight for this section..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -516,7 +516,7 @@ export default function AdminDishModal({
                 {/* Category Cover Image & Cloudinary Upload */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                    <label class="ad-field-label" style={{ margin: 0 }}>Category Cover Photography</label>
+                    <label className="ad-field-label" style={{ margin: 0 }}>Category Cover Photography</label>
                     {uploadProvider && (
                       <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600 }}>
                         {uploadProvider === 'cloudinary' ? '✓ Uploaded to Cloudinary' : '✓ Image Uploaded'}
@@ -535,7 +535,7 @@ export default function AdminDishModal({
                     />
                     <button
                       type="button"
-                      class="ad-btn-action-primary"
+                      className="ad-btn-action-primary"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -559,12 +559,12 @@ export default function AdminDishModal({
                     </span>
                   </div>
 
-                  <div class="ad-photo-presets-grid">
+                  <div className="ad-photo-presets-grid">
                     {CATEGORY_PHOTO_PRESETS.map((preset) => (
                       <button
                         key={preset.path}
                         type="button"
-                        class={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
+                        className={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
                         onClick={() => {
                           setImage(preset.path);
                           setUploadProvider(null);
@@ -579,7 +579,7 @@ export default function AdminDishModal({
                   <div style={{ marginTop: '0.6rem' }}>
                     <input
                       type="text"
-                      class="ad-form-input"
+                      className="ad-form-input"
                       style={{ fontSize: '0.8rem', padding: '0.45rem 0.8rem' }}
                       placeholder="Or enter custom image / Cloudinary URL: https://res.cloudinary.com/..."
                       value={image}
@@ -590,9 +590,9 @@ export default function AdminDishModal({
               </div>
 
               {/* Right Column: Category Cover Preview */}
-              <div class="ad-form-col">
-                <div class="ad-live-preview-box">
-                  <span class="ad-live-preview-title">Live Category Cover Preview</span>
+              <div className="ad-form-col">
+                <div className="ad-live-preview-box">
+                  <span className="ad-live-preview-title">Live Category Cover Preview</span>
 
                   {/* Category Cover Simulator */}
                   <div
@@ -683,7 +683,7 @@ export default function AdminDishModal({
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem', marginTop: '1.8rem', borderTop: '1px solid #eaedf1', paddingTop: '1.2rem' }}>
             <button
               type="button"
-              class="ad-btn-action-secondary"
+              className="ad-btn-action-secondary"
               onClick={onClose}
               style={{ width: 'auto', padding: '0.65rem 1.4rem' }}
             >
@@ -691,7 +691,7 @@ export default function AdminDishModal({
             </button>
             <button
               type="submit"
-              class="ad-btn-action-primary"
+              className="ad-btn-action-primary"
               style={{ width: 'auto', padding: '0.65rem 1.6rem' }}
             >
               <span>{isDishMode ? 'Save Menu Item' : 'Save Category'}</span>

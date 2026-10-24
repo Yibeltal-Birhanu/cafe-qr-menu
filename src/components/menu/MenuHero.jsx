@@ -1,5 +1,5 @@
 import React from 'react';
-import { StarIcon, ClockIcon, FlameIcon, CoffeeIcon, PizzaIcon, CakeIcon } from '../common/Icons.jsx';
+import { getHeroBannerImage } from '../common/imageUtils.js';
 
 export default function MenuHero({
   layout = 'bento',
@@ -8,44 +8,42 @@ export default function MenuHero({
   heroTitle = '',
   heroSub = '',
   heroImage = '',
-  tableNumber = '04',
+  tableNumber = '',
 }) {
+  const displayTitle = heroTitle || cafeName || 'Welcome';
+  const displaySub = heroSub || tagline || 'Explore our dishes and specialty drinks.';
+  const optimizedHero = getHeroBannerImage(heroImage);
+  const tableBadge = tableNumber ? (
+    <span className="cm-hero-bento__chip cm-hero-bento__chip--table">
+      Table #{tableNumber}
+    </span>
+  ) : null;
+
   // 1. BENTO HERO (Modern Bento Food App)
   if (layout === 'bento') {
     return (
-      <div class="cm-hero-bento">
-        <div class="cm-hero-bento__content">
-          <div class="cm-hero-bento__tag">
-            <span class="cm-hero-bento__sparkle">✨</span>
-            <span>Chef's Daily Special</span>
-          </div>
-          <h2 class="cm-hero-bento__title">{heroTitle || 'Fresh Flavors Every Day'}</h2>
-          <p class="cm-hero-bento__sub">{heroSub || 'Quality ingredients & authentic craft.'}</p>
-          <div class="cm-hero-bento__chips">
-            <span class="cm-hero-bento__chip">
-              <StarIcon size={12} />
-              <span>4.9 (120+ reviews)</span>
-            </span>
-            <span class="cm-hero-bento__chip">
-              <ClockIcon size={12} />
-              <span>Fresh Prep</span>
-            </span>
-            <span class="cm-hero-bento__chip cm-hero-bento__chip--table">
-              Table #{tableNumber}
-            </span>
-          </div>
+      <div className="cm-hero-bento">
+        <div className="cm-hero-bento__content">
+          <h2 className="cm-hero-bento__title">{displayTitle}</h2>
+          <p className="cm-hero-bento__sub">{displaySub}</p>
+          {tableBadge && (
+            <div className="cm-hero-bento__chips">
+              {tableBadge}
+            </div>
+          )}
         </div>
-        {heroImage ? (
-          <div class="cm-hero-bento__media">
+        {optimizedHero ? (
+          <div className="cm-hero-bento__media">
             <img
-              src={heroImage}
-              alt={heroTitle || 'Hero Dish'}
-              class="cm-hero-bento__img"
+              src={optimizedHero}
+              alt={displayTitle}
+              className="cm-hero-bento__img"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <span class="cm-hero-bento__popular-badge">Popular 🔥</span>
           </div>
         ) : null}
       </div>
@@ -55,32 +53,31 @@ export default function MenuHero({
   // 2. EDITORIAL HERO (Haute Cuisine Reserve Tasting Menu)
   if (layout === 'editorial') {
     return (
-      <div class="cm-hero-editorial">
-        <div class="cm-hero-editorial__crest">
-          ✦ L'ÉDITION GASTRONOMIQUE • GRAND DEGUSTATION ✦
-        </div>
-        <h2 class="cm-hero-editorial__title">
-          {heroTitle || 'Curated Reserve & Tasting Menu'}
+      <div className="cm-hero-editorial">
+        <h2 className="cm-hero-editorial__title">
+          {displayTitle}
         </h2>
-        {heroImage && (
-          <div class="cm-hero-editorial__media" style={{ margin: '1.2rem auto', borderRadius: '12px', overflow: 'hidden', maxHeight: '220px', maxWidth: '520px', border: '1px solid var(--cm-secondary, #d4af37)' }}>
+        {optimizedHero && (
+          <div className="cm-hero-editorial__media" style={{ margin: '1.2rem auto', borderRadius: '12px', overflow: 'hidden', maxHeight: '220px', maxWidth: '520px', border: '1px solid var(--cm-secondary, #d4af37)' }}>
             <img
-              src={heroImage}
-              alt={heroTitle || 'Reserve Special'}
+              src={optimizedHero}
+              alt={displayTitle}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              loading="lazy"
+              decoding="async"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           </div>
         )}
-        <div class="cm-hero-editorial__divider" aria-hidden="true"></div>
-        <p class="cm-hero-editorial__sub">
-          {heroSub || 'An uncompromising culinary journey featuring rare reserve roasts, dry-aged cuts, and artisanal delicacies.'}
+        <div className="cm-hero-editorial__divider" aria-hidden="true"></div>
+        <p className="cm-hero-editorial__sub">
+          {displaySub}
         </p>
-        <div class="cm-hero-editorial__badges">
-          <span class="cm-hero-editorial__badge">✦ RESERVE PAIRINGS</span>
-          <span class="cm-hero-editorial__badge">CHEF'S DEGUSTATION</span>
-          <span class="cm-hero-editorial__badge">RESERVE • TABLE {tableNumber}</span>
-        </div>
+        {tableNumber && (
+          <div className="cm-hero-editorial__badges">
+            <span className="cm-hero-editorial__badge">TABLE #{tableNumber}</span>
+          </div>
+        )}
       </div>
     );
   }
@@ -88,30 +85,28 @@ export default function MenuHero({
   // 3. RUSTIC HERO (Wood-Fired Hearth & Open Grill)
   if (layout === 'rustic') {
     return (
-      <div class="cm-hero-rustic">
-        <div class="cm-hero-rustic__content">
-          <div class="cm-hero-rustic__tag">
-            <FlameIcon size={13} style={{ color: '#ffffff' }} />
-            <span>WOOD-FIRED HEARTH &amp; OPEN GRILL</span>
-          </div>
-          <h2 class="cm-hero-rustic__title">
-            {heroTitle || 'CRAFTED BY FLAME. SMOKED TO PERFECTION.'}
+      <div className="cm-hero-rustic">
+        <div className="cm-hero-rustic__content">
+          <h2 className="cm-hero-rustic__title">
+            {displayTitle}
           </h2>
-          <p class="cm-hero-rustic__sub">
-            {heroSub || 'Stone-baked sourdough crusts, charred prime cuts & open-hearth comfort.'}
+          <p className="cm-hero-rustic__sub">
+            {displaySub}
           </p>
-          <div class="cm-hero-rustic__chips">
-            <span class="cm-hero-rustic__chip">🔥 800° STONE HEARTH</span>
-            <span class="cm-hero-rustic__chip">🪵 HARDWOOD SMOKED</span>
-            <span class="cm-hero-rustic__chip cm-hero-rustic__chip--table">HEARTH #{tableNumber}</span>
-          </div>
+          {tableNumber && (
+            <div className="cm-hero-rustic__chips">
+              <span className="cm-hero-rustic__chip cm-hero-rustic__chip--table">TABLE #{tableNumber}</span>
+            </div>
+          )}
         </div>
-        {heroImage ? (
-          <div class="cm-hero-rustic__media">
+        {optimizedHero ? (
+          <div className="cm-hero-rustic__media">
             <img
-              src={heroImage}
-              alt={heroTitle || 'Wood-fired specialty'}
-              class="cm-hero-rustic__img"
+              src={optimizedHero}
+              alt={displayTitle}
+              className="cm-hero-rustic__img"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -122,32 +117,31 @@ export default function MenuHero({
     );
   }
 
-  // 4. BOUTIQUE HERO (Parisian Patisserie & Sweet Confectionery)
+  // 4. BOUTIQUE HERO (Parisian Patisserie & Bakery)
   if (layout === 'boutique') {
     return (
-      <div class="cm-hero-boutique">
-        <div class="cm-hero-boutique__content">
-          <div class="cm-hero-boutique__tag">
-            <span>✨ MAISON DE DÉLICES • SALON DE THÉ</span>
-          </div>
-          <h2 class="cm-hero-boutique__title">
-            {heroTitle || 'Sweet Delicacies & Artisanal Bakes'}
+      <div className="cm-hero-boutique">
+        <div className="cm-hero-boutique__content">
+          <h2 className="cm-hero-boutique__title">
+            {displayTitle}
           </h2>
-          <p class="cm-hero-boutique__sub">
-            {heroSub || 'Freshly laminated viennoiserie, strawberry cream choux & ceremonial reserve teas.'}
+          <p className="cm-hero-boutique__sub">
+            {displaySub}
           </p>
-          <div class="cm-hero-boutique__chips">
-            <span class="cm-hero-boutique__chip">🥐 FRESH BAKED</span>
-            <span class="cm-hero-boutique__chip">🌸 ROSE INFUSIONS</span>
-            <span class="cm-hero-boutique__chip cm-hero-boutique__chip--table">SALON #{tableNumber}</span>
-          </div>
+          {tableNumber && (
+            <div className="cm-hero-boutique__chips">
+              <span className="cm-hero-boutique__chip cm-hero-boutique__chip--table">TABLE #{tableNumber}</span>
+            </div>
+          )}
         </div>
-        {heroImage ? (
-          <div class="cm-hero-boutique__media">
+        {optimizedHero ? (
+          <div className="cm-hero-boutique__media">
             <img
-              src={heroImage}
-              alt={heroTitle || 'Artisanal pastry'}
-              class="cm-hero-boutique__img"
+              src={optimizedHero}
+              alt={displayTitle}
+              className="cm-hero-boutique__img"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -158,32 +152,31 @@ export default function MenuHero({
     );
   }
 
-  // 5. NOIR HERO (Tokyo Neon Noir Cyber Lounge)
+  // 5. NOIR HERO (Evening Lounge & Cocktail Bar)
   if (layout === 'noir') {
     return (
-      <div class="cm-hero-noir">
-        <div class="cm-hero-noir__content">
-          <div class="cm-hero-noir__tag">
-            [SYS: CYBER_LOUNGE // NIGHT_MODE: ACTIVE]
-          </div>
-          <h2 class="cm-hero-noir__title">
-            {heroTitle || 'NEON NIGHTS & CRAFT MIXOLOGY'}
+      <div className="cm-hero-noir">
+        <div className="cm-hero-noir__content">
+          <h2 className="cm-hero-noir__title">
+            {displayTitle}
           </h2>
-          <p class="cm-hero-noir__sub">
-            {heroSub || 'High-tech mixology, late-night fusion bites, and ambient techno soundscapes.'}
+          <p className="cm-hero-noir__sub">
+            {displaySub}
           </p>
-          <div class="cm-hero-noir__chips">
-            <span class="cm-hero-noir__chip">⚡ AMBIENT MIXOLOGY</span>
-            <span class="cm-hero-noir__chip">🔮 NEON INFUSION</span>
-            <span class="cm-hero-noir__chip cm-hero-noir__chip--table">[BOOTH // {tableNumber}]</span>
-          </div>
+          {tableNumber && (
+            <div className="cm-hero-noir__chips">
+              <span className="cm-hero-noir__chip cm-hero-noir__chip--table">TABLE #{tableNumber}</span>
+            </div>
+          )}
         </div>
-        {heroImage ? (
-          <div class="cm-hero-noir__media">
+        {optimizedHero ? (
+          <div className="cm-hero-noir__media">
             <img
-              src={heroImage}
-              alt={heroTitle || 'Cyber Lounge Special'}
-              class="cm-hero-noir__img"
+              src={optimizedHero}
+              alt={displayTitle}
+              className="cm-hero-noir__img"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -194,31 +187,30 @@ export default function MenuHero({
     );
   }
 
-  // 6. MINIMAL HERO (Scandinavian Nordic Botanical)
+  // 6. MINIMAL HERO (Seasonal Kitchen & Concept Cafe)
   return (
-    <div class="cm-hero-minimal">
-      <div class="cm-hero-minimal__content">
-        <div class="cm-hero-minimal__tag">
-          <span>NORDIC BOTANICAL &bull; ARTISANAL HARVEST</span>
-        </div>
-        <h2 class="cm-hero-minimal__title">
-          {heroTitle || 'Pure, Minimalist & Mindfully Sourced'}
+    <div className="cm-hero-minimal">
+      <div className="cm-hero-minimal__content">
+        <h2 className="cm-hero-minimal__title">
+          {displayTitle}
         </h2>
-        <p class="cm-hero-minimal__sub">
-          {heroSub || 'Clean single-origin roasts, stone-ground grain sourdough, and seasonal comfort.'}
+        <p className="cm-hero-minimal__sub">
+          {displaySub}
         </p>
-        <div class="cm-hero-minimal__chips">
-          <span class="cm-hero-minimal__chip">&bull; Stone Milled</span>
-          <span class="cm-hero-minimal__chip">&bull; Organic Harvest</span>
-          <span class="cm-hero-minimal__chip cm-hero-minimal__chip--table">Table #{tableNumber}</span>
-        </div>
+        {tableNumber && (
+          <div className="cm-hero-minimal__chips">
+            <span className="cm-hero-minimal__chip cm-hero-minimal__chip--table">Table #{tableNumber}</span>
+          </div>
+        )}
       </div>
-      {heroImage ? (
-        <div class="cm-hero-minimal__media">
+      {optimizedHero ? (
+        <div className="cm-hero-minimal__media">
           <img
-            src={heroImage}
-            alt={heroTitle || 'Artisanal specialty'}
-            class="cm-hero-minimal__img"
+            src={optimizedHero}
+            alt={displayTitle}
+            className="cm-hero-minimal__img"
+            loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}

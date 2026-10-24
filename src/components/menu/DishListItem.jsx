@@ -1,12 +1,14 @@
 import React from 'react';
 import { ChevronRightIcon, ClockIcon } from '../common/Icons.jsx';
+import { getDishCardImage } from '../common/imageUtils.js';
 
 export default function DishListItem({ dish, onSelect, currency = 'ETB', layout = 'bento' }) {
   const formattedPrice = `${dish.price} ${dish.currency || currency || 'ETB'}`;
+  const optimizedSrc = getDishCardImage(dish, layout);
 
   return (
     <article
-      class={`cm-dish-card cm-dish-card--${layout}`}
+      className={`cm-dish-card cm-dish-card--${layout}`}
       data-layout={layout}
       onClick={() => onSelect(dish)}
       role="button"
@@ -19,37 +21,38 @@ export default function DishListItem({ dish, onSelect, currency = 'ETB', layout 
       }}
       aria-label={`View details for ${dish.name}`}
     >
-      <div class="cm-dish-thumb-wrap">
+      <div className="cm-dish-thumb-wrap">
         <img
-          src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
+          src={optimizedSrc}
           alt={dish.name}
-          class="cm-dish-thumb"
+          className="cm-dish-thumb"
           loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
           }}
         />
         {dish.badge && (
-          <span class="cm-dish-overlay-badge">{dish.badge}</span>
+          <span className="cm-dish-overlay-badge">{dish.badge}</span>
         )}
       </div>
-      <div class="cm-dish-info">
-        <div class="cm-dish-header-row">
-          <h3 class="cm-dish-name">{dish.name}</h3>
-          {dish.badge && <span class="cm-dish-badge">{dish.badge}</span>}
+      <div className="cm-dish-info">
+        <div className="cm-dish-header-row">
+          <h3 className="cm-dish-name">{dish.name}</h3>
+          {dish.badge && <span className="cm-dish-badge">{dish.badge}</span>}
         </div>
-        <p class="cm-dish-desc">{dish.description}</p>
-        <div class="cm-dish-footer-row">
-          <div class="cm-dish-price">{formattedPrice}</div>
+        <p className="cm-dish-desc">{dish.description}</p>
+        <div className="cm-dish-footer-row">
+          <div className="cm-dish-price">{formattedPrice}</div>
           {dish.prepTime && (
-            <span class="cm-dish-preptime">
+            <span className="cm-dish-preptime">
               <ClockIcon size={12} />
               <span>{dish.prepTime}</span>
             </span>
           )}
         </div>
       </div>
-      <div class="cm-dish-chevron" aria-hidden="true">
+      <div className="cm-dish-chevron" aria-hidden="true">
         <ChevronRightIcon size={18} />
       </div>
     </article>

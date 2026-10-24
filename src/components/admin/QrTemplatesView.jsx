@@ -78,14 +78,14 @@ function ArtisticStandCard({ template, cafeName, tableNumber, cafeSlug = 'abol-c
   return (
     <div
       id="ad-printable-stand-card"
-      class={`ad-stand-card ad-stand-card--full ${template.cardClass}`}
+      className={`ad-stand-card ad-stand-card--full ${template.cardClass}`}
     >
       {/* Header */}
-      <div class="ad-stand-header">
-        <h3 class="ad-stand-cafe-name">{cafeName}</h3>
-        <p class="ad-stand-tagline">Good Food &bull; Great Moments</p>
+      <div className="ad-stand-header">
+        <h3 className="ad-stand-cafe-name">{cafeName}</h3>
+        <p className="ad-stand-tagline">Good Food &bull; Great Moments</p>
         <div
-          class="ad-stand-table-badge"
+          className="ad-stand-table-badge"
           style={{
             background:
               template.id === 'modern-green'
@@ -114,14 +114,14 @@ function ArtisticStandCard({ template, cafeName, tableNumber, cafeSlug = 'abol-c
       </div>
 
       {/* QR Code Container */}
-      <div class="ad-stand-qr-wrapper">
-        <img src={qrUrl} alt={`QR Code Table ${tableNumber}`} class="ad-stand-qr-img" />
+      <div className="ad-stand-qr-wrapper">
+        <img src={qrUrl} alt={`QR Code Table ${tableNumber}`} className="ad-stand-qr-img" />
       </div>
 
       {/* Instructions */}
       <div style={{ margin: '0.4rem 0' }}>
-        <div class="ad-stand-scan-prompt">Point Phone Camera to Scan</div>
-        <p class="ad-stand-footer-note">
+        <div className="ad-stand-scan-prompt">Point Phone Camera to Scan</div>
+        <p className="ad-stand-footer-note">
           Browse full menu &amp; prices on your phone &bull; No app needed
         </p>
       </div>
@@ -205,37 +205,37 @@ export default function QrTemplatesView({
   };
 
   return (
-    <div class="ad-content-wrapper">
+    <div className="ad-content-wrapper">
       {/* Main Content Area */}
-      <div class="ad-content-left">
+      <div className="ad-content-left">
         {/* 1. Hero Banner Card */}
         <div
-          class="ad-hero-card"
+          className="ad-hero-card"
           style={{
             background:
               'linear-gradient(to right, rgba(14, 20, 17, 0.96) 0%, rgba(14, 20, 17, 0.8) 55%, rgba(14, 20, 17, 0.3) 100%), url("/images/coffee.jpg") center/cover no-repeat',
             minHeight: '185px',
           }}
         >
-          <h2 class="ad-hero-title">QR Menu Templates</h2>
-          <p class="ad-hero-sub" style={{ maxWidth: '480px' }}>
+          <h2 className="ad-hero-title">QR Menu Templates</h2>
+          <p className="ad-hero-sub" style={{ maxWidth: '480px' }}>
             Create beautiful QR codes for your menu. Let your customers scan and explore your menu instantly.
           </p>
-          <div class="ad-qr-feature-badges">
-            <span class="ad-qr-feature-item">
+          <div className="ad-qr-feature-badges">
+            <span className="ad-qr-feature-item">
               <ZapIcon size={14} /> Fast &amp; Easy
             </span>
-            <span class="ad-qr-feature-item">
+            <span className="ad-qr-feature-item">
               <QrCodeIcon size={14} /> Multiple Styles
             </span>
-            <span class="ad-qr-feature-item">
+            <span className="ad-qr-feature-item">
               <SmartphoneIcon size={14} /> Mobile Friendly
             </span>
           </div>
         </div>
 
         {/* 2. Info Alert */}
-        <div class="ad-info-alert">
+        <div className="ad-info-alert">
           <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>&#8505;</span>
           <span>
             Your QR templates are ready to be printed and placed on tables, counters, or shared digitally.
@@ -243,34 +243,34 @@ export default function QrTemplatesView({
         </div>
 
         {/* 3. Templates Gallery Section */}
-        <div class="ad-panel-card" style={{ padding: '1.6rem' }}>
-          <div class="ad-card-header" style={{ marginBottom: '1.4rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+        <div className="ad-panel-card" style={{ padding: '1.6rem' }}>
+          <div className="ad-card-header" style={{ marginBottom: '1.4rem', flexWrap: 'wrap', gap: '0.8rem' }}>
             <div>
-              <h3 class="ad-card-title">Your QR Templates</h3>
-              <p class="ad-card-sub">
+              <h3 className="ad-card-title">Your QR Templates</h3>
+              <p className="ad-card-sub">
                 Choose from beautiful templates to display your menu as a QR code.
               </p>
             </div>
 
             {/* Filter Pills */}
-            <div class="ad-filter-pills-row" role="tablist">
+            <div className="ad-filter-pills-row" role="tablist">
               <button
                 type="button"
-                class={`ad-filter-pill-btn ${filter === 'all' ? 'is-active' : ''}`}
+                className={`ad-filter-pill-btn ${filter === 'all' ? 'is-active' : ''}`}
                 onClick={() => setFilter('all')}
               >
                 All
               </button>
               <button
                 type="button"
-                class={`ad-filter-pill-btn ${filter === 'active' ? 'is-active' : ''}`}
+                className={`ad-filter-pill-btn ${filter === 'active' ? 'is-active' : ''}`}
                 onClick={() => setFilter('active')}
               >
                 Active
               </button>
               <button
                 type="button"
-                class={`ad-filter-pill-btn ${filter === 'inactive' ? 'is-active' : ''}`}
+                className={`ad-filter-pill-btn ${filter === 'inactive' ? 'is-active' : ''}`}
                 onClick={() => setFilter('inactive')}
               >
                 Inactive
@@ -279,12 +279,12 @@ export default function QrTemplatesView({
           </div>
 
           {/* Templates Grid (2 rows of 3) */}
-          <div class="ad-qr-templates-grid">
+          <div className="ad-qr-templates-grid">
             {filteredTemplates.map((tpl) => (
-              <div key={tpl.id} class="ad-qr-card">
+              <div key={tpl.id} className="ad-qr-card">
                 {/* Visual Preview Stage with pristine cropped mockup */}
                 <div
-                  class="ad-qr-preview-stage"
+                  className="ad-qr-preview-stage"
                   onClick={() => setSelectedTemplate(tpl)}
                   style={{ cursor: 'pointer' }}
                   title={`Click to preview & print ${tpl.name}`}
@@ -292,13 +292,13 @@ export default function QrTemplatesView({
                   <img
                     src={tpl.previewImg}
                     alt={tpl.name}
-                    class="ad-qr-preview-img"
+                    className="ad-qr-preview-img"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
 
                   {/* Status Tag */}
                   <span
-                    class={`ad-qr-status-tag ${
+                    className={`ad-qr-status-tag ${
                       tpl.status === 'active'
                         ? 'ad-qr-status-tag--active'
                         : 'ad-qr-status-tag--inactive'
@@ -308,14 +308,14 @@ export default function QrTemplatesView({
                   </span>
                 </div>
 
-                <div class="ad-qr-card-body">
-                  <h4 class="ad-qr-card-title">{tpl.name}</h4>
-                  <p class="ad-qr-card-desc">{tpl.description}</p>
+                <div className="ad-qr-card-body">
+                  <h4 className="ad-qr-card-title">{tpl.name}</h4>
+                  <p className="ad-qr-card-desc">{tpl.description}</p>
 
-                  <div class="ad-qr-card-actions">
+                  <div className="ad-qr-card-actions">
                     <button
                       type="button"
-                      class="ad-qr-btn-view"
+                      className="ad-qr-btn-view"
                       onClick={() => setSelectedTemplate(tpl)}
                     >
                       <EyeIcon size={14} />
@@ -323,7 +323,7 @@ export default function QrTemplatesView({
                     </button>
                     <button
                       type="button"
-                      class="ad-qr-btn-icon"
+                      className="ad-qr-btn-icon"
                       onClick={handleDownloadQr}
                       title="Download QR Code"
                     >
@@ -331,7 +331,7 @@ export default function QrTemplatesView({
                     </button>
                     <button
                       type="button"
-                      class="ad-qr-btn-icon"
+                      className="ad-qr-btn-icon"
                       onClick={() => handleToggleActive(tpl.id)}
                       title={tpl.status === 'active' ? 'Deactivate template' : 'Activate template'}
                     >
@@ -346,120 +346,120 @@ export default function QrTemplatesView({
       </div>
 
       {/* Right Sidebar */}
-      <div class="ad-content-right">
+      <div className="ad-content-right">
         {/* Quick Actions List */}
-        <div class="ad-panel-card">
-          <h3 class="ad-card-title" style={{ marginBottom: '1rem' }}>
+        <div className="ad-panel-card">
+          <h3 className="ad-card-title" style={{ marginBottom: '1rem' }}>
             Quick Actions
           </h3>
-          <div class="ad-card-actions-list">
+          <div className="ad-card-actions-list">
             <a
               href={`/scan/${encodeURIComponent(cafeSlug)}`}
               target="_blank"
               rel="noreferrer"
-              class="ad-action-tile"
+              className="ad-action-tile"
             >
-              <div class="ad-action-tile-icon">
+              <div className="ad-action-tile-icon">
                 <EyeIcon size={18} />
               </div>
-              <div class="ad-action-tile-info">
-                <div class="ad-action-tile-title">View Menu</div>
-                <div class="ad-action-tile-sub">See how your menu looks</div>
+              <div className="ad-action-tile-info">
+                <div className="ad-action-tile-title">View Menu</div>
+                <div className="ad-action-tile-sub">See how your menu looks</div>
               </div>
-              <span class="ad-action-tile-arrow">&rsaquo;</span>
+              <span className="ad-action-tile-arrow">&rsaquo;</span>
             </a>
 
-            <div class="ad-action-tile" onClick={handleDownloadQr} role="button" tabIndex={0}>
-              <div class="ad-action-tile-icon">
+            <div className="ad-action-tile" onClick={handleDownloadQr} role="button" tabIndex={0}>
+              <div className="ad-action-tile-icon">
                 <DownloadIcon size={18} />
               </div>
-              <div class="ad-action-tile-info">
-                <div class="ad-action-tile-title">Download QR</div>
-                <div class="ad-action-tile-sub">Get high-quality QR code</div>
+              <div className="ad-action-tile-info">
+                <div className="ad-action-tile-title">Download QR</div>
+                <div className="ad-action-tile-sub">Get high-quality QR code</div>
               </div>
-              <span class="ad-action-tile-arrow">&rsaquo;</span>
+              <span className="ad-action-tile-arrow">&rsaquo;</span>
             </div>
 
             <div
-              class="ad-action-tile"
+              className="ad-action-tile"
               onClick={() => setSelectedTemplate(templates[0])}
               role="button"
               tabIndex={0}
             >
-              <div class="ad-action-tile-icon">
+              <div className="ad-action-tile-icon">
                 <PrinterIcon size={18} />
               </div>
-              <div class="ad-action-tile-info">
-                <div class="ad-action-tile-title">Print Template</div>
-                <div class="ad-action-tile-sub">Print for your tables</div>
+              <div className="ad-action-tile-info">
+                <div className="ad-action-tile-title">Print Template</div>
+                <div className="ad-action-tile-sub">Print for your tables</div>
               </div>
-              <span class="ad-action-tile-arrow">&rsaquo;</span>
+              <span className="ad-action-tile-arrow">&rsaquo;</span>
             </div>
 
-            <div class="ad-action-tile" onClick={handleShareLink} role="button" tabIndex={0}>
-              <div class="ad-action-tile-icon">
+            <div className="ad-action-tile" onClick={handleShareLink} role="button" tabIndex={0}>
+              <div className="ad-action-tile-icon">
                 <ShareIcon size={18} />
               </div>
-              <div class="ad-action-tile-info">
-                <div class="ad-action-tile-title">Share Link</div>
-                <div class="ad-action-tile-sub">Share menu via link</div>
+              <div className="ad-action-tile-info">
+                <div className="ad-action-tile-title">Share Link</div>
+                <div className="ad-action-tile-sub">Share menu via link</div>
               </div>
-              <span class="ad-action-tile-arrow">&rsaquo;</span>
+              <span className="ad-action-tile-arrow">&rsaquo;</span>
             </div>
           </div>
         </div>
 
         {/* Recent Activity Card */}
-        <div class="ad-panel-card">
-          <div class="ad-card-header" style={{ marginBottom: '0.8rem' }}>
-            <h3 class="ad-card-title">Recent Activity</h3>
+        <div className="ad-panel-card">
+          <div className="ad-card-header" style={{ marginBottom: '0.8rem' }}>
+            <h3 className="ad-card-title">Recent Activity</h3>
             <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }}>
               View all &rarr;
             </span>
           </div>
 
-          <div class="ad-activity-feed">
-            <div class="ad-activity-item">
-              <div class="ad-activity-icon">
+          <div className="ad-activity-feed">
+            <div className="ad-activity-item">
+              <div className="ad-activity-icon">
                 <QrCodeIcon size={14} />
               </div>
-              <div class="ad-activity-body">
-                <div class="ad-activity-title">QR template updated</div>
-                <div class="ad-activity-desc">Modern Template</div>
-                <div class="ad-activity-time">2 hours ago</div>
+              <div className="ad-activity-body">
+                <div className="ad-activity-title">QR template updated</div>
+                <div className="ad-activity-desc">Modern Template</div>
+                <div className="ad-activity-time">2 hours ago</div>
               </div>
             </div>
 
-            <div class="ad-activity-item">
-              <div class="ad-activity-icon">
+            <div className="ad-activity-item">
+              <div className="ad-activity-icon">
                 <PlusIcon size={14} />
               </div>
-              <div class="ad-activity-body">
-                <div class="ad-activity-title">New QR template created</div>
-                <div class="ad-activity-desc">Minimal Template</div>
-                <div class="ad-activity-time">5 hours ago</div>
+              <div className="ad-activity-body">
+                <div className="ad-activity-title">New QR template created</div>
+                <div className="ad-activity-desc">Minimal Template</div>
+                <div className="ad-activity-time">5 hours ago</div>
               </div>
             </div>
 
-            <div class="ad-activity-item">
-              <div class="ad-activity-icon">
+            <div className="ad-activity-item">
+              <div className="ad-activity-icon">
                 <EyeIcon size={14} />
               </div>
-              <div class="ad-activity-body">
-                <div class="ad-activity-title">Menu updated</div>
-                <div class="ad-activity-desc">New items added</div>
-                <div class="ad-activity-time">1 day ago</div>
+              <div className="ad-activity-body">
+                <div className="ad-activity-title">Menu updated</div>
+                <div className="ad-activity-desc">New items added</div>
+                <div className="ad-activity-time">1 day ago</div>
               </div>
             </div>
 
-            <div class="ad-activity-item">
-              <div class="ad-activity-icon">
+            <div className="ad-activity-item">
+              <div className="ad-activity-icon">
                 <QrCodeIcon size={14} />
               </div>
-              <div class="ad-activity-body">
-                <div class="ad-activity-title">QR scanned</div>
-                <div class="ad-activity-desc">Table 3 - 12 views</div>
-                <div class="ad-activity-time">2 days ago</div>
+              <div className="ad-activity-body">
+                <div className="ad-activity-title">QR scanned</div>
+                <div className="ad-activity-desc">Table 3 - 12 views</div>
+                <div className="ad-activity-time">2 days ago</div>
               </div>
             </div>
           </div>
@@ -469,15 +469,15 @@ export default function QrTemplatesView({
       {/* 4. Interactive Stand Card Preview & Print Modal */}
       {selectedTemplate && (
         <div
-          class="ad-modal-backdrop"
+          className="ad-modal-backdrop"
           onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedTemplate(null);
           }}
         >
-          <div class="ad-modal-box" style={{ maxWidth: '580px' }}>
+          <div className="ad-modal-box" style={{ maxWidth: '580px' }}>
             <button
               type="button"
-              class="ad-modal-close-btn"
+              className="ad-modal-close-btn"
               onClick={() => setSelectedTemplate(null)}
               aria-label="Close"
             >
@@ -531,7 +531,7 @@ export default function QrTemplatesView({
                 Table Number:
               </label>
               <select
-                class="ad-select-dropdown"
+                className="ad-select-dropdown"
                 value={selectedTable}
                 onChange={(e) => setSelectedTable(e.target.value)}
                 style={{ fontSize: '0.85rem', padding: '0.45rem 1rem', flex: 1 }}
@@ -579,7 +579,7 @@ export default function QrTemplatesView({
             >
               <button
                 type="button"
-                class="ad-btn-action-secondary"
+                className="ad-btn-action-secondary"
                 onClick={handleDownloadQr}
                 style={{ width: 'auto', padding: '0.65rem 1.2rem' }}
               >
@@ -588,7 +588,7 @@ export default function QrTemplatesView({
               </button>
               <button
                 type="button"
-                class="ad-btn-action-primary"
+                className="ad-btn-action-primary"
                 onClick={handlePrint}
                 style={{ width: 'auto', padding: '0.65rem 1.4rem' }}
               >
