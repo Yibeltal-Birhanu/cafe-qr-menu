@@ -761,12 +761,11 @@ test('QR scan tracking: records every scan as a visitor and serves real stats to
   const initialVisitors = initStatsRes.body.totalVisitors || 0;
   const initialScansToday = initStatsRes.body.scansToday || 0;
 
-  // 2. Scan via redirect route /scan/:cafeSlug?table=7
-  const scanRedirectRes = await fetch(`${BASE}/scan/abol-cafe?table=7`, {
-    redirect: 'manual',
-  });
-  assert.equal(scanRedirectRes.status, 302);
-  assert.match(scanRedirectRes.headers.get('location'), /\/cafe\/abol-cafe\?table=7&scanned=1/);
+  // 2. Scan via endpoint /scan/:cafeSlug?table=7 directly serving digital menu
+  const scanRes = await fetch(`${BASE}/scan/abol-cafe?table=7`);
+  assert.equal(scanRes.status, 200);
+  const scanHtml = await scanRes.text();
+  assert.ok(scanHtml.includes('root'));
 
   // 3. Scan via beacon API POST /api/:cafeSlug/scan
   const scanBeaconRes = await call('/api/abol-cafe/scan?table=12', {

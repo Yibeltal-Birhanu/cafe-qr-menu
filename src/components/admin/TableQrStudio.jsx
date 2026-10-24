@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { PrinterIcon } from '../common/Icons.jsx';
 
-export default function TableQrStudio({ cafeName = 'Cafe' }) {
+export default function TableQrStudio({ cafeName = 'Cafe', cafeSlug = 'abol-cafe' }) {
   const [selectedTable, setSelectedTable] = useState('1');
 
   const origin = typeof window !== 'undefined'
     ? (window.location.origin || (window.location.protocol + '//' + window.location.host))
     : '';
-  const tableUrl = `${origin}/scan?table=${encodeURIComponent(selectedTable)}`;
-  const qrSrc = `/qr.png?table=${encodeURIComponent(selectedTable)}`;
+  const tableUrl = `${origin}/scan/${encodeURIComponent(cafeSlug)}?table=${encodeURIComponent(selectedTable)}`;
+  const qrSrc = `/api/${encodeURIComponent(cafeSlug)}/qr.png?table=${encodeURIComponent(selectedTable)}`;
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank', 'width=650,height=750');

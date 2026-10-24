@@ -24,6 +24,19 @@ const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 app.use(express.json({ limit: '256kb' }));
 
 /* ------------------------------------------------------------------ *
+ * CORS — allow all origins
+ * ------------------------------------------------------------------ */
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+/* ------------------------------------------------------------------ *
  * Better Auth API Handlers
  * ------------------------------------------------------------------ */
 
@@ -48,28 +61,89 @@ app.get(['/superadmin', '/super-admin'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'superadmin.html'));
 });
 
-/** Live demo Cafe digital menu (supports /cafe, /abol-cafe, /cafe/:slug, and registered /:slug) */
-app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+/**
+ * Direct QR scan route: /scan/:cafeSlug or /scan?cafe=slug
+ * Automatically records the scan in the database as a visitor and serves the digital menu.
+ */
+app.get(['/scan/:cafeSlug', '/scan'], async (req, res) => {
+  const slug = req.params.cafeSlug || req.query.cafe || 'abol-cafe';
+  const table = req.query.table || '';
+
+  try {
+    await store.recordScan(slug, {
+      table,
+      ip: req.ip || req.connection?.remoteAddress,
+      userAgent: req.get('user-agent'),
+      referrer: req.get('referrer'),
+    });
+  } catch (err) {
+    console.warn('[scan] Failed to record scan:', err.message);
+  }
+
+  return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
 });
 
-app.get('/:cafeSlug', async (req, res, next) => {
-  const reserved = ['auth', 'admin', 'superadmin', 'super-admin', 'health', 'menu', 'api', 'dist', 'css', 'images', 'videos', 'qr.png', 'favicon.ico'];
-  if (reserved.includes(req.params.cafeSlug)) return next();
-  const slug = req.params.cafeSlug;
-  if (slug === 'abol-cafe') {
-    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+/** Live demo Cafe digital menu (supports /cafe, /abol-cafe, /cafe/:slug, and registered /:slug) */
+app.get(['/cafe', '/abol-cafe', '/cafe/:cafeSlug'], async (req, res) => {
+  const slug = req.params.cafeSlug || req.query.cafe || 'abol-cafe';
+  if (req.query.table || req.query.scanned || req.query.qr) {
+    try {
+      await store.recordScan(slug, {
+        table: req.query.table,
+        ip: req.ip || req.connection?.remoteAddress,
+        userAgent: req.get('user-agent'),
+        referrer: req.get('referrer'),
+      });
+    } catch (_) {}
   }
-  const cafeData = await store.loadCafeFromMySQL(slug);
-  if (cafeData && cafeData.cafe) {
-    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
-  }
-  return next();
+  res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
 });
 
 /** Redirect legacy /index or /index.html aliases to the preserved Abol Cafe menu */
 app.get(['/index', '/index.html'], (req, res) => {
   res.redirect(301, '/abol-cafe');
+});
+
+app.get('/:cafeSlug', async (req, res, next) => {
+  const reserved = [
+    'auth',
+    'admin',
+    'superadmin',
+    'super-admin',
+    'health',
+    'menu',
+    'api',
+    'dist',
+    'css',
+    'images',
+    'videos',
+    'qr.png',
+    'favicon.ico',
+    'scan',
+    'cafe',
+    'index',
+  ];
+  if (reserved.includes(req.params.cafeSlug)) return next();
+  const slug = req.params.cafeSlug;
+  if (slug === 'abol-cafe') {
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+
+  const cafeData = await store.loadCafeFromMySQL(slug);
+  if (cafeData && cafeData.cafe) {
+    if (req.query.table || req.query.scanned || req.query.qr) {
+      try {
+        await store.recordScan(slug, {
+          table: req.query.table,
+          ip: req.ip || req.connection?.remoteAddress,
+          userAgent: req.get('user-agent'),
+          referrer: req.get('referrer'),
+        });
+      } catch (_) {}
+    }
+    return res.sendFile(path.join(PUBLIC_DIR, 'menu.html'));
+  }
+  return next();
 });
 
 // Static assets (css, js, images, videos, admin.html)
@@ -107,29 +181,6 @@ app.get('/api/:cafeSlug/menu', async (req, res, next) => {
 
 
 /**
- * Direct QR scan redirect route.
- * Records scan in database as visitor and redirects to the digital menu.
- */
-app.get(['/scan/:cafeSlug', '/scan'], async (req, res) => {
-  const slug = req.params.cafeSlug || req.query.cafe || 'abol-cafe';
-  const table = req.query.table || '';
-
-  try {
-    await store.recordScan(slug, {
-      table,
-      ip: req.ip || req.connection?.remoteAddress,
-      userAgent: req.get('user-agent'),
-      referrer: req.get('referrer'),
-    });
-  } catch (err) {
-    console.warn('[scan] Failed to record scan:', err.message);
-  }
-
-  const tableQuery = table ? `?table=${encodeURIComponent(table)}&scanned=1` : '?scanned=1';
-  return res.redirect(302, `/cafe/${encodeURIComponent(slug)}${tableQuery}`);
-});
-
-/**
  * Public beacon API route to record QR scan / visitor event
  */
 app.post(['/api/:cafeSlug/scan', '/api/scan'], async (req, res, next) => {
@@ -150,10 +201,11 @@ app.post(['/api/:cafeSlug/scan', '/api/scan'], async (req, res, next) => {
   }
 });
 
-/** PNG QR code default (supports optional ?table=N query parameter) */
+/** PNG QR code default (supports optional ?table=N and ?cafe=slug query parameter) */
 app.get('/qr.png', async (req, res) => {
+  const slug = req.query.cafe || 'abol-cafe';
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/abol-cafe${table}`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/${encodeURIComponent(slug)}${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -172,7 +224,7 @@ app.get('/api/:cafeSlug/qr.png', async (req, res, next) => {
   if (['auth', 'admin', 'superadmin'].includes(req.params.cafeSlug)) return next();
   const slug = req.params.cafeSlug;
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/${slug}${table}`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/${encodeURIComponent(slug)}${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',

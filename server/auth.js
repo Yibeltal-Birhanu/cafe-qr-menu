@@ -11,6 +11,31 @@ const SESSION_SECRET = process.env.BETTER_AUTH_SECRET || process.env.SESSION_SEC
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
 
+/**
+ * Trust the server's own LAN IPs so phones/other devices on the same network
+ * can use Better Auth via http://<lan-ip>:3000 (origin varies per network).
+ */
+function privateLanOrigins() {
+  const os = require('os');
+  const origins = [];
+  for (const nets of Object.values(os.networkInterfaces())) {
+    for (const net of nets || []) {
+      if (net.family === 'IPv4' && !net.internal) {
+        origins.push(`http://${net.address}:*`, `https://${net.address}:*`);
+      }
+    }
+  }
+  return origins;
+}
+
+/** Extra origins can be supplied as a comma-separated list: BETTER_AUTH_EXTRA_ORIGINS=http://x:3000,http://y:5173 */
+function extraOrigins() {
+  return (process.env.BETTER_AUTH_EXTRA_ORIGINS || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+}
+
 // Initialize Better Auth with MySQL database pool and role management
 const auth = betterAuth({
   secret: SESSION_SECRET,
@@ -19,6 +44,8 @@ const auth = betterAuth({
     'http://localhost:*',
     'http://127.0.0.1:*',
     process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+    ...privateLanOrigins(),
+    ...extraOrigins(),
   ],
   database: pool,
   emailAndPassword: {

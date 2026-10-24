@@ -30,15 +30,26 @@ export default function MenuApp() {
     if (qCafe) return qCafe;
 
     const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    if (!pathname || pathname === 'cafe' || pathname === 'menu' || pathname === 'menu.html') {
+    if (!pathname || pathname === 'cafe' || pathname === 'menu' || pathname === 'menu.html' || pathname === 'scan') {
       return 'abol-cafe';
     }
     if (pathname.startsWith('cafe/')) {
       const parts = pathname.split('/');
       return parts[1] || 'abol-cafe';
     }
+    if (pathname.startsWith('scan/')) {
+      const parts = pathname.split('/');
+      return parts[1] || 'abol-cafe';
+    }
     return pathname;
   };
+
+  // Determine table number from query params (e.g. ?table=3 or ?table=VIP-1)
+  const tableNumber = useMemo(() => {
+    if (typeof window === 'undefined') return '01';
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get('table') || searchParams.get('tbl') || '01';
+  }, []);
 
   // Fetch API menu to keep synced with admin updates
   useEffect(() => {
@@ -316,7 +327,7 @@ export default function MenuApp() {
           }}
           onBack={handleBackToHome}
           onSearchClick={focusSearch}
-          tableNumber="04"
+          tableNumber={tableNumber}
           logo={cafeLogo}
           theme={apiMenu?.cafe?.theme}
         />
@@ -335,7 +346,7 @@ export default function MenuApp() {
               theme={apiMenu?.cafe?.theme}
               logo={cafeLogo}
               layout={currentLayout}
-              tableNumber="04"
+              tableNumber={tableNumber}
               onReturn={() => setActiveTab('home')}
               onToast={showToast}
             />
@@ -405,7 +416,7 @@ export default function MenuApp() {
                 heroTitle={heroTitle}
                 heroSub={heroSub}
                 heroImage={heroImage}
-                tableNumber="04"
+                tableNumber={tableNumber}
               />
 
               {/* Search Bar */}

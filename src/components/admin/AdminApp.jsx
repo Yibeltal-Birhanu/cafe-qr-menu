@@ -635,6 +635,7 @@ export default function AdminApp() {
         {activeTab === 'templates' && (
           <QrTemplatesView
             cafeName={cafe.name || 'CafeMenu'}
+            cafeSlug={selectedCafeSlug || cafe.slug || 'abol-cafe'}
             onShowToast={showToast}
           />
         )}

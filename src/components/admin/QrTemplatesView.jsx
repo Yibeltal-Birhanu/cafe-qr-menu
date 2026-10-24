@@ -72,8 +72,8 @@ const INITIAL_TEMPLATES = [
 /**
  * ArtisticStandCard renders a high-definition table stand card inside the print/preview modal.
  */
-function ArtisticStandCard({ template, cafeName, tableNumber }) {
-  const qrUrl = `/qr.png?url=${encodeURIComponent(`${window.location.origin}/abol-cafe?table=${tableNumber}`)}`;
+function ArtisticStandCard({ template, cafeName, tableNumber, cafeSlug = 'abol-cafe' }) {
+  const qrUrl = `/api/${encodeURIComponent(cafeSlug)}/qr.png?table=${encodeURIComponent(tableNumber)}`;
 
   return (
     <div
@@ -143,7 +143,11 @@ function ArtisticStandCard({ template, cafeName, tableNumber }) {
   );
 }
 
-export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) {
+export default function QrTemplatesView({
+  cafeName = 'CafeMenu',
+  cafeSlug = 'abol-cafe',
+  onShowToast,
+}) {
   const [filter, setFilter] = useState('all');
   const [templates, setTemplates] = useState(INITIAL_TEMPLATES);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -177,8 +181,8 @@ export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) 
 
   const handleDownloadQr = () => {
     const link = document.createElement('a');
-    link.href = `/qr.png?url=${encodeURIComponent(`${window.location.origin}/scan?table=${selectedTable}`)}`;
-    link.download = `cafemenu-table-${selectedTable}.png`;
+    link.href = `/api/${encodeURIComponent(cafeSlug)}/qr.png?table=${encodeURIComponent(selectedTable)}`;
+    link.download = `${cafeSlug}-table-${selectedTable}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -186,7 +190,7 @@ export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) 
   };
 
   const handleShareLink = () => {
-    const url = `${window.location.origin}/abol-cafe`;
+    const url = `${window.location.origin}/scan/${encodeURIComponent(cafeSlug)}?table=${encodeURIComponent(selectedTable)}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
         if (onShowToast) onShowToast('Menu link copied to clipboard!');
@@ -350,7 +354,7 @@ export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) 
           </h3>
           <div class="ad-card-actions-list">
             <a
-              href="/abol-cafe"
+              href={`/scan/${encodeURIComponent(cafeSlug)}`}
               target="_blank"
               rel="noreferrer"
               class="ad-action-tile"
@@ -559,6 +563,7 @@ export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) 
                 template={selectedTemplate}
                 cafeName={cafeName}
                 tableNumber={selectedTable}
+                cafeSlug={cafeSlug}
               />
             </div>
 
