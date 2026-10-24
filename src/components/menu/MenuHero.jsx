@@ -38,9 +38,10 @@ export default function MenuHero({
         <div class="cm-hero-bento__media">
           <img
             src={heroImage || '/images/dishes/classic-beef-burger.jpg'}
-            alt="Hero Dish"
+            alt={heroTitle || 'Hero Dish'}
             class="cm-hero-bento__img"
             onError={(e) => {
+              e.currentTarget.onerror = null;
               e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
             }}
           />
@@ -60,6 +61,16 @@ export default function MenuHero({
         <h2 class="cm-hero-editorial__title">
           {heroTitle || 'Curated Reserve & Tasting Menu'}
         </h2>
+        {heroImage && (
+          <div class="cm-hero-editorial__media" style={{ margin: '1.2rem auto', borderRadius: '12px', overflow: 'hidden', maxHeight: '220px', maxWidth: '520px', border: '1px solid var(--cm-secondary, #d4af37)' }}>
+            <img
+              src={heroImage}
+              alt={heroTitle || 'Reserve Special'}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          </div>
+        )}
         <div class="cm-hero-editorial__divider" aria-hidden="true"></div>
         <p class="cm-hero-editorial__sub">
           {heroSub || 'An uncompromising culinary journey featuring rare reserve roasts, dry-aged cuts, and artisanal delicacies.'}
@@ -97,9 +108,10 @@ export default function MenuHero({
         <div class="cm-hero-rustic__media">
           <img
             src={heroImage || '/images/dishes/margherita.jpg'}
-            alt="Wood-fired specialty"
+            alt={heroTitle || 'Wood-fired specialty'}
             class="cm-hero-rustic__img"
             onError={(e) => {
+              e.currentTarget.onerror = null;
               e.currentTarget.src = '/images/dishes/margherita.jpg';
             }}
           />
@@ -131,9 +143,10 @@ export default function MenuHero({
         <div class="cm-hero-boutique__media">
           <img
             src={heroImage || '/images/dishes/tiramisu.jpg'}
-            alt="Artisanal pastry"
+            alt={heroTitle || 'Artisanal pastry'}
             class="cm-hero-boutique__img"
             onError={(e) => {
+              e.currentTarget.onerror = null;
               e.currentTarget.src = '/images/dishes/tiramisu.jpg';
             }}
           />
@@ -165,9 +178,10 @@ export default function MenuHero({
         <div class="cm-hero-noir__media">
           <img
             src={heroImage || '/images/dishes/caramel-latte.jpg'}
-            alt="Cyber Lounge Special"
+            alt={heroTitle || 'Cyber Lounge Special'}
             class="cm-hero-noir__img"
             onError={(e) => {
+              e.currentTarget.onerror = null;
               e.currentTarget.src = '/images/dishes/caramel-latte.jpg';
             }}
           />
@@ -198,9 +212,10 @@ export default function MenuHero({
       <div class="cm-hero-minimal__media">
         <img
           src={heroImage || '/images/dishes/macchiato.jpg'}
-          alt="Artisanal specialty"
+          alt={heroTitle || 'Artisanal specialty'}
           class="cm-hero-minimal__img"
           onError={(e) => {
+            e.currentTarget.onerror = null;
             e.currentTarget.src = '/images/dishes/macchiato.jpg';
           }}
         />

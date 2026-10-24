@@ -188,6 +188,9 @@ async function loadAllFromMySQL() {
             wifi_ssid: cafe.wifi_ssid,
             wifi_pass: cafe.wifi_pass,
             status: cafe.status,
+            hero_title: cafe.hero_title || '',
+            hero_description: cafe.hero_description || '',
+            hero_image: cafe.hero_image || '',
             theme: cafe.theme
               ? typeof cafe.theme === 'string'
                 ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()

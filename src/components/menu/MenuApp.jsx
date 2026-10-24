@@ -229,28 +229,46 @@ export default function MenuApp() {
   }, [apiMenu?.cafe?.slug, apiMenu?.cafe?.logo, apiMenu?.cafe?.theme?.preset]);
 
   const cafeCoverImage = useMemo(() => {
-    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/coffee.jpg';
+    // 1. Explicit custom hero image
+    if (apiMenu?.cafe?.hero_image && apiMenu.cafe.hero_image.trim()) {
+      return apiMenu.cafe.hero_image.trim();
+    }
+    // 2. Real tenant category cover image or dish
+    const realCatImg = categories.find((c) => c.image && !c.image.includes('coffee.jpg'))?.image;
+    const realDishImg = allItems.find((it) => it.image && !it.image.includes('classic-beef-burger'))?.image;
+    if (apiMenu?.cafe?.slug && apiMenu.cafe.slug !== 'abol-cafe' && (realCatImg || realDishImg)) {
+      return realCatImg || realDishImg;
+    }
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita-pizza.jpg';
     if (slug === 'artisan-patisserie') return '/images/desserts.jpg';
     if (slug === 'skyline-lounge') return '/images/habesha.jpg';
+    if (apiMenu?.cafe?.theme?.preset === 'showcase') return '/images/coffee.jpg';
     return categories[0]?.bannerImg || '/images/coffee.jpg';
-  }, [apiMenu?.cafe?.slug, categories, apiMenu?.cafe?.theme?.preset]);
+  }, [apiMenu?.cafe?.hero_image, apiMenu?.cafe?.slug, categories, allItems, apiMenu?.cafe?.theme?.preset]);
 
   const currentLayout = apiMenu?.cafe?.theme?.layout || (THEME_PRESETS.find(p => p.id === apiMenu?.cafe?.theme?.preset)?.layout) || 'bento';
   const currentPreset = apiMenu?.cafe?.theme?.preset || 'showcase';
 
   const heroImage = useMemo(() => {
+    // 1. Explicit custom hero image
     if (apiMenu?.cafe?.hero_image && apiMenu.cafe.hero_image.trim()) {
       return apiMenu.cafe.hero_image.trim();
     }
+    // 2. Multi-tenant real uploaded food dish or category image
+    const realDishImg = allItems.find((it) => it.image && !it.image.includes('classic-beef-burger'))?.image || allItems[0]?.image;
+    const realCatImg = categories.find((c) => c.image && !c.image.includes('coffee.jpg'))?.image;
+    if (apiMenu?.cafe?.slug && apiMenu.cafe.slug !== 'abol-cafe' && (realDishImg || realCatImg)) {
+      return realDishImg || realCatImg;
+    }
+    // 3. Signature layout defaults
     if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
     if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
     if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
     if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
-  }, [apiMenu?.cafe?.hero_image, currentLayout, allItems]);
+  }, [apiMenu?.cafe?.hero_image, apiMenu?.cafe?.slug, currentLayout, allItems, categories]);
 
   const { heroTitle, heroSub } = useMemo(() => {
     const customTitle = apiMenu?.cafe?.hero_title?.trim();
