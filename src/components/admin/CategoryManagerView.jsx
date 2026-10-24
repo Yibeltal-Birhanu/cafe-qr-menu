@@ -253,10 +253,32 @@ export default function CategoryManagerView({
                       </button>
                     </div>
 
-                    {/* Dish Count Pill */}
-                    <span class="ad-cat-count-pill">
-                      {itemCount} {itemCount === 1 ? 'dish' : 'dishes'}
-                    </span>
+                    {/* Dish Count Pill & Custom Cover Indicator */}
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px', zIndex: 2 }}>
+                      {cat.image && (
+                        <span
+                          style={{
+                            background: 'rgba(19, 34, 30, 0.88)',
+                            backdropFilter: 'blur(6px)',
+                            color: '#34d399',
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: '999px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                          }}
+                          title="Custom cover image uploaded"
+                        >
+                          📷 Image
+                        </span>
+                      )}
+                      <span class="ad-cat-count-pill" style={{ position: 'static' }}>
+                        {itemCount} {itemCount === 1 ? 'dish' : 'dishes'}
+                      </span>
+                    </div>
 
                     {/* Category Icon Badge */}
                     <div class="ad-cat-icon-badge">{getCategoryIcon(cat.icon)}</div>
@@ -274,6 +296,12 @@ export default function CategoryManagerView({
                         </span>
                       )}
                     </div>
+
+                    {cat.description && (
+                      <p style={{ fontSize: '0.78rem', color: '#6b7280', margin: '3px 0 6px', lineHeight: 1.35 }}>
+                        {cat.description}
+                      </p>
+                    )}
 
                     <div class="ad-cat-id-tag">ID: {cat.id}</div>
 

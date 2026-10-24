@@ -597,12 +597,18 @@
     const note = category.description ? `<p class="card__note">${escapeHtml(category.description)}</p>` : '';
     const tag = getCategoryBannerTag(category.id);
     const dishesWord = t('dishesCount');
+    const categoryMediaHtml = category.image
+      ? `<div class="card__video-wrap" data-video-key="${escapeHtml(category.id)}">
+           <img class="card__real-video card__real-img" src="${escapeHtml(category.image)}" alt="${escapeHtml(category.name)}" loading="eager" />
+           <div class="card__video-gradient"></div>
+         </div>`
+      : (window.renderCategoryIcon ? window.renderCategoryIcon(category.id || category.icon) : '');
 
     return `
       <article class="card card--${escapeHtml(category.id)}" id="cat-${escapeHtml(category.id)}" data-category="${escapeHtml(category.id)}">
         <div class="card__art" data-video-key="${escapeHtml(category.id)}">
           <span class="card__tag-pill">${escapeHtml(tag)}</span>
-          ${window.renderCategoryIcon ? window.renderCategoryIcon(category.id || category.icon) : ''}
+          ${categoryMediaHtml}
         </div>
         <div class="card__body">
           <div class="card__head">

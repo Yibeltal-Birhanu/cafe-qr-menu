@@ -123,7 +123,18 @@ export default function CategoryDishManager({
             <article className="cat" data-cat={cat.id} key={cat.id}>
               <div className="cat__head">
                 <div className="cat__art" data-art={cat.id}>
-                  {getCategoryIcon(cat.icon || cat.id)}
+                  {cat.image ? (
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    getCategoryIcon(cat.icon || cat.id)
+                  )}
                 </div>
                 <div className="cat__fields">
                   <label className="field">

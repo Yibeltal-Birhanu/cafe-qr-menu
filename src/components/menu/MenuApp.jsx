@@ -103,7 +103,7 @@ export default function MenuApp() {
 
     return apiMenu.categories.map((cat) => {
       const showcaseCat = showcaseMap.get(cat.id) || showcaseMap.get(cat.name?.toLowerCase());
-      const bannerImg = showcaseCat?.bannerImg || `/images/${cat.icon || 'coffee'}.jpg`;
+      const bannerImg = cat.image || showcaseCat?.bannerImg || `/images/${cat.icon || 'coffee'}.jpg`;
       const currency = apiMenu.cafe?.currency || 'ETB';
 
       const items = (cat.items || []).map((item) => {
@@ -127,6 +127,8 @@ export default function MenuApp() {
       return {
         id: cat.id,
         name: cat.name,
+        icon: cat.icon || 'coffee',
+        image: cat.image || bannerImg,
         tagline: cat.description || showcaseCat?.tagline || 'Freshly prepared for you.',
         bannerImg: bannerImg,
         subcategories: showcaseCat?.subcategories || ['All'],
@@ -134,6 +136,12 @@ export default function MenuApp() {
       };
     });
   }, [apiMenu]);
+
+  // Keep active category reference synced with latest categories data
+  const currentCategory = useMemo(() => {
+    if (!activeCategory) return null;
+    return categories.find((c) => c.id === activeCategory.id) || activeCategory;
+  }, [categories, activeCategory]);
 
   // Flatten all items for popular or search queries
   const allItems = useMemo(() => {
@@ -149,8 +157,8 @@ export default function MenuApp() {
   // Filtered items based on activeCategory, subcategory, and search
   const displayedItems = useMemo(() => {
     let list = [];
-    if (activeCategory) {
-      list = activeCategory.items;
+    if (currentCategory) {
+      list = currentCategory.items;
       if (activeSubcategory && activeSubcategory !== 'All') {
         list = list.filter((item) => item.subcategory === activeSubcategory);
       }
@@ -161,7 +169,7 @@ export default function MenuApp() {
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      if (!activeCategory) {
+      if (!currentCategory) {
         list = allItems.filter((item) =>
           item.name.toLowerCase().includes(q) ||
           (item.description && item.description.toLowerCase().includes(q))
@@ -175,7 +183,7 @@ export default function MenuApp() {
     }
 
     return list;
-  }, [activeCategory, activeSubcategory, searchQuery, allItems]);
+  }, [currentCategory, activeSubcategory, searchQuery, allItems]);
 
   const handleSelectCategory = (cat) => {
     setActiveCategory(cat);
@@ -284,7 +292,7 @@ export default function MenuApp() {
         {/* 2. Top Header & Status Bar */}
         <MenuHeader
           cafeName={cafeName}
-          activeCategory={activeCategory}
+          activeCategory={currentCategory}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -320,27 +328,30 @@ export default function MenuApp() {
               onReturn={() => setActiveTab('home')}
               onToast={showToast}
             />
-          ) : activeCategory ? (
+          ) : currentCategory ? (
             /* ================= CATEGORY VIEW ================= */
             <div>
               {/* Category Hero Banner Card */}
               <div class="cm-category-banner">
                 <img
-                  src={activeCategory.bannerImg || '/images/coffee.jpg'}
-                  alt={activeCategory.name}
+                  src={currentCategory.image || currentCategory.bannerImg || '/images/coffee.jpg'}
+                  alt={currentCategory.name}
                   class="cm-category-banner-bg"
+                  onError={(e) => {
+                    e.currentTarget.src = `/images/${currentCategory.icon || 'coffee'}.jpg`;
+                  }}
                 />
                 <div class="cm-category-banner-overlay"></div>
                 <div class="cm-category-banner-text">
-                  <h1 class="cm-category-banner-title">{activeCategory.name}</h1>
-                  <p class="cm-category-banner-sub">{activeCategory.tagline}</p>
+                  <h1 class="cm-category-banner-title">{currentCategory.name}</h1>
+                  <p class="cm-category-banner-sub">{currentCategory.tagline}</p>
                 </div>
               </div>
 
               {/* Subcategory Pills */}
-              {activeCategory.subcategories && (
+              {currentCategory.subcategories && (
                 <div class="cm-subcategories" role="tablist">
-                  {activeCategory.subcategories.map((sub) => (
+                  {currentCategory.subcategories.map((sub) => (
                     <button
                       key={sub}
                       type="button"
@@ -417,7 +428,7 @@ export default function MenuApp() {
               <div class="cm-category-pills" role="tablist" aria-label="Menu categories">
                 <button
                   type="button"
-                  class={`cm-pill ${!activeCategory && !searchQuery ? 'is-active' : ''}`}
+                  class={`cm-pill ${!currentCategory && !searchQuery ? 'is-active' : ''}`}
                   onClick={() => {
                     setActiveCategory(null);
                     setSearchQuery('');
@@ -429,10 +440,28 @@ export default function MenuApp() {
                   <button
                     key={cat.id}
                     type="button"
-                    class={`cm-pill ${activeCategory?.id === cat.id ? 'is-active' : ''}`}
+                    class={`cm-pill ${currentCategory?.id === cat.id ? 'is-active' : ''}`}
                     onClick={() => handleSelectCategory(cat)}
                   >
-                    {cat.name}
+                    {(cat.image || cat.bannerImg) && (
+                      <img
+                        src={cat.image || cat.bannerImg}
+                        alt=""
+                        style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          marginRight: '6px',
+                          display: 'inline-block',
+                          verticalAlign: 'middle',
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <span>{cat.name}</span>
                   </button>
                 ))}
               </div>

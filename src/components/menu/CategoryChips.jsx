@@ -65,7 +65,20 @@ export default function CategoryChips({
             type="button"
             onClick={() => onSelectCategory(cat.id)}
           >
-            <span className="chip__icon">{getCategoryIcon(cat.icon || cat.id)}</span>
+            <span className="chip__icon">
+              {cat.image ? (
+                <img
+                  src={cat.image}
+                  alt={locCat.name}
+                  style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover', display: 'inline-block' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                getCategoryIcon(cat.icon || cat.id)
+              )}
+            </span>
             <span className="chip__label">{locCat.name}</span>
           </button>
         );
