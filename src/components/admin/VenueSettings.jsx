@@ -10,6 +10,7 @@ import { THEME_PRESETS } from '../common/themePresets.js';
 
 export default function VenueSettings({
   cafe,
+  dishes = [],
   onSaveCafe,
   onResetSampleMenu,
   onShowToast,
@@ -341,6 +342,50 @@ export default function VenueSettings({
                     </button>
                   )}
                 </div>
+
+                {/* Optional Quick-select from dishes */}
+                {dishes && dishes.filter((d) => d.image).length > 0 && (
+                  <div style={{ marginTop: '0.8rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280', display: 'block', marginBottom: '6px' }}>
+                      Or choose an existing dish image:
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                      {dishes
+                        .filter((d) => d.image)
+                        .slice(0, 10)
+                        .map((d) => (
+                          <button
+                            key={d.id}
+                            type="button"
+                            onClick={() => handleChange('hero_image', d.image)}
+                            style={{
+                              border: formData.hero_image === d.image ? '2px solid #ea580c' : '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              padding: '2px 6px 2px 2px',
+                              background: formData.hero_image === d.image ? 'rgba(234, 88, 12, 0.08)' : '#fff',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              fontSize: '0.72rem',
+                              whiteSpace: 'nowrap',
+                              transition: 'all 0.15s ease',
+                            }}
+                            title={`Use ${d.name} image`}
+                          >
+                            <img
+                              src={d.image}
+                              alt={d.name}
+                              style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }}
+                            />
+                            <span style={{ maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {d.name}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {formData.hero_image ? (
                   <div style={{ marginTop: '0.8rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', height: '140px', position: 'relative' }}>
