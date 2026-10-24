@@ -66,6 +66,7 @@ function ensureShape(raw, fallbackSeed = seed) {
       id: String(category.id || slugify(category.name)),
       name: String(category.name || 'Untitled category'),
       icon: String(category.icon || 'coffee'),
+      image: String(category.image || ''),
       description: String(category.description || ''),
       items: (Array.isArray(category.items) ? category.items : []).map((item) => ({
         id: String(item.id || slugify(item.name)),
@@ -117,10 +118,10 @@ async function syncToMySQL(slug, menuData) {
     for (let cIdx = 0; cIdx < menuData.categories.length; cIdx++) {
       const cat = menuData.categories[cIdx];
       await pool.query(
-        `INSERT INTO categories (id, cafeId, name, icon, description, sortOrder)
-         VALUES (?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE name = VALUES(name), icon = VALUES(icon), description = VALUES(description), sortOrder = VALUES(sortOrder)`,
-        [cat.id, cafeId, cat.name, cat.icon || 'coffee', cat.description || '', cIdx]
+        `INSERT INTO categories (id, cafeId, name, icon, image, description, sortOrder)
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE name = VALUES(name), icon = VALUES(icon), image = VALUES(image), description = VALUES(description), sortOrder = VALUES(sortOrder)`,
+        [cat.id, cafeId, cat.name, cat.icon || 'coffee', cat.image || '', cat.description || '', cIdx]
       );
 
       // Upsert items
@@ -212,6 +213,7 @@ async function loadCafeFromMySQL(slug) {
       id: cat.id,
       name: cat.name,
       icon: cat.icon,
+      image: cat.image || '',
       description: cat.description,
       items: items
         .filter((it) => it.categoryId === cat.id)

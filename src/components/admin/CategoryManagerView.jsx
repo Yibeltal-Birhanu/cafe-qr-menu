@@ -59,7 +59,7 @@ export default function CategoryManagerView({
   };
 
   const getCategoryCover = (cat) => {
-    return CATEGORY_COVERS[cat.icon] || CATEGORY_COVERS[cat.id] || '/images/coffee.jpg';
+    return cat.image || CATEGORY_COVERS[cat.icon] || CATEGORY_COVERS[cat.id] || '/images/coffee.jpg';
   };
 
   const handleMoveUp = (index) => {

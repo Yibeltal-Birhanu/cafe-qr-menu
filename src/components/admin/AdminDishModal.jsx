@@ -16,6 +16,16 @@ const PHOTO_PRESETS = [
   { label: 'Smoothie', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409076/cafe-qr-menu/dishes/mango-smoothie.jpg' },
 ];
 
+const CATEGORY_PHOTO_PRESETS = [
+  { label: 'Habesha', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg' },
+  { label: 'Coffee', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409090/cafe-qr-menu/dishes/traditional-buna-ceremony.jpg' },
+  { label: 'Burgers', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408837/cafe-qr-menu/dishes/classic-beef-burger.jpg' },
+  { label: 'Pizza', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409070/cafe-qr-menu/dishes/four-cheese.jpg' },
+  { label: 'Breakfast', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408829/cafe-qr-menu/dishes/beyeaynetu-fasting-platter.jpg' },
+  { label: 'Desserts', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792408834/cafe-qr-menu/dishes/cheesecake.jpg' },
+  { label: 'Drinks', path: 'https://res.cloudinary.com/zsyultue/image/upload/v1792409076/cafe-qr-menu/dishes/mango-smoothie.jpg' },
+];
+
 const TAG_OPTIONS = [
   'Prime Beef',
   'Spicy',
@@ -54,8 +64,11 @@ export default function AdminDishModal({
   const [uploading, setUploading] = useState(false);
   const [uploadProvider, setUploadProvider] = useState(null);
   const fileInputRef = useRef(null);
+  const categoryFileInputRef = useRef(null);
 
-  const handleFileChange = async (e) => {
+  const isDishMode = mode === 'addDish' || mode === 'editDish';
+
+  const handleFileChange = async (e, folderType = null) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -66,7 +79,8 @@ export default function AdminDishModal({
     setUploading(true);
     try {
       if (onUploadImage) {
-        const res = await onUploadImage(file);
+        const folder = folderType || (isDishMode ? 'dishes' : 'categories');
+        const res = await onUploadImage(file, folder);
         if (res && res.url) {
           setImage(res.url);
           setUploadProvider(res.provider || 'cloudinary');
@@ -83,12 +97,17 @@ export default function AdminDishModal({
   useEffect(() => {
     if (!isOpen) return;
     setError('');
+    setUploadProvider(null);
     if (mode === 'addCategory') {
       setName('');
       setIcon('coffee');
+      setDescription('');
+      setImage('');
     } else if (mode === 'editCategory' && data) {
       setName(data.name || '');
       setIcon(data.icon || 'coffee');
+      setDescription(data.description || '');
+      setImage(data.image || '');
     } else if (mode === 'addDish') {
       setName('');
       setDescription('');
@@ -113,8 +132,6 @@ export default function AdminDishModal({
   }, [isOpen, mode, data, targetCategoryId, categories]);
 
   if (!isOpen) return null;
-
-  const isDishMode = mode === 'addDish' || mode === 'editDish';
 
   const toggleTag = (tag) => {
     if (selectedTags.includes(tag)) {
@@ -153,6 +170,8 @@ export default function AdminDishModal({
       onSubmit({
         name: name.trim(),
         icon,
+        image: (image || '').trim(),
+        description: (description || '').trim(),
       });
     }
   };
@@ -450,35 +469,212 @@ export default function AdminDishModal({
               </div>
             </div>
           ) : (
-            /* ================= CATEGORY FORM ================= */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <label class="ad-field-label">Category Name *</label>
-                <input
-                  type="text"
-                  class="ad-form-input"
-                  placeholder="e.g. Traditional Specialties"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+            /* ================= 2-COLUMN CATEGORY FORM ================= */
+            <div class="ad-form-split-layout">
+              {/* Left Column: Form Fields */}
+              <div class="ad-form-col">
+                <div>
+                  <label class="ad-field-label">Category Name *</label>
+                  <input
+                    type="text"
+                    class="ad-form-input"
+                    placeholder="e.g. Traditional Specialties"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label class="ad-field-label">Category Icon</label>
+                  <select
+                    class="ad-form-input"
+                    value={icon}
+                    onChange={(e) => setIcon(e.target.value)}
+                  >
+                    <option value="habesha">Habesha (Traditional Flame)</option>
+                    <option value="coffee">Coffee (Artisan Cup)</option>
+                    <option value="burgers">Burgers (Gourmet Bun)</option>
+                    <option value="pizza">Pizza (Stone-Baked)</option>
+                    <option value="breakfast">Breakfast (Morning Feast)</option>
+                    <option value="desserts">Desserts (Handcrafted Sweets)</option>
+                    <option value="drinks">Drinks (Chilled Refreshment)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="ad-field-label">Description (Optional)</label>
+                  <textarea
+                    class="ad-form-input ad-form-textarea"
+                    placeholder="Brief description or highlight for this section..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={2}
+                  />
+                </div>
+
+                {/* Category Cover Image & Cloudinary Upload */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                    <label class="ad-field-label" style={{ margin: 0 }}>Category Cover Photography</label>
+                    {uploadProvider && (
+                      <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600 }}>
+                        {uploadProvider === 'cloudinary' ? '✓ Uploaded to Cloudinary' : '✓ Image Uploaded'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Cloudinary Upload Trigger */}
+                  <div style={{ marginBottom: '0.8rem' }}>
+                    <input
+                      type="file"
+                      ref={categoryFileInputRef}
+                      onChange={(e) => handleFileChange(e, 'categories')}
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      type="button"
+                      class="ad-btn-action-primary"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '7px',
+                        padding: '0.48rem 0.9rem',
+                        fontSize: '0.82rem',
+                        background: '#13221e',
+                        color: '#ffffff',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: uploading ? 'wait' : 'pointer',
+                      }}
+                      onClick={() => categoryFileInputRef.current && categoryFileInputRef.current.click()}
+                      disabled={uploading}
+                    >
+                      <span>☁️</span>
+                      <span>{uploading ? 'Uploading to Cloudinary...' : 'Upload Category Image to Cloudinary'}</span>
+                    </button>
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '0.6rem' }}>
+                      or select a curated preset:
+                    </span>
+                  </div>
+
+                  <div class="ad-photo-presets-grid">
+                    {CATEGORY_PHOTO_PRESETS.map((preset) => (
+                      <button
+                        key={preset.path}
+                        type="button"
+                        class={`ad-preset-thumb-btn ${image === preset.path ? 'is-selected' : ''}`}
+                        onClick={() => {
+                          setImage(preset.path);
+                          setUploadProvider(null);
+                        }}
+                        title={preset.label}
+                      >
+                        <img src={preset.path} alt={preset.label} />
+                      </button>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: '0.6rem' }}>
+                    <input
+                      type="text"
+                      class="ad-form-input"
+                      style={{ fontSize: '0.8rem', padding: '0.45rem 0.8rem' }}
+                      placeholder="Or enter custom image / Cloudinary URL: https://res.cloudinary.com/..."
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label class="ad-field-label">Category Icon</label>
-                <select
-                  class="ad-form-input"
-                  value={icon}
-                  onChange={(e) => setIcon(e.target.value)}
-                >
-                  <option value="habesha">Habesha (Traditional Flame)</option>
-                  <option value="coffee">Coffee (Artisan Cup)</option>
-                  <option value="burgers">Burgers (Gourmet Bun)</option>
-                  <option value="pizza">Pizza (Stone-Baked)</option>
-                  <option value="breakfast">Breakfast (Morning Feast)</option>
-                  <option value="desserts">Desserts (Handcrafted Sweets)</option>
-                  <option value="drinks">Drinks (Chilled Refreshment)</option>
-                </select>
+              {/* Right Column: Category Cover Preview */}
+              <div class="ad-form-col">
+                <div class="ad-live-preview-box">
+                  <span class="ad-live-preview-title">Live Category Cover Preview</span>
+
+                  {/* Category Cover Simulator */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '180px',
+                      borderRadius: '18px',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      background: '#1a2e26',
+                      backgroundImage: image ? `url(${image})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.12)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      padding: '1.2rem',
+                    }}
+                  >
+                    {/* Gradient Overlay */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.4) 100%)',
+                        zIndex: 1,
+                      }}
+                    />
+
+                    {/* Tag badge top-right */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '1rem',
+                        right: '1rem',
+                        zIndex: 2,
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#ffffff',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '999px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      {icon || 'category'}
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ position: 'relative', zIndex: 2, color: '#ffffff' }}>
+                      <h4
+                        style={{
+                          fontSize: '1.2rem',
+                          fontWeight: 800,
+                          margin: '0 0 4px',
+                          color: '#ffffff',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {name || 'Category Name'}
+                      </h4>
+                      <p
+                        style={{
+                          fontSize: '0.8rem',
+                          color: 'rgba(255, 255, 255, 0.85)',
+                          margin: 0,
+                          lineHeight: 1.3,
+                          textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {description || 'Curated dishes & refreshing selections.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '0.75rem', color: '#9ca3af', textAlign: 'center', marginTop: '1.2rem', margin: '1.2rem 0 0' }}>
+                    This banner will appear as the category header on customer menus and in the admin manager view.
+                  </p>
+                </div>
               </div>
             </div>
           )}

@@ -370,15 +370,25 @@ app.get('/api/admin/menu', (req, res) => {
 });
 
 /**
- * Upload an image (to Cloudinary if configured, or local fallback)
+ * Upload an image (to Cloudinary if configured, or modular local fallback)
+ * Modular per-cafe folders: cafe-qr-menu/{cafeSlug}/{folderType}
  */
 app.post('/api/admin/upload', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file uploaded.' });
     }
-    const result = await uploadImage(req.file);
-    return res.json({ url: result.url, provider: result.provider });
+    const cafeSlug = req.body.cafeSlug || req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
+    const folder = req.body.folder || req.query.folder || req.body.type || 'dishes';
+    const result = await uploadImage(req.file, { cafeSlug, folder });
+    return res.json({
+      url: result.url,
+      publicId: result.publicId,
+      provider: result.provider,
+      folder: result.folder,
+      cafeSlug: result.cafeSlug,
+      folderType: result.folderType,
+    });
   } catch (err) {
     console.error('[upload] Image upload failed:', err);
     return res.status(500).json({ error: err.message || 'Image upload failed.' });
@@ -483,6 +493,7 @@ app.post('/api/admin/categories', (req, res) => {
       id: store.newId(body.name, taken),
       name: String(body.name).trim(),
       icon: String(body.icon || 'coffee'),
+      image: body.image ? String(body.image).trim() : '',
       description: String(body.description || ''),
       items: [],
     };
@@ -499,6 +510,7 @@ app.put('/api/admin/categories/:id', (req, res) => {
     if (!target) return null;
     if (typeof body.name === 'string' && body.name.trim()) target.name = body.name.trim();
     if (typeof body.icon === 'string' && body.icon.trim()) target.icon = body.icon.trim();
+    if (body.image !== undefined) target.image = String(body.image || '').trim();
     if (typeof body.description === 'string') target.description = body.description;
     return target;
   });

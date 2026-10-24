@@ -103,7 +103,9 @@ export default function DishGrid({
       {filteredCategories.map((cat) => {
         const locCat = getLocalizedCategory(cat, lang);
         const tag = getCategoryBannerTag(cat.id, lang);
-        const media = getCategoryMedia(cat.id || cat.icon);
+        const media = cat.image
+          ? { type: 'image', src: cat.image, alt: locCat?.name || cat.name || cat.id }
+          : getCategoryMedia(cat.id || cat.icon);
 
         return (
           <article

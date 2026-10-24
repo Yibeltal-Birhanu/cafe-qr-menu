@@ -104,12 +104,17 @@ async function initDB() {
         cafeId VARCHAR(36) NOT NULL DEFAULT 'default-abol-cafe',
         name VARCHAR(255) NOT NULL,
         icon VARCHAR(100) DEFAULT 'coffee',
+        image VARCHAR(500) DEFAULT '',
         description TEXT,
         sortOrder INT NOT NULL DEFAULT 0,
         PRIMARY KEY (cafeId, id),
         FOREIGN KEY (cafeId) REFERENCES cafes(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
+
+    try {
+      await connection.query(`ALTER TABLE categories ADD COLUMN IF NOT EXISTS image VARCHAR(500) DEFAULT ''`);
+    } catch (_) {}
 
     await connection.query(`
       CREATE TABLE IF NOT EXISTS items (

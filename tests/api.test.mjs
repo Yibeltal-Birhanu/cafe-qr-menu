@@ -5,6 +5,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getCloudinaryFolder } from '../server/cloudinary.js';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PORT = 4599;
@@ -662,6 +663,95 @@ test('Manager: performs CRUD on categories and dishes, and generates dynamic tab
     const cleanupRes = await call(`/api/superadmin/cafes/${createRes.body.cafe.id}`, { method: 'DELETE' }, token);
     assert.equal(cleanupRes.status, 200);
   }
+});
+
+test('modular Cloudinary folders organize uploads by cafe tenant and folder type', () => {
+  assert.equal(getCloudinaryFolder('yibe', 'categories'), 'cafe-qr-menu/yibe/categories');
+  assert.equal(getCloudinaryFolder('yibe', 'dishes'), 'cafe-qr-menu/yibe/dishes');
+  assert.equal(getCloudinaryFolder('abol-cafe', 'categories'), 'cafe-qr-menu/abol-cafe/categories');
+  assert.equal(getCloudinaryFolder('Special Café & Grill!', 'categories'), 'cafe-qr-menu/special-cafe-grill/categories');
+  assert.equal(getCloudinaryFolder('', 'categories'), 'cafe-qr-menu/abol-cafe/categories');
+  assert.equal(getCloudinaryFolder('yibe', ''), 'cafe-qr-menu/yibe/general');
+});
+
+test('creates, updates and returns categories with cover image and description', async () => {
+  const imageUrl = 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/yibe/categories/traditional.jpg';
+  const created = await call('/api/admin/categories', {
+    method: 'POST',
+    body: {
+      name: 'Signature Feasts',
+      icon: 'habesha',
+      image: imageUrl,
+      description: 'Handcrafted seasonal feasts and platters',
+    },
+  }, token);
+  assert.equal(created.status, 201);
+  assert.equal(created.body.category.name, 'Signature Feasts');
+  assert.equal(created.body.category.image, imageUrl);
+  assert.equal(created.body.category.description, 'Handcrafted seasonal feasts and platters');
+  const catId = created.body.category.id;
+
+  // Verify in public menu
+  const menuRes = await call('/api/menu');
+  const publicCat = menuRes.body.categories.find((c) => c.id === catId);
+  assert.ok(publicCat);
+  assert.equal(publicCat.image, imageUrl);
+  assert.equal(publicCat.description, 'Handcrafted seasonal feasts and platters');
+
+  // Update image
+  const updatedImageUrl = 'https://res.cloudinary.com/zsyultue/image/upload/v1792409090/cafe-qr-menu/yibe/categories/feasts-updated.jpg';
+  const updated = await call(`/api/admin/categories/${catId}`, {
+    method: 'PUT',
+    body: {
+      image: updatedImageUrl,
+      description: 'Updated feast description',
+    },
+  }, token);
+  assert.equal(updated.status, 200);
+  assert.equal(updated.body.category.image, updatedImageUrl);
+  assert.equal(updated.body.category.description, 'Updated feast description');
+
+  // Clean up
+  const del = await call(`/api/admin/categories/${catId}`, { method: 'DELETE' }, token);
+  assert.equal(del.status, 200);
+});
+
+test('modular upload API assigns target folder based on cafe and folder param', async () => {
+  const dummyPng = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4,
+    0x89, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41,
+    0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+    0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00,
+    0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
+    0x42, 0x60, 0x82,
+  ]);
+
+  const fd1 = new FormData();
+  fd1.append('image', new Blob([dummyPng], { type: 'image/png' }), 'category-sample.png');
+  const res1 = await fetch(`${BASE}/api/admin/upload?cafe=yibe&folder=categories`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: fd1,
+  });
+  const data1 = await res1.json();
+  assert.equal(res1.status, 200);
+  assert.ok(data1.url);
+  assert.equal(data1.folder, 'cafe-qr-menu/yibe/categories');
+
+  const fd2 = new FormData();
+  fd2.append('image', new Blob([dummyPng], { type: 'image/png' }), 'dish-sample.png');
+  const res2 = await fetch(`${BASE}/api/admin/upload?cafe=abol-cafe&folder=dishes`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: fd2,
+  });
+  const data2 = await res2.json();
+  assert.equal(res2.status, 200);
+  assert.ok(data2.url);
+  assert.equal(data2.folder, 'cafe-qr-menu/abol-cafe/dishes');
 });
 
 test('rejects unknown API routes with JSON', async () => {

@@ -418,13 +418,23 @@ export default function AdminApp() {
       if (modalMode === 'addCategory') {
         await apiCall(`/api/admin/categories?cafe=${selectedCafeSlug}`, {
           method: 'POST',
-          body: { name: formData.name, icon: formData.icon },
+          body: {
+            name: formData.name,
+            icon: formData.icon,
+            image: formData.image || '',
+            description: formData.description || '',
+          },
         });
         showToast(`Category "${formData.name}" added`);
       } else if (modalMode === 'editCategory') {
         await apiCall(`/api/admin/categories/${modalData.id}?cafe=${selectedCafeSlug}`, {
           method: 'PUT',
-          body: { name: formData.name, icon: formData.icon },
+          body: {
+            name: formData.name,
+            icon: formData.icon,
+            image: formData.image !== undefined ? formData.image : '',
+            description: formData.description !== undefined ? formData.description : '',
+          },
         });
         showToast(`Category "${formData.name}" updated`);
       } else if (modalMode === 'addDish') {
@@ -471,13 +481,23 @@ export default function AdminApp() {
   };
 
   // Image upload handler (uploads to Cloudinary via backend)
-  const handleUploadImage = useCallback(async (file) => {
+  const handleUploadImage = useCallback(async (file, folder = 'dishes') => {
     const fd = new FormData();
     fd.append('image', file);
-    const res = await fetch('/api/admin/upload', {
+    fd.append('folder', folder);
+    if (selectedCafeSlug) {
+      fd.append('cafeSlug', selectedCafeSlug);
+    }
+    const query = new URLSearchParams();
+    if (selectedCafeSlug) query.set('cafe', selectedCafeSlug);
+    if (folder) query.set('folder', folder);
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+
+    const res = await fetch(`/api/admin/upload${queryString}`, {
       method: 'POST',
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        'X-Cafe-Slug': selectedCafeSlug || '',
       },
       body: fd,
     });
@@ -486,7 +506,7 @@ export default function AdminApp() {
       throw new Error(data.error || 'Upload failed');
     }
     return data;
-  }, [token]);
+  }, [token, selectedCafeSlug]);
 
   // If not signed in, show clean modern login view
   if (!isAuthenticated) {
