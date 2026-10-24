@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   SettingsIcon,
   CheckIcon,
@@ -13,6 +13,8 @@ export default function VenueSettings({
   onSaveCafe,
   onResetSampleMenu,
   onShowToast,
+  onUploadImage,
+  cafeSlug,
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -22,6 +24,9 @@ export default function VenueSettings({
     wifi_ssid: '',
     wifi_pass: '',
     footer: '',
+    hero_title: '',
+    hero_description: '',
+    hero_image: '',
     theme: {
       preset: 'showcase',
       primaryColor: '#1c2826',
@@ -35,6 +40,8 @@ export default function VenueSettings({
   });
 
   const [isSaved, setIsSaved] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const heroFileInputRef = useRef(null);
 
   useEffect(() => {
     if (cafe) {
@@ -49,6 +56,9 @@ export default function VenueSettings({
         wifi_ssid: cafe.wifi_ssid || '',
         wifi_pass: cafe.wifi_pass || '',
         footer: cafe.footer || '',
+        hero_title: cafe.hero_title || '',
+        hero_description: cafe.hero_description || '',
+        hero_image: cafe.hero_image || '',
         theme: {
           ...basePreset,
           ...cafeTheme,
@@ -62,6 +72,39 @@ export default function VenueSettings({
     setFormData(updated);
     setIsSaved(false);
     onSaveCafe(updated);
+  };
+
+  const handleHeroFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    try {
+      if (onUploadImage) {
+        const url = await onUploadImage(file, 'hero');
+        handleChange('hero_image', url);
+        if (onShowToast) onShowToast('Hero banner image uploaded to Cloudinary');
+      } else {
+        const fd = new FormData();
+        fd.append('image', file);
+        fd.append('folder', 'hero');
+        if (cafeSlug) fd.append('cafeSlug', cafeSlug);
+        const res = await fetch(`/api/admin/upload?folder=hero${cafeSlug ? `&cafe=${cafeSlug}` : ''}`, {
+          method: 'POST',
+          body: fd,
+        });
+        const data = await res.json();
+        if (data.url) {
+          handleChange('hero_image', data.url);
+          if (onShowToast) onShowToast('Hero banner image uploaded');
+        } else {
+          throw new Error(data.error || 'Upload failed');
+        }
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(`Upload failed: ${err.message}`, true);
+    } finally {
+      setUploadingHero(false);
+    }
   };
 
   const handleSelectPreset = (preset) => {
@@ -217,6 +260,105 @@ export default function VenueSettings({
                   value={formData.footer}
                   onChange={(e) => handleChange('footer', e.target.value)}
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Homepage Hero & Banner Showcase */}
+          <div className="ad-panel-card" style={{ padding: '1.8rem' }}>
+            <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
+              <div>
+                <h3 className="ad-card-title">Homepage Hero &amp; Banner Showcase</h3>
+                <p className="ad-card-sub">
+                  Customize the headline, description, and hero banner image displayed at the top of the customer mobile menu.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.2rem' }}>
+              <div>
+                <label className="ad-field-label">Custom Hero Title</label>
+                <input
+                  type="text"
+                  className="ad-form-input"
+                  placeholder="e.g. Wood-Fired Delicacies &amp; Reserve Roasts (leave empty for theme default)"
+                  value={formData.hero_title || ''}
+                  onChange={(e) => handleChange('hero_title', e.target.value)}
+                />
+                <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', display: 'block' }}>
+                  If empty, automatically uses your cafe name or the signature theme layout heading.
+                </span>
+              </div>
+
+              <div>
+                <label className="ad-field-label">Custom Hero Description / Subtitle</label>
+                <textarea
+                  className="ad-form-input"
+                  rows={2}
+                  placeholder="e.g. Freshly handcrafted ingredients, organic sourdough pizzas, and single-origin coffee."
+                  value={formData.hero_description || ''}
+                  onChange={(e) => handleChange('hero_description', e.target.value)}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
+
+              <div>
+                <label className="ad-field-label">Hero Banner Image URL or Cloudinary Upload</label>
+                <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                  <input
+                    type="url"
+                    className="ad-form-input"
+                    placeholder="https://res.cloudinary.com/... or paste image URL"
+                    value={formData.hero_image || ''}
+                    onChange={(e) => handleChange('hero_image', e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <input
+                    type="file"
+                    ref={heroFileInputRef}
+                    accept="image/*"
+                    onChange={handleHeroFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    className="ad-btn-action-secondary"
+                    onClick={() => heroFileInputRef.current && heroFileInputRef.current.click()}
+                    disabled={uploadingHero}
+                    style={{ whiteSpace: 'nowrap', padding: '0.65rem 1rem' }}
+                  >
+                    {uploadingHero ? 'Uploading...' : '☁ Upload to Cloudinary'}
+                  </button>
+                  {formData.hero_image && (
+                    <button
+                      type="button"
+                      className="ad-btn-danger"
+                      onClick={() => handleChange('hero_image', '')}
+                      style={{ padding: '0.65rem 0.85rem' }}
+                      title="Clear custom image"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {formData.hero_image ? (
+                  <div style={{ marginTop: '0.8rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', height: '140px', position: 'relative' }}>
+                    <img
+                      src={formData.hero_image}
+                      alt="Hero banner preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px' }}>
+                      Hero Banner Preview
+                    </div>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', display: 'block' }}>
+                    Leave empty to use the active theme layout's signature hero image.
+                  </span>
+                )}
               </div>
             </div>
           </div>

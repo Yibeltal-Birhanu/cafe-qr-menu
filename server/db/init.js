@@ -86,6 +86,9 @@ async function initDB() {
         wifi_pass VARCHAR(100) DEFAULT '',
         status VARCHAR(20) NOT NULL DEFAULT 'active',
         theme JSON NULL,
+        hero_title VARCHAR(255) DEFAULT '',
+        hero_description TEXT NULL,
+        hero_image VARCHAR(500) DEFAULT '',
         owner_id VARCHAR(36) NULL,
         created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
         updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
@@ -96,6 +99,9 @@ async function initDB() {
     try {
       await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'active'`);
       await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS theme JSON NULL`);
+      await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS hero_title VARCHAR(255) DEFAULT ''`);
+      await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS hero_description TEXT NULL`);
+      await connection.query(`ALTER TABLE cafes ADD COLUMN IF NOT EXISTS hero_image VARCHAR(500) DEFAULT ''`);
     } catch (_) {}
 
     await connection.query(`

@@ -337,6 +337,9 @@ export default function SuperAdminDashboard({
       wifi_pass: cafe.wifi_pass || '',
       footer: cafe.footer || '',
       status: cafe.status || 'active',
+      hero_title: cafe.hero_title || '',
+      hero_description: cafe.hero_description || '',
+      hero_image: cafe.hero_image || '',
       themePreset: cafe.theme?.preset || matchedPreset.id,
       primaryColor: cafe.theme?.primaryColor || matchedPreset.primaryColor,
       secondaryColor: cafe.theme?.secondaryColor || matchedPreset.secondaryColor,
@@ -380,6 +383,9 @@ export default function SuperAdminDashboard({
         wifi_ssid: settingsForm.wifi_ssid.trim(),
         wifi_pass: settingsForm.wifi_pass.trim(),
         footer: settingsForm.footer.trim(),
+        hero_title: (settingsForm.hero_title || '').trim(),
+        hero_description: (settingsForm.hero_description || '').trim(),
+        hero_image: (settingsForm.hero_image || '').trim(),
         status: settingsForm.status,
         theme: themePayload,
       };
@@ -1413,6 +1419,7 @@ export default function SuperAdminDashboard({
             <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
               {[
                 { id: 'general', label: 'General & Profile' },
+                { id: 'hero', label: 'Hero & Showcase' },
                 { id: 'wifi', label: 'Wi-Fi & Connectivity' },
                 { id: 'theme', label: 'Theme & Architecture' },
                 { id: 'manager', label: 'Manager Credentials' },
@@ -1568,6 +1575,65 @@ export default function SuperAdminDashboard({
                       onChange={(e) => setSettingsForm({ ...settingsForm, footer: e.target.value })}
                       placeholder="Scan, browse, enjoy. Ask our staff for today's special."
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB: HERO SHOWCASE */}
+              {manageActiveTab === 'hero' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
+                    Configure custom hero headline, description, and top banner image for this cafe's mobile menu homepage.
+                  </p>
+
+                  <div>
+                    <label className="ad-field-label">Custom Hero Title</label>
+                    <input
+                      type="text"
+                      className="ad-form-input"
+                      value={settingsForm.hero_title || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, hero_title: e.target.value })}
+                      placeholder="e.g. Wood-Fired Delicacies &amp; Reserve Roasts (leave empty for theme default)"
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', display: 'block' }}>
+                      Defaults to the cafe name or theme layout signature heading if left blank.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="ad-field-label">Custom Hero Description / Subtitle</label>
+                    <textarea
+                      rows={2}
+                      className="ad-form-input"
+                      style={{ resize: 'vertical' }}
+                      value={settingsForm.hero_description || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, hero_description: e.target.value })}
+                      placeholder="e.g. Freshly handcrafted ingredients, organic sourdough pizzas, and single-origin coffee."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="ad-field-label">Hero Banner Image URL</label>
+                    <input
+                      type="url"
+                      className="ad-form-input"
+                      value={settingsForm.hero_image || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, hero_image: e.target.value })}
+                      placeholder="https://res.cloudinary.com/... or paste image URL"
+                    />
+                    {settingsForm.hero_image && (
+                      <div style={{ marginTop: '0.8rem', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', height: '140px', position: 'relative' }}>
+                        <img
+                          src={settingsForm.hero_image}
+                          alt="Hero banner preview"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '4px' }}>
+                          Banner Preview
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

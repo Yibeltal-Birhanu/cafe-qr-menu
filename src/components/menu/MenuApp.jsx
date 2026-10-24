@@ -241,15 +241,27 @@ export default function MenuApp() {
   const currentPreset = apiMenu?.cafe?.theme?.preset || 'showcase';
 
   const heroImage = useMemo(() => {
+    if (apiMenu?.cafe?.hero_image && apiMenu.cafe.hero_image.trim()) {
+      return apiMenu.cafe.hero_image.trim();
+    }
     if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
     if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
     if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
     if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
     return allItems[0]?.image || '/images/dishes/classic-beef-burger.jpg';
-  }, [currentLayout, allItems]);
+  }, [apiMenu?.cafe?.hero_image, currentLayout, allItems]);
 
   const { heroTitle, heroSub } = useMemo(() => {
+    const customTitle = apiMenu?.cafe?.hero_title?.trim();
+    const customSub = (apiMenu?.cafe?.hero_description || apiMenu?.cafe?.hero_desc)?.trim();
+    if (customTitle || customSub) {
+      return {
+        heroTitle: customTitle || (apiMenu?.cafe?.name === 'Abol Cafe' ? 'Fresh Flavors Every Day' : (apiMenu?.cafe?.name || 'Fresh Flavors Every Day')),
+        heroSub: customSub || apiMenu?.cafe?.tagline || 'Quality ingredients, handcrafted with authentic passion.',
+      };
+    }
+
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro' || currentLayout === 'rustic') {
       return {

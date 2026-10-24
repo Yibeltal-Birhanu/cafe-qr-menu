@@ -50,6 +50,9 @@ function ensureShape(raw, fallbackSeed = seed) {
       wifi_ssid: typeof cafe.wifi_ssid === 'string' ? cafe.wifi_ssid : (defaultCafe.wifi_ssid || ''),
       wifi_pass: typeof cafe.wifi_pass === 'string' ? cafe.wifi_pass : (defaultCafe.wifi_pass || ''),
       status: cafe.status || 'active',
+      hero_title: typeof cafe.hero_title === 'string' ? cafe.hero_title : (defaultCafe.hero_title || ''),
+      hero_description: typeof cafe.hero_description === 'string' ? cafe.hero_description : (defaultCafe.hero_description || ''),
+      hero_image: typeof cafe.hero_image === 'string' ? cafe.hero_image : (defaultCafe.hero_image || ''),
       theme: cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {
         preset: 'showcase',
         primaryColor: '#1c2826',
@@ -102,15 +105,15 @@ async function syncToMySQL(slug, menuData) {
     if (existing.length === 0) {
       cafeId = crypto.randomUUID();
       await pool.query(
-        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, theme)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal]
+        `INSERT INTO cafes (id, slug, name, tagline, currency, footer, logo, phone, wifi_ssid, wifi_pass, status, theme, hero_title, hero_description, hero_image)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [cafeId, slug, cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal, cafe.hero_title || '', cafe.hero_description || '', cafe.hero_image || '']
       );
     } else {
       cafeId = existing[0].id;
       await pool.query(
-        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ?, theme = ? WHERE id = ?`,
-        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal, cafeId]
+        `UPDATE cafes SET name = ?, tagline = ?, currency = ?, footer = ?, logo = ?, phone = ?, wifi_ssid = ?, wifi_pass = ?, status = ?, theme = ?, hero_title = ?, hero_description = ?, hero_image = ? WHERE id = ?`,
+        [cafe.name, cafe.tagline, cafe.currency, cafe.footer, cafe.logo, cafe.phone, cafe.wifi_ssid, cafe.wifi_pass, cafe.status || 'active', themeVal, cafe.hero_title || '', cafe.hero_description || '', cafe.hero_image || '', cafeId]
       );
     }
 
@@ -242,6 +245,9 @@ async function loadCafeFromMySQL(slug) {
         wifi_ssid: cafe.wifi_ssid,
         wifi_pass: cafe.wifi_pass,
         status: cafe.status,
+        hero_title: cafe.hero_title || '',
+        hero_description: cafe.hero_description || '',
+        hero_image: cafe.hero_image || '',
         theme: cafe.theme
           ? typeof cafe.theme === 'string'
             ? (() => { try { return JSON.parse(cafe.theme); } catch { return null; } })()
@@ -479,7 +485,7 @@ async function updateCafeSettings(cafeId, settings = {}) {
   const updates = [];
   const values = [];
 
-  const allowedFields = ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass', 'status'];
+  const allowedFields = ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass', 'status', 'hero_title', 'hero_description', 'hero_image'];
   for (const field of allowedFields) {
     if (settings[field] !== undefined) {
       updates.push(`${field} = ?`);

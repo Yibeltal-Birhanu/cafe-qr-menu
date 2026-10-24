@@ -792,6 +792,53 @@ test('QR scan tracking: records every scan as a visitor and serves real stats to
   assert.equal(menuRes.body.analytics.scansToday, initialScansToday + 2);
 });
 
+test('Super Admin and Manager can update hero title, description, and hero banner image', async () => {
+  // 1. Manager updates hero title, description, and hero image
+  const managerUpdate = await call(
+    '/api/admin/cafe?cafe=abol-cafe',
+    {
+      method: 'PUT',
+      body: {
+        hero_title: 'Artisan Wood-Fired Roastery',
+        hero_description: 'Single-origin beans, sourdough crusts, and warm hearth atmosphere.',
+        hero_image: 'https://res.cloudinary.com/demo/image/upload/v1/hero-banner.jpg',
+      },
+    },
+    token
+  );
+  assert.equal(managerUpdate.status, 200);
+  assert.equal(managerUpdate.body.cafe.hero_title, 'Artisan Wood-Fired Roastery');
+  assert.equal(managerUpdate.body.cafe.hero_description, 'Single-origin beans, sourdough crusts, and warm hearth atmosphere.');
+  assert.equal(managerUpdate.body.cafe.hero_image, 'https://res.cloudinary.com/demo/image/upload/v1/hero-banner.jpg');
+
+  // 2. Public customer menu reflects the custom hero fields
+  const publicMenu = await call('/api/abol-cafe/menu');
+  assert.equal(publicMenu.status, 200);
+  assert.equal(publicMenu.body.cafe.hero_title, 'Artisan Wood-Fired Roastery');
+  assert.equal(publicMenu.body.cafe.hero_description, 'Single-origin beans, sourdough crusts, and warm hearth atmosphere.');
+  assert.equal(publicMenu.body.cafe.hero_image, 'https://res.cloudinary.com/demo/image/upload/v1/hero-banner.jpg');
+
+  // 3. Super Admin updates hero settings
+  const cafeId = publicMenu.body.cafe.id;
+  const superUpdate = await call(
+    `/api/superadmin/cafes/${cafeId}`,
+    {
+      method: 'PUT',
+      body: {
+        name: publicMenu.body.cafe.name,
+        hero_title: 'Grand Reserve Tasting Room',
+        hero_description: 'Curated specialty harvests & dry-aged degustation.',
+        hero_image: 'https://res.cloudinary.com/demo/image/upload/v2/grand-reserve.jpg',
+      },
+    },
+    token
+  );
+  assert.equal(superUpdate.status, 200);
+  assert.equal(superUpdate.body.cafe.hero_title, 'Grand Reserve Tasting Room');
+  assert.equal(superUpdate.body.cafe.hero_description, 'Curated specialty harvests & dry-aged degustation.');
+  assert.equal(superUpdate.body.cafe.hero_image, 'https://res.cloudinary.com/demo/image/upload/v2/grand-reserve.jpg');
+});
+
 test('rejects unknown API routes with JSON', async () => {
   const response = await call('/api/does-not-exist');
   assert.equal(response.status, 404);

@@ -323,6 +323,9 @@ app.put('/api/superadmin/cafes/:id', async (req, res) => {
       logo: body.logo,
       status: body.status,
       theme: body.theme,
+      hero_title: body.hero_title,
+      hero_description: body.hero_description,
+      hero_image: body.hero_image,
     });
 
     if (!cafe) return res.status(404).json({ error: 'Cafe not found.' });
@@ -578,6 +581,9 @@ app.put('/api/admin/cafe', (req, res) => {
   const cafe = store.update(req.cafeSlug, (data) => {
     for (const key of ['name', 'tagline', 'currency', 'footer', 'logo', 'phone', 'wifi_ssid', 'wifi_pass']) {
       if (typeof body[key] === 'string' && body[key].trim()) data.cafe[key] = body[key].trim();
+    }
+    for (const key of ['hero_title', 'hero_description', 'hero_image']) {
+      if (typeof body[key] === 'string') data.cafe[key] = body[key].trim();
     }
     if (body.theme && typeof body.theme === 'object') {
       data.cafe.theme = { ...(data.cafe.theme || {}), ...body.theme };

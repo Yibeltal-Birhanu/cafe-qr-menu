@@ -690,6 +690,8 @@ export default function AdminApp() {
                 onSaveCafe={handleSaveCafe}
                 onResetSampleMenu={handleResetSampleMenu}
                 onShowToast={showToast}
+                onUploadImage={handleUploadImage}
+                cafeSlug={selectedCafeSlug}
             />
           </div>
         )}
