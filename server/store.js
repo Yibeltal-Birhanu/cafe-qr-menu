@@ -565,6 +565,204 @@ async function getPlatformStats() {
   };
 }
 
+const scanEvents = []; // In-memory buffer of QR scans for quick lookups & offline test suites
+
+/**
+ * Records a QR scan / visitor event for a cafe tenant.
+ * Every QR scan is counted as a visitor.
+ */
+async function recordScan(cafeSlug = 'abol-cafe', meta = {}) {
+  const slug = String(cafeSlug || 'abol-cafe').trim();
+  const tableNumber = meta.table || meta.tableNumber || null;
+  const ipAddress = meta.ip || meta.ipAddress || null;
+  const userAgent = meta.userAgent || null;
+  const referrer = meta.referrer || null;
+  const scannedAt = meta.scannedAt instanceof Date ? meta.scannedAt : new Date();
+
+  // Determine cafeId
+  let cafeId = 'default-abol-cafe';
+  const cafeData = get(slug);
+  if (cafeData?.cafe?.id) {
+    cafeId = cafeData.cafe.id;
+  }
+
+  const event = {
+    cafeSlug: slug,
+    cafeId,
+    tableNumber: tableNumber ? String(tableNumber) : null,
+    ipAddress,
+    userAgent,
+    referrer,
+    scannedAt,
+  };
+
+  scanEvents.push(event);
+  if (scanEvents.length > 50000) {
+    scanEvents.shift();
+  }
+
+  if (pool) {
+    try {
+      let realCafeId = cafeId;
+      try {
+        const [rows] = await pool.query('SELECT id FROM cafes WHERE slug = ?', [slug]);
+        if (rows && rows.length > 0) {
+          realCafeId = rows[0].id;
+        }
+      } catch (_) {}
+
+      await pool.query(
+        `INSERT INTO qr_scans (cafe_id, cafe_slug, table_number, ip_address, user_agent, referrer, scanned_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          realCafeId,
+          slug,
+          tableNumber ? String(tableNumber) : null,
+          ipAddress ? String(ipAddress).slice(0, 255) : null,
+          userAgent ? String(userAgent).slice(0, 500) : null,
+          referrer ? String(referrer).slice(0, 500) : null,
+          scannedAt,
+        ]
+      );
+    } catch (err) {
+      console.warn(`[store] Could not record scan to MySQL:`, err.message);
+    }
+  }
+
+  return event;
+}
+
+/**
+ * Returns real scan analytics and visitor counts for a cafe tenant.
+ */
+async function getCafeAnalytics(cafeSlug = 'abol-cafe') {
+  const slug = String(cafeSlug || 'abol-cafe').trim();
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+
+  let totalScans = 0;
+  let totalVisitors = 0;
+  let uniqueVisitors = 0;
+  let scansToday = 0;
+  let visitorsToday = 0;
+  let scansYesterday = 0;
+  let visitorsYesterday = 0;
+  const dailyCounts = new Map();
+
+  let mysqlSucceeded = false;
+  if (pool) {
+    try {
+      const [[totals]] = await pool.query(
+        `SELECT
+           COUNT(*) AS totalScans,
+           COUNT(DISTINCT COALESCE(ip_address, id)) AS uniqueVisitors,
+           SUM(CASE WHEN scanned_at >= CURDATE() THEN 1 ELSE 0 END) AS scansToday,
+           SUM(CASE WHEN scanned_at >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND scanned_at < CURDATE() THEN 1 ELSE 0 END) AS scansYesterday,
+           COUNT(DISTINCT CASE WHEN scanned_at >= CURDATE() THEN COALESCE(ip_address, id) END) AS visitorsToday,
+           COUNT(DISTINCT CASE WHEN scanned_at >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND scanned_at < CURDATE() THEN COALESCE(ip_address, id) END) AS visitorsYesterday
+         FROM qr_scans
+         WHERE cafe_slug = ?`,
+        [slug]
+      );
+
+      if (totals) {
+        totalScans = Number(totals.totalScans) || 0;
+        // Count every QR scan as a visitor as requested
+        totalVisitors = totalScans;
+        uniqueVisitors = Number(totals.uniqueVisitors) || 0;
+        scansToday = Number(totals.scansToday) || 0;
+        visitorsToday = Number(totals.visitorsToday) || scansToday;
+        scansYesterday = Number(totals.scansYesterday) || 0;
+        visitorsYesterday = Number(totals.visitorsYesterday) || scansYesterday;
+      }
+
+      const [daysRows] = await pool.query(
+        `SELECT DATE(scanned_at) as scanDate, COUNT(*) as cnt
+         FROM qr_scans
+         WHERE cafe_slug = ? AND scanned_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+         GROUP BY DATE(scanned_at)
+         ORDER BY scanDate ASC`,
+        [slug]
+      );
+      if (Array.isArray(daysRows)) {
+        for (const row of daysRows) {
+          const dStr = row.scanDate instanceof Date ? row.scanDate.toISOString().slice(0, 10) : String(row.scanDate);
+          dailyCounts.set(dStr, Number(row.cnt) || 0);
+        }
+      }
+
+      mysqlSucceeded = true;
+    } catch (_) {
+      mysqlSucceeded = false;
+    }
+  }
+
+  // Fallback to in-memory scans
+  if (!mysqlSucceeded) {
+    const cafeScans = scanEvents.filter((ev) => ev.cafeSlug === slug);
+    totalScans = cafeScans.length;
+    totalVisitors = totalScans;
+    const uniqueIps = new Set(cafeScans.map((s) => s.ipAddress || Math.random()));
+    uniqueVisitors = uniqueIps.size;
+
+    for (const scan of cafeScans) {
+      const time = new Date(scan.scannedAt).getTime();
+      if (time >= todayStart.getTime()) {
+        scansToday++;
+        visitorsToday++;
+      } else if (time >= yesterdayStart.getTime()) {
+        scansYesterday++;
+        visitorsYesterday++;
+      }
+      const dStr = new Date(scan.scannedAt).toISOString().slice(0, 10);
+      dailyCounts.set(dStr, (dailyCounts.get(dStr) || 0) + 1);
+    }
+  }
+
+  const chartData = [];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const key = `${yyyy}-${mm}-${dd}`;
+    const val = dailyCounts.get(key) || 0;
+    const dayName = dayNames[d.getDay()];
+    const dateFormatted = `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    chartData.push({
+      day: dayName,
+      date: key,
+      value: val,
+      label: `${dayName}, ${dateFormatted}: ${val} scans`,
+    });
+  }
+
+  const calcTrend = (today, yest) => {
+    if (yest === 0) {
+      return today > 0 ? `+${today} today` : 'No scans yet';
+    }
+    const diff = today - yest;
+    const pct = Math.round((diff / yest) * 100);
+    return pct >= 0 ? `↗ +${pct}% from yesterday` : `↘ ${pct}% from yesterday`;
+  };
+
+  return {
+    totalScans,
+    totalVisitors,
+    uniqueVisitors,
+    scansToday,
+    visitorsToday,
+    scansYesterday,
+    visitorsYesterday,
+    scansTodayTrend: calcTrend(scansToday, scansYesterday),
+    visitorsTrend: calcTrend(visitorsToday, visitorsYesterday),
+    chartData,
+  };
+}
+
 module.exports = {
   load,
   get,
@@ -581,6 +779,8 @@ module.exports = {
   listCafes,
   listAllCafesWithManagers,
   getPlatformStats,
+  recordScan,
+  getCafeAnalytics,
   getCafeById,
   getCafeBySlug,
   findCafeForUser,

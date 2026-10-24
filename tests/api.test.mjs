@@ -754,6 +754,45 @@ test('modular upload API assigns target folder based on cafe and folder param', 
   assert.equal(data2.folder, 'cafe-qr-menu/abol-cafe/dishes');
 });
 
+test('QR scan tracking: records every scan as a visitor and serves real stats to manager dashboard', async () => {
+  // 1. Initial admin stats check
+  const initStatsRes = await call('/api/admin/stats?cafe=abol-cafe', {}, token);
+  assert.equal(initStatsRes.status, 200);
+  const initialVisitors = initStatsRes.body.totalVisitors || 0;
+  const initialScansToday = initStatsRes.body.scansToday || 0;
+
+  // 2. Scan via redirect route /scan/:cafeSlug?table=7
+  const scanRedirectRes = await fetch(`${BASE}/scan/abol-cafe?table=7`, {
+    redirect: 'manual',
+  });
+  assert.equal(scanRedirectRes.status, 302);
+  assert.match(scanRedirectRes.headers.get('location'), /\/cafe\/abol-cafe\?table=7&scanned=1/);
+
+  // 3. Scan via beacon API POST /api/:cafeSlug/scan
+  const scanBeaconRes = await call('/api/abol-cafe/scan?table=12', {
+    method: 'POST',
+    body: { table: '12', source: 'qr_test' },
+  });
+  assert.equal(scanBeaconRes.status, 201);
+  assert.equal(scanBeaconRes.body.ok, true);
+  assert.equal(scanBeaconRes.body.scan.tableNumber, '12');
+
+  // 4. Verify manager stats incremented accurately
+  const updatedStatsRes = await call('/api/admin/stats?cafe=abol-cafe', {}, token);
+  assert.equal(updatedStatsRes.status, 200);
+  assert.equal(updatedStatsRes.body.totalVisitors, initialVisitors + 2);
+  assert.equal(updatedStatsRes.body.scansToday, initialScansToday + 2);
+  assert.ok(Array.isArray(updatedStatsRes.body.chartData));
+  assert.equal(updatedStatsRes.body.chartData.length, 7);
+
+  // 5. Verify /api/admin/menu also returns the live analytics object
+  const menuRes = await call('/api/admin/menu?cafe=abol-cafe', {}, token);
+  assert.equal(menuRes.status, 200);
+  assert.ok(menuRes.body.analytics);
+  assert.equal(menuRes.body.analytics.totalVisitors, initialVisitors + 2);
+  assert.equal(menuRes.body.analytics.scansToday, initialScansToday + 2);
+});
+
 test('rejects unknown API routes with JSON', async () => {
   const response = await call('/api/does-not-exist');
   assert.equal(response.status, 404);

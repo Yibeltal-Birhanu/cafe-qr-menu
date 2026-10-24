@@ -106,10 +106,54 @@ app.get('/api/:cafeSlug/menu', async (req, res, next) => {
 });
 
 
+/**
+ * Direct QR scan redirect route.
+ * Records scan in database as visitor and redirects to the digital menu.
+ */
+app.get(['/scan/:cafeSlug', '/scan'], async (req, res) => {
+  const slug = req.params.cafeSlug || req.query.cafe || 'abol-cafe';
+  const table = req.query.table || '';
+
+  try {
+    await store.recordScan(slug, {
+      table,
+      ip: req.ip || req.connection?.remoteAddress,
+      userAgent: req.get('user-agent'),
+      referrer: req.get('referrer'),
+    });
+  } catch (err) {
+    console.warn('[scan] Failed to record scan:', err.message);
+  }
+
+  const tableQuery = table ? `?table=${encodeURIComponent(table)}&scanned=1` : '?scanned=1';
+  return res.redirect(302, `/cafe/${encodeURIComponent(slug)}${tableQuery}`);
+});
+
+/**
+ * Public beacon API route to record QR scan / visitor event
+ */
+app.post(['/api/:cafeSlug/scan', '/api/scan'], async (req, res, next) => {
+  if (['auth', 'admin', 'superadmin'].includes(req.params.cafeSlug)) return next();
+  const slug = req.params.cafeSlug || req.query.cafe || req.body?.cafeSlug || req.body?.cafe || 'abol-cafe';
+  const table = req.query.table || req.body?.table || req.body?.tableNumber || null;
+
+  try {
+    const event = await store.recordScan(slug, {
+      table,
+      ip: req.ip || req.connection?.remoteAddress,
+      userAgent: req.get('user-agent'),
+      referrer: req.get('referrer'),
+    });
+    return res.status(201).json({ ok: true, scan: event });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 /** PNG QR code default (supports optional ?table=N query parameter) */
 app.get('/qr.png', async (req, res) => {
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/abol-cafe${table}`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/abol-cafe${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -128,7 +172,7 @@ app.get('/api/:cafeSlug/qr.png', async (req, res, next) => {
   if (['auth', 'admin', 'superadmin'].includes(req.params.cafeSlug)) return next();
   const slug = req.params.cafeSlug;
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${slug}${table}`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/${slug}${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',
@@ -364,9 +408,27 @@ app.get('/api/admin/session', (req, res) => {
   res.json({ ok: true, user: req.user || null, cafeSlug: req.cafeSlug });
 });
 
-/** Get full menu for the manager's assigned cafe */
-app.get('/api/admin/menu', (req, res) => {
-  res.json(store.get(req.cafeSlug));
+/** Get full menu and real visitor analytics for the manager's assigned cafe */
+app.get('/api/admin/menu', async (req, res) => {
+  const menuData = store.get(req.cafeSlug);
+  const analytics = await store.getCafeAnalytics(req.cafeSlug);
+  res.json({
+    ...menuData,
+    analytics,
+  });
+});
+
+/** Dedicated analytics endpoint for the manager dashboard */
+app.get(['/api/admin/stats', '/api/admin/analytics'], async (req, res) => {
+  const analytics = await store.getCafeAnalytics(req.cafeSlug);
+  const menuData = store.get(req.cafeSlug);
+  const totalItems = (menuData.categories || []).reduce((sum, c) => sum + (c.items ? c.items.length : 0), 0);
+  const totalCategories = (menuData.categories || []).length;
+  res.json({
+    totalItems,
+    totalCategories,
+    ...analytics,
+  });
 });
 
 /**
@@ -398,7 +460,7 @@ app.post('/api/admin/upload', upload.single('image'), async (req, res) => {
 /** Generate dynamic table QR code PNG for the authenticated manager's cafe */
 app.get('/api/admin/qr', async (req, res) => {
   const table = req.query.table ? `?table=${encodeURIComponent(req.query.table)}` : '';
-  const target = req.query.url || `${req.protocol}://${req.get('host')}/cafe/${req.cafeSlug}${table}`;
+  const target = req.query.url || `${req.protocol}://${req.get('host')}/scan/${req.cafeSlug}${table}`;
   try {
     const png = await QRCode.toBuffer(String(target), {
       type: 'png',

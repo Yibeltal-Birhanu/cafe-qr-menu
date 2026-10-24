@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 
-export default function AdminAnalyticsRow({ topItems = [] }) {
-  const [hoverIndex, setHoverIndex] = useState(5); // Saturday selected by default as in image
-
-  const chartData = [
-    { day: 'Mon', value: 45, label: 'Mon, Oct 13: 45 scans' },
-    { day: 'Tue', value: 75, label: 'Tue, Oct 14: 75 scans' },
-    { day: 'Wed', value: 62, label: 'Wed, Oct 15: 62 scans' },
-    { day: 'Thu', value: 95, label: 'Thu, Oct 16: 95 scans' },
-    { day: 'Fri', value: 125, label: 'Fri, Oct 17: 125 scans' },
-    { day: 'Sat', value: 178, label: 'Sat, Oct 18: 178 scans' },
-    { day: 'Sun', value: 130, label: 'Sun, Oct 19: 130 scans' },
+export default function AdminAnalyticsRow({ topItems = [], chartData: customChartData = null }) {
+  const defaultChartData = [
+    { day: 'Mon', value: 0, label: 'Mon: 0 scans' },
+    { day: 'Tue', value: 0, label: 'Tue: 0 scans' },
+    { day: 'Wed', value: 0, label: 'Wed: 0 scans' },
+    { day: 'Thu', value: 0, label: 'Thu: 0 scans' },
+    { day: 'Fri', value: 0, label: 'Fri: 0 scans' },
+    { day: 'Sat', value: 0, label: 'Sat: 0 scans' },
+    { day: 'Sun', value: 0, label: 'Sun: 0 scans' },
   ];
+
+  const chartData = (customChartData && customChartData.length > 0) ? customChartData : defaultChartData;
+  const [hoverIndex, setHoverIndex] = useState(chartData.length - 1);
 
   // Map values into SVG coordinates (width: 500, height: 160)
   const width = 500;
@@ -19,9 +20,12 @@ export default function AdminAnalyticsRow({ topItems = [] }) {
   const paddingX = 35;
   const paddingY = 25;
 
+  const rawMax = Math.max(...chartData.map((d) => d.value), 0);
+  const maxVal = rawMax > 0 ? (rawMax <= 10 ? 10 : Math.ceil(rawMax / 10) * 10) : 10;
+
   const points = chartData.map((d, i) => {
-    const x = paddingX + (i / (chartData.length - 1)) * (width - 2 * paddingX);
-    const y = height - paddingY - (d.value / 200) * (height - 2 * paddingY);
+    const x = paddingX + (i / Math.max(1, chartData.length - 1)) * (width - 2 * paddingX);
+    const y = height - paddingY - (d.value / maxVal) * (height - 2 * paddingY);
     return { ...d, x, y };
   });
 
@@ -36,7 +40,9 @@ export default function AdminAnalyticsRow({ topItems = [] }) {
     return `${acc} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${pt.x} ${pt.y}`;
   }, '');
 
-  const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`;
+  const areaPath = points.length > 0
+    ? `${linePath} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`
+    : '';
 
   // Fallback top items if none provided
   const rankedItems = topItems.length > 0 ? topItems.slice(0, 5) : [
@@ -75,10 +81,10 @@ export default function AdminAnalyticsRow({ topItems = [] }) {
             </defs>
 
             {/* Horizontal Grid lines */}
-            {[0, 50, 100, 150, 200].map((v) => {
-              const y = height - paddingY - (v / 200) * (height - 2 * paddingY);
+            {[0, Math.round(maxVal * 0.25), Math.round(maxVal * 0.5), Math.round(maxVal * 0.75), maxVal].map((v, vIdx) => {
+              const y = height - paddingY - (v / maxVal) * (height - 2 * paddingY);
               return (
-                <g key={v}>
+                <g key={`grid-${vIdx}-${v}`}>
                   <line x1={paddingX - 10} y1={y} x2={width - paddingX + 10} y2={y} stroke="#f0f2f5" strokeWidth="1" />
                   <text x={paddingX - 18} y={y + 3} fontSize="9" fill="#9ca3af" textAnchor="end">
                     {v}

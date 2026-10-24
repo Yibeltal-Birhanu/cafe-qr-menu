@@ -69,6 +69,17 @@ export default function MenuApp() {
           })
           .catch(() => {});
       });
+
+    // Count every QR scan / menu view as a real visitor in DB
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const table = params.get('table') || '';
+      fetch(`/api/${encodeURIComponent(slug)}/scan${table ? `?table=${encodeURIComponent(table)}` : ''}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, source: 'qr_menu_view' }),
+      }).catch(() => {});
+    } catch (_) {}
   }, []);
 
   // Sync theme changes dynamically

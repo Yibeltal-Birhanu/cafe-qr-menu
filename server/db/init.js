@@ -139,7 +139,23 @@ async function initDB() {
       await connection.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS image VARCHAR(500) DEFAULT ''`);
     } catch (_) {}
 
-    // 3. Seed default cafe (abol-cafe) if none exists
+    // 3. Analytics & Visitor QR Scans Table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS qr_scans (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        cafe_id VARCHAR(36) NOT NULL,
+        cafe_slug VARCHAR(100) NOT NULL,
+        table_number VARCHAR(50) DEFAULT NULL,
+        ip_address VARCHAR(255) DEFAULT NULL,
+        user_agent TEXT DEFAULT NULL,
+        referrer TEXT DEFAULT NULL,
+        scanned_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+        INDEX idx_cafe_slug_time (cafe_slug, scanned_at),
+        INDEX idx_cafe_id_time (cafe_id, scanned_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 4. Seed default cafe (abol-cafe) if none exists
     const [existing] = await connection.query('SELECT id FROM cafes WHERE slug = ?', ['abol-cafe']);
     if (existing.length === 0) {
       console.log('[db] Seeding initial default tenant (abol-cafe)...');

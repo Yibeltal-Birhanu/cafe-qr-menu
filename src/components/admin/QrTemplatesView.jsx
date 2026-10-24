@@ -177,7 +177,7 @@ export default function QrTemplatesView({ cafeName = 'CafeMenu', onShowToast }) 
 
   const handleDownloadQr = () => {
     const link = document.createElement('a');
-    link.href = `/qr.png?url=${encodeURIComponent(`${window.location.origin}/abol-cafe?table=${selectedTable}`)}`;
+    link.href = `/qr.png?url=${encodeURIComponent(`${window.location.origin}/scan?table=${selectedTable}`)}`;
     link.download = `cafemenu-table-${selectedTable}.png`;
     document.body.appendChild(link);
     link.click();

@@ -600,10 +600,17 @@ export default function AdminApp() {
               </div>
 
               {/* 4 Stat Cards */}
-              <AdminStatsRow totalItems={totalItems} totalCategories={categories.length} />
+              <AdminStatsRow
+                totalItems={totalItems}
+                totalCategories={categories.length}
+                stats={menu?.analytics || {}}
+              />
 
               {/* Traffic Chart & Top Viewed Items */}
-              <AdminAnalyticsRow topItems={topDishes} />
+              <AdminAnalyticsRow
+                topItems={topDishes}
+                chartData={menu?.analytics?.chartData}
+              />
 
               {/* Menu Items Table */}
               <AdminItemsTable

@@ -7,8 +7,8 @@ export default function TableQrStudio({ cafeName = 'Cafe' }) {
   const origin = typeof window !== 'undefined'
     ? (window.location.origin || (window.location.protocol + '//' + window.location.host))
     : '';
-  const tableUrl = `${origin}/cafe?table=${encodeURIComponent(selectedTable)}`;
-  const qrSrc = `/qr.png?url=${encodeURIComponent(tableUrl)}`;
+  const tableUrl = `${origin}/scan?table=${encodeURIComponent(selectedTable)}`;
+  const qrSrc = `/qr.png?table=${encodeURIComponent(selectedTable)}`;
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank', 'width=650,height=750');
