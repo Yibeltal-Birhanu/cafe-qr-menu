@@ -291,6 +291,77 @@ test('auto-creates default category when creating dish in empty cafe', async () 
   }
 });
 
+test('Manager role enforcement: assigned manager creates dishes on their cafe and is blocked cross-tenant', async () => {
+  const ts = Date.now();
+  const slugA = `tenant-a-${ts}`;
+  const slugB = `tenant-b-${ts}`;
+  const managerEmail = `mgr-${ts}@tenanta.com`;
+  const managerPassword = 'mgrPassword123!';
+
+  // 1. Super Admin creates cafe A and provisions its manager
+  const cafeARes = await call('/api/superadmin/cafes', {
+    method: 'POST',
+    body: {
+      slug: slugA,
+      name: 'Tenant A Cafe',
+      managerEmail,
+      managerPassword,
+      managerName: 'Tenant A Manager',
+    },
+  }, token);
+  assert.equal(cafeARes.status, 201);
+
+  // Super Admin creates cafe B
+  const cafeBRes = await call('/api/superadmin/cafes', {
+    method: 'POST',
+    body: {
+      slug: slugB,
+      name: 'Tenant B Cafe',
+    },
+  }, token);
+  assert.equal(cafeBRes.status, 201);
+
+  // 2. Manager of Cafe A signs in
+  const loginRes = await call('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email: managerEmail, password: managerPassword },
+  });
+  assert.equal(loginRes.status, 200);
+  const managerToken = loginRes.body.token;
+
+  // 3. Manager of Cafe A successfully creates dish in Cafe A
+  const createDishRes = await call(`/api/admin/items?cafe=${slugA}`, {
+    method: 'POST',
+    body: {
+      name: 'Special Tibs',
+      price: 320,
+      description: 'Sautéed beef with peppers',
+      badge: 'Popular',
+    },
+  }, managerToken);
+  assert.equal(createDishRes.status, 201);
+  assert.equal(createDishRes.body.item.name, 'Special Tibs');
+
+  // 4. Manager of Cafe A attempts to create a dish in Cafe B -> 403 Forbidden
+  const forbiddenDishRes = await call(`/api/admin/items?cafe=${slugB}`, {
+    method: 'POST',
+    body: {
+      name: 'Tampered Dish',
+      price: 999,
+    },
+  }, managerToken);
+  assert.equal(forbiddenDishRes.status, 403);
+  assert.match(forbiddenDishRes.body.error, /permission/i);
+
+  // 5. Clean up
+  if (cafeARes.body?.cafe?.id) {
+    await call(`/api/superadmin/cafes/${cafeARes.body.cafe.id}`, { method: 'DELETE' }, token);
+  }
+  if (cafeBRes.body?.cafe?.id) {
+    await call(`/api/superadmin/cafes/${cafeBRes.body.cafe.id}`, { method: 'DELETE' }, token);
+  }
+});
+
 test('reorders categories', async () => {
   const ids = (await call('/api/menu')).body.categories.map((category) => category.id);
   const reversed = [...ids].reverse();

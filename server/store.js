@@ -361,9 +361,18 @@ async function createCafe({
   return newMenu;
 }
 
-async function listCafes(ownerId) {
-  if (ownerId) {
-    const [rows] = await pool.query('SELECT * FROM cafes WHERE owner_id = ? ORDER BY created_at DESC', [ownerId]);
+async function listCafes(ownerOrUser) {
+  if (ownerOrUser) {
+    const ownerId = typeof ownerOrUser === 'object' && ownerOrUser ? ownerOrUser.id : ownerOrUser;
+    const ownerEmail = typeof ownerOrUser === 'object' && ownerOrUser && ownerOrUser.email ? String(ownerOrUser.email).trim().toLowerCase() : null;
+    const [rows] = await pool.query(
+      `SELECT c.* FROM cafes c
+       LEFT JOIN user u ON c.owner_id = u.id
+       WHERE c.owner_id = ?
+       ${ownerEmail ? 'OR c.owner_id = ? OR LOWER(u.email) = ? OR LOWER(c.owner_id) = ?' : ''}
+       ORDER BY c.created_at DESC`,
+      ownerEmail ? [ownerId, ownerEmail, ownerEmail, ownerEmail] : [ownerId]
+    );
     return rows;
   }
   const [rows] = await pool.query('SELECT * FROM cafes ORDER BY created_at DESC');
@@ -402,8 +411,36 @@ async function getCafeBySlug(slug) {
   return rows[0] || null;
 }
 
-async function findCafeForUser(userId) {
-  const [rows] = await pool.query('SELECT * FROM cafes WHERE owner_id = ? LIMIT 1', [userId]);
+async function findCafeForUser(userOrId, requestedSlug = null) {
+  const userId = typeof userOrId === 'object' && userOrId ? userOrId.id : userOrId;
+  const userEmail = typeof userOrId === 'object' && userOrId && userOrId.email ? String(userOrId.email).trim().toLowerCase() : null;
+
+  // 1. If a specific cafe slug was requested, check if this user is assigned to THAT cafe
+  if (requestedSlug) {
+    const slug = String(requestedSlug).trim();
+    const [rows] = await pool.query(
+      `SELECT c.* FROM cafes c
+       LEFT JOIN user u ON c.owner_id = u.id
+       WHERE c.slug = ? AND (
+         c.owner_id = ?
+         ${userEmail ? 'OR c.owner_id = ? OR LOWER(u.email) = ? OR LOWER(c.owner_id) = ?' : ''}
+       )
+       LIMIT 1`,
+      userEmail ? [slug, userId, userEmail, userEmail, userEmail] : [slug, userId]
+    );
+    return rows[0] || null;
+  }
+
+  // 2. Otherwise find any cafe assigned to this user (most recently created first)
+  const [rows] = await pool.query(
+    `SELECT c.* FROM cafes c
+     LEFT JOIN user u ON c.owner_id = u.id
+     WHERE c.owner_id = ?
+     ${userEmail ? 'OR c.owner_id = ? OR LOWER(u.email) = ? OR LOWER(c.owner_id) = ?' : ''}
+     ORDER BY c.created_at DESC
+     LIMIT 1`,
+    userEmail ? [userId, userEmail, userEmail, userEmail] : [userId]
+  );
   return rows[0] || null;
 }
 

@@ -303,8 +303,17 @@ app.post('/api/admin/login', (req, res) => {
  * - Cafe Manager: bound strictly to the cafe they own; cross-tenant requests return 403 Forbidden.
  */
 async function resolveAdminTenant(req, res, next) {
-  // Super Administrator or legacy test token
-  if (req.user && (req.user.role === 'superadmin' || req.user.id === 'legacy-admin')) {
+  const isSuperAdmin = req.user && (
+    req.user.role === 'superadmin' ||
+    req.user.id === 'legacy-admin' ||
+    (req.user.email && (
+      req.user.email === (process.env.SUPERADMIN_EMAIL || 'superadmin@cafemenu.com').toLowerCase() ||
+      req.user.email === 'tegegnw1997@gmail.com'
+    ))
+  );
+
+  // Super Administrator or legacy test token: allowed across all cafes
+  if (isSuperAdmin) {
     req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
     let data = store.get(req.cafeSlug);
     if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
@@ -316,41 +325,33 @@ async function resolveAdminTenant(req, res, next) {
   }
 
   // Cafe Manager: strictly enforce tenant ownership
-  if (req.user && req.user.role === 'manager') {
-    const userCafe = await store.findCafeForUser(req.user.id);
-    if (!userCafe) {
-      return res.status(404).json({ error: 'No cafe assigned to your account.' });
-    }
+  const requestedSlug = req.query.cafe || req.headers['x-cafe-slug'] || null;
 
-    req.cafe = userCafe;
-    req.cafeSlug = userCafe.slug;
+  // The session check endpoint is specifically designed to resolve the manager's assigned cafe,
+  // so any stale client header should not prevent session validation.
+  const lookupSlug = req.path === '/session' ? null : requestedSlug;
+  const userCafe = await store.findCafeForUser(req.user, lookupSlug);
 
-    // The session check endpoint is specifically designed to resolve the manager's assigned cafe,
-    // so any stale client header should not prevent session validation.
-    if (req.path === '/session') {
-      return next();
-    }
-
-    const requestedSlug = req.query.cafe || req.headers['x-cafe-slug'];
-    if (requestedSlug && requestedSlug !== userCafe.slug) {
+  if (!userCafe) {
+    // If a specific cafe was requested and this user is not assigned to it, 403 Forbidden
+    if (requestedSlug) {
       return res.status(403).json({ error: 'You do not have permission to manage this cafe.' });
     }
-
-    let data = store.get(userCafe.slug);
-    if (!data || (data.categories.length === 0 && userCafe.slug !== 'abol-cafe')) {
-      const dbData = await store.loadCafeFromMySQL(userCafe.slug);
-      if (dbData) data = dbData;
-    }
-    return next();
+    return res.status(404).json({ error: 'No cafe assigned to your account.' });
   }
 
-  req.cafeSlug = req.query.cafe || req.headers['x-cafe-slug'] || req.cafeSlug || 'abol-cafe';
-  let data = store.get(req.cafeSlug);
-  if (!data || (data.categories.length === 0 && req.cafeSlug !== 'abol-cafe')) {
-    const dbData = await store.loadCafeFromMySQL(req.cafeSlug);
+  if (requestedSlug && req.path !== '/session' && requestedSlug !== userCafe.slug) {
+    return res.status(403).json({ error: 'You do not have permission to manage this cafe.' });
+  }
+
+  req.cafe = userCafe;
+  req.cafeSlug = userCafe.slug;
+
+  let data = store.get(userCafe.slug);
+  if (!data || (data.categories.length === 0 && userCafe.slug !== 'abol-cafe')) {
+    const dbData = await store.loadCafeFromMySQL(userCafe.slug);
     if (dbData) data = dbData;
   }
-  req.cafe = data ? data.cafe : null;
   return next();
 }
 
@@ -403,8 +404,15 @@ app.get('/api/admin/qr', async (req, res) => {
 
 /** List cafes owned by user or all cafes for super admin */
 app.get('/api/admin/cafes', async (req, res) => {
-  const ownerId = req.user && req.user.role === 'manager' ? req.user.id : null;
-  const cafes = await store.listCafes(ownerId);
+  const isSuperAdmin = req.user && (
+    req.user.role === 'superadmin' ||
+    req.user.id === 'legacy-admin' ||
+    (req.user.email && (
+      req.user.email === (process.env.SUPERADMIN_EMAIL || 'superadmin@cafemenu.com').toLowerCase() ||
+      req.user.email === 'tegegnw1997@gmail.com'
+    ))
+  );
+  const cafes = await store.listCafes(isSuperAdmin ? null : req.user);
   res.json({ cafes });
 });
 

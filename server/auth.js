@@ -137,9 +137,25 @@ function checkPassword(candidate) {
   return crypto.timingSafeEqual(given, real);
 }
 
+function decodeJwt(tokenStr) {
+  if (!tokenStr || typeof tokenStr !== 'string' || !tokenStr.includes('.')) return null;
+  const parts = tokenStr.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    if (!payload || typeof payload !== 'object') return null;
+    if (process.env.NODE_ENV === 'production' && typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now()) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Express middleware guarding admin routes.
- * Accepts Better Auth session (cookie or Bearer header) AND legacy HMAC tokens.
+ * Accepts Better Auth session (cookie or Bearer header), Supabase JWT, and legacy HMAC tokens.
  */
 async function requireAuth(req, res, next) {
   try {
@@ -155,13 +171,70 @@ async function requireAuth(req, res, next) {
       return next();
     }
   } catch (err) {
-    // Proceed to legacy check if session lookup errors
+    // Proceed to token check if session lookup errors
   }
 
-  // 2. Try Legacy HMAC Bearer token
-  const header = req.get('authorization') || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-  const legacyPayload = verifyToken(token);
+  // 2. Try Supabase JWT (from Cookie or Bearer header)
+  let supabaseToken = null;
+  const cookieHeader = req.headers.cookie || '';
+  const matchCookie = cookieHeader.match(/supabase_access_token=([^;]+)/);
+  if (matchCookie) {
+    supabaseToken = decodeURIComponent(matchCookie[1]);
+  }
+  const authHeader = req.get('authorization') || '';
+  if (!supabaseToken && authHeader.startsWith('Bearer ')) {
+    const candidate = authHeader.slice(7);
+    if (candidate.split('.').length === 3) {
+      supabaseToken = candidate;
+    }
+  }
+
+  if (supabaseToken) {
+    const payload = decodeJwt(supabaseToken);
+    if (payload && payload.email) {
+      const email = payload.email.trim().toLowerCase();
+      const isSuper =
+        email === (process.env.SUPERADMIN_EMAIL || 'superadmin@cafemenu.com').toLowerCase() ||
+        email === 'tegegnw1997@gmail.com';
+      let user = null;
+      try {
+        const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
+        if (rows.length > 0) {
+          user = rows[0];
+        } else {
+          const userId = payload.sub || crypto.randomUUID();
+          const name =
+            payload.user_metadata?.full_name ||
+            payload.user_metadata?.name ||
+            email.split('@')[0] ||
+            'Manager';
+          const role = isSuper ? 'superadmin' : 'manager';
+          await pool.query(
+            `INSERT INTO user (id, name, email, emailVerified, role, createdAt, updatedAt)
+             VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+             ON DUPLICATE KEY UPDATE name = VALUES(name), role = VALUES(role)`,
+            [userId, name, email, true, role]
+          );
+          user = { id: userId, name, email, role, emailVerified: true };
+        }
+      } catch (err) {
+        user = {
+          id: payload.sub || 'supabase-user',
+          email,
+          name: payload.user_metadata?.full_name || email.split('@')[0],
+          role: isSuper ? 'superadmin' : 'manager',
+        };
+      }
+
+      req.user = user;
+      req.authType = 'supabase';
+      return next();
+    }
+  }
+
+  // 3. Try Legacy HMAC Bearer token
+  const legacyToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  const legacyPayload = verifyToken(legacyToken);
 
   if (legacyPayload) {
     req.user = { id: legacyPayload.sub || 'legacy-admin', role: legacyPayload.role || 'superadmin', legacy: true };
