@@ -482,6 +482,7 @@ export default function AdminApp() {
 
   // Image upload handler (uploads to Cloudinary via backend)
   const handleUploadImage = useCallback(async (file, folder = 'dishes') => {
+    const activeToken = tokenRef.current || token;
     const fd = new FormData();
     fd.append('image', file);
     fd.append('folder', folder);
@@ -495,8 +496,9 @@ export default function AdminApp() {
 
     const res = await fetch(`/api/admin/upload${queryString}`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         'X-Cafe-Slug': selectedCafeSlug || '',
       },
       body: fd,

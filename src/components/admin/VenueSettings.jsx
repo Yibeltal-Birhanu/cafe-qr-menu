@@ -81,9 +81,14 @@ export default function VenueSettings({
     setUploadingHero(true);
     try {
       if (onUploadImage) {
-        const url = await onUploadImage(file, 'hero');
-        handleChange('hero_image', url);
-        if (onShowToast) onShowToast('Hero banner image uploaded to Cloudinary');
+        const res = await onUploadImage(file, 'hero');
+        const url = typeof res === 'string' ? res : (res?.url || '');
+        if (url) {
+          handleChange('hero_image', url);
+          if (onShowToast) onShowToast('Hero banner image uploaded to Cloudinary');
+        } else {
+          throw new Error(res?.error || 'No image URL returned from upload');
+        }
       } else {
         const fd = new FormData();
         fd.append('image', file);
@@ -91,6 +96,7 @@ export default function VenueSettings({
         if (cafeSlug) fd.append('cafeSlug', cafeSlug);
         const res = await fetch(`/api/admin/upload?folder=hero${cafeSlug ? `&cafe=${cafeSlug}` : ''}`, {
           method: 'POST',
+          credentials: 'include',
           body: fd,
         });
         const data = await res.json();

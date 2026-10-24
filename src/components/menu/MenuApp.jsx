@@ -245,18 +245,23 @@ export default function MenuApp() {
   const currentPreset = apiMenu?.cafe?.theme?.preset || 'showcase';
 
   const heroImage = useMemo(() => {
-    // 1. Explicit custom hero image
-    if (apiMenu?.cafe?.hero_image && apiMenu.cafe.hero_image.trim()) {
+    // 1. Explicit custom hero image configured by manager or superadmin
+    if (apiMenu?.cafe?.hero_image && typeof apiMenu.cafe.hero_image === 'string' && apiMenu.cafe.hero_image.trim()) {
       return apiMenu.cafe.hero_image.trim();
     }
-    // 2. Archetype theme layout defaults (never use individual menu dish photos)
-    if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
-    if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
-    if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
-    if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
-    if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
-    return '/images/dishes/classic-beef-burger.jpg';
-  }, [apiMenu?.cafe?.hero_image, currentLayout]);
+    // 2. Archetype defaults for demo sample cafe ONLY
+    const isSampleDemoCafe = !apiMenu?.cafe?.slug || apiMenu?.cafe?.slug === 'abol-cafe';
+    if (isSampleDemoCafe) {
+      if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
+      if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+      if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
+      if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
+      if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
+      return '/images/dishes/classic-beef-burger.jpg';
+    }
+    // 3. Custom tenant cafes (e.g. yibe) never display unrelated fake food photos
+    return '';
+  }, [apiMenu?.cafe?.hero_image, apiMenu?.cafe?.slug, currentLayout]);
 
   const { heroTitle, heroSub } = useMemo(() => {
     const customTitle = apiMenu?.cafe?.hero_title?.trim();

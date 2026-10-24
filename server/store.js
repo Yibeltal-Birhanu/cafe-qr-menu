@@ -52,7 +52,7 @@ function ensureShape(raw, fallbackSeed = seed) {
       status: cafe.status || 'active',
       hero_title: typeof cafe.hero_title === 'string' ? cafe.hero_title : (defaultCafe.hero_title || ''),
       hero_description: typeof cafe.hero_description === 'string' ? cafe.hero_description : (defaultCafe.hero_description || ''),
-      hero_image: typeof cafe.hero_image === 'string' ? cafe.hero_image : (defaultCafe.hero_image || ''),
+      hero_image: typeof cafe.hero_image === 'string' ? cafe.hero_image : (cafe.hero_image?.url || defaultCafe.hero_image || ''),
       theme: cafe.theme && typeof cafe.theme === 'object' ? cafe.theme : {
         preset: 'showcase',
         primaryColor: '#1c2826',

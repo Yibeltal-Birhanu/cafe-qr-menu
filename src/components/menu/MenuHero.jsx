@@ -35,18 +35,19 @@ export default function MenuHero({
             </span>
           </div>
         </div>
-        <div class="cm-hero-bento__media">
-          <img
-            src={heroImage || '/images/dishes/classic-beef-burger.jpg'}
-            alt={heroTitle || 'Hero Dish'}
-            class="cm-hero-bento__img"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
-            }}
-          />
-          <span class="cm-hero-bento__popular-badge">Popular 🔥</span>
-        </div>
+        {heroImage ? (
+          <div class="cm-hero-bento__media">
+            <img
+              src={heroImage}
+              alt={heroTitle || 'Hero Dish'}
+              class="cm-hero-bento__img"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <span class="cm-hero-bento__popular-badge">Popular 🔥</span>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -105,17 +106,18 @@ export default function MenuHero({
             <span class="cm-hero-rustic__chip cm-hero-rustic__chip--table">HEARTH #{tableNumber}</span>
           </div>
         </div>
-        <div class="cm-hero-rustic__media">
-          <img
-            src={heroImage || '/images/dishes/margherita.jpg'}
-            alt={heroTitle || 'Wood-fired specialty'}
-            class="cm-hero-rustic__img"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/dishes/margherita.jpg';
-            }}
-          />
-        </div>
+        {heroImage ? (
+          <div class="cm-hero-rustic__media">
+            <img
+              src={heroImage}
+              alt={heroTitle || 'Wood-fired specialty'}
+              class="cm-hero-rustic__img"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -140,17 +142,18 @@ export default function MenuHero({
             <span class="cm-hero-boutique__chip cm-hero-boutique__chip--table">SALON #{tableNumber}</span>
           </div>
         </div>
-        <div class="cm-hero-boutique__media">
-          <img
-            src={heroImage || '/images/dishes/tiramisu.jpg'}
-            alt={heroTitle || 'Artisanal pastry'}
-            class="cm-hero-boutique__img"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/dishes/tiramisu.jpg';
-            }}
-          />
-        </div>
+        {heroImage ? (
+          <div class="cm-hero-boutique__media">
+            <img
+              src={heroImage}
+              alt={heroTitle || 'Artisanal pastry'}
+              class="cm-hero-boutique__img"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -175,17 +178,18 @@ export default function MenuHero({
             <span class="cm-hero-noir__chip cm-hero-noir__chip--table">[BOOTH // {tableNumber}]</span>
           </div>
         </div>
-        <div class="cm-hero-noir__media">
-          <img
-            src={heroImage || '/images/dishes/caramel-latte.jpg'}
-            alt={heroTitle || 'Cyber Lounge Special'}
-            class="cm-hero-noir__img"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/dishes/caramel-latte.jpg';
-            }}
-          />
-        </div>
+        {heroImage ? (
+          <div class="cm-hero-noir__media">
+            <img
+              src={heroImage}
+              alt={heroTitle || 'Cyber Lounge Special'}
+              class="cm-hero-noir__img"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -209,17 +213,18 @@ export default function MenuHero({
           <span class="cm-hero-minimal__chip cm-hero-minimal__chip--table">Table #{tableNumber}</span>
         </div>
       </div>
-      <div class="cm-hero-minimal__media">
-        <img
-          src={heroImage || '/images/dishes/macchiato.jpg'}
-          alt={heroTitle || 'Artisanal specialty'}
-          class="cm-hero-minimal__img"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = '/images/dishes/macchiato.jpg';
-          }}
-        />
-      </div>
+      {heroImage ? (
+        <div class="cm-hero-minimal__media">
+          <img
+            src={heroImage}
+            alt={heroTitle || 'Artisanal specialty'}
+            class="cm-hero-minimal__img"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
