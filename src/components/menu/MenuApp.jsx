@@ -10,7 +10,7 @@ import Preloader from './Preloader.jsx';
 import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
 import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
-import { getHeroBannerImage } from '../common/imageUtils.js';
+import { getHeroBannerImage, getThumbnailImage } from '../common/imageUtils.js';
 
 export default function MenuApp() {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -471,6 +471,8 @@ export default function MenuApp() {
                 heroSub={heroSub}
                 heroImage={heroImage}
                 tableNumber={tableNumber}
+                cafeSlug={apiMenu?.cafe?.slug || 'abol-cafe'}
+                cafeCity={apiMenu?.cafe?.city || apiMenu?.cafe?.address || ''}
               />
 
               {/* Search Bar */}
@@ -521,7 +523,7 @@ export default function MenuApp() {
                   >
                     {(cat.image || cat.bannerImg) && (
                       <img
-                        src={cat.image || cat.bannerImg}
+                        src={getThumbnailImage(cat.image || cat.bannerImg, 36)}
                         alt=""
                         style={{
                           width: '18px',

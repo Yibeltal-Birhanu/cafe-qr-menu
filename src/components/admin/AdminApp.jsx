@@ -689,7 +689,7 @@ export default function AdminApp() {
           <div className="ad-content-full">
             <VenueSettings
                 cafe={cafe}
-                dishes={allItems}
+                dishes={allDishes}
                 onSaveCafe={handleSaveCafe}
                 onResetSampleMenu={handleResetSampleMenu}
                 onShowToast={showToast}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getThumbnailImage, getDishFallbackImage } from '../common/imageUtils.js';
 import {
   CoffeeIcon,
   BurgerIcon,
@@ -310,11 +311,11 @@ export default function CategoryManagerView({
                       {items.slice(0, 3).map((dish) => (
                         <div key={dish.id} className="ad-cat-dish-item">
                           <img
-                            src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
+                            src={getThumbnailImage(dish.image, 60)}
                             alt={dish.name}
                             className="ad-cat-dish-thumb"
                             onError={(e) => {
-                              e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
+                              e.currentTarget.src = getDishFallbackImage(dish);
                             }}
                           />
                           <div className="ad-cat-dish-info">

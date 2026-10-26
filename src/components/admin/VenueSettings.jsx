@@ -59,7 +59,7 @@ export default function VenueSettings({
         footer: cafe.footer || '',
         hero_title: cafe.hero_title || '',
         hero_description: cafe.hero_description || '',
-        hero_image: cafe.hero_image || '',
+        hero_image: typeof cafe.hero_image === 'string' ? cafe.hero_image : (cafe.hero_image?.url || ''),
         theme: {
           ...basePreset,
           ...cafeTheme,
@@ -350,25 +350,27 @@ export default function VenueSettings({
                 </div>
 
                 {/* Optional Quick-select from dishes */}
-                {dishes && dishes.filter((d) => d.image).length > 0 && (
+                {dishes && dishes.filter((d) => d && (typeof d.image === 'string' ? d.image : d.image?.url)).length > 0 && (
                   <div style={{ marginTop: '0.8rem' }}>
                     <span style={{ fontSize: '0.75rem', color: '#6b7280', display: 'block', marginBottom: '6px' }}>
                       Or choose an existing dish image:
                     </span>
                     <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
                       {dishes
-                        .filter((d) => d.image)
+                        .filter((d) => d && (typeof d.image === 'string' ? d.image : d.image?.url))
                         .slice(0, 10)
-                        .map((d) => (
+                        .map((d) => {
+                          const imgUrl = typeof d.image === 'string' ? d.image : (d.image?.url || '');
+                          return (
                           <button
                             key={d.id}
                             type="button"
-                            onClick={() => handleChange('hero_image', d.image)}
+                            onClick={() => handleChange('hero_image', imgUrl)}
                             style={{
-                              border: formData.hero_image === d.image ? '2px solid #ea580c' : '1px solid #e5e7eb',
+                              border: formData.hero_image === imgUrl ? '2px solid #ea580c' : '1px solid #e5e7eb',
                               borderRadius: '8px',
                               padding: '2px 6px 2px 2px',
-                              background: formData.hero_image === d.image ? 'rgba(234, 88, 12, 0.08)' : '#fff',
+                              background: formData.hero_image === imgUrl ? 'rgba(234, 88, 12, 0.08)' : '#fff',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
@@ -380,7 +382,7 @@ export default function VenueSettings({
                             title={`Use ${d.name} image`}
                           >
                             <img
-                              src={d.image}
+                              src={imgUrl}
                               alt={d.name}
                               style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }}
                             />
@@ -388,7 +390,8 @@ export default function VenueSettings({
                               {d.name}
                             </span>
                           </button>
-                        ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -408,7 +411,7 @@ export default function VenueSettings({
                       <img
                         src={formData.hero_image}
                         alt="Current Hero Banner Preview"
-                        style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
+                        style={{ width: '100%', height: '180px', objectFit: 'contain', display: 'block' }}
                         onError={(e) => {
                           e.currentTarget.onerror = null;
                           e.currentTarget.style.opacity = '0.5';
@@ -968,7 +971,7 @@ export default function VenueSettings({
                       <img
                         src={formData.hero_image}
                         alt="Hero preview"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
                       />
                       <span
                         style={{

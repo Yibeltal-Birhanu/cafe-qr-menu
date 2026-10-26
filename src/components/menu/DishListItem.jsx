@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronRightIcon, ClockIcon } from '../common/Icons.jsx';
-import { getDishCardImage } from '../common/imageUtils.js';
+import {
+  getDishCardImage,
+  getDishCardSrcSet,
+  getDishCardSizes,
+  getDishCardDimensions,
+  getDishFallbackImage,
+} from '../common/imageUtils.js';
 
 export default function DishListItem({ dish, onSelect, currency = 'ETB', layout = 'bento' }) {
   const formattedPrice = `${dish.price} ${dish.currency || currency || 'ETB'}`;
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
   const optimizedSrc = getDishCardImage(dish, layout);
+  const srcSet = getDishCardSrcSet(dish, layout);
+  const sizes = getDishCardSizes(layout);
+  const dimensions = getDishCardDimensions(layout);
 
   return (
     <article
@@ -21,15 +33,23 @@ export default function DishListItem({ dish, onSelect, currency = 'ETB', layout 
       }}
       aria-label={`View details for ${dish.name}`}
     >
-      <div className="cm-dish-thumb-wrap">
+      <div className={`cm-dish-thumb-wrap ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
         <img
-          src={optimizedSrc}
+          src={hasError ? getDishFallbackImage(dish) : optimizedSrc}
+          srcSet={hasError ? undefined : srcSet}
+          sizes={hasError ? undefined : sizes}
           alt={dish.name}
-          className="cm-dish-thumb"
+          className={`cm-dish-thumb ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
           loading="lazy"
           decoding="async"
-          onError={(e) => {
-            e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
+          width={dimensions.width}
+          height={dimensions.height}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            if (!hasError) {
+              setHasError(true);
+              setImageLoaded(true);
+            }
           }}
         />
         {dish.badge && (

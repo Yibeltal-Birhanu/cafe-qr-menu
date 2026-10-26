@@ -5,7 +5,12 @@ import {
   HeartIcon,
   ClockIcon,
 } from '../common/Icons.jsx';
-import { getDetailModalImage } from '../common/imageUtils.js';
+import {
+  getDetailModalImage,
+  getDetailModalSrcSet,
+  getDetailModalSizes,
+  getDishFallbackImage,
+} from '../common/imageUtils.js';
 
 export default function DishDetailModal({
   dish,
@@ -14,6 +19,10 @@ export default function DishDetailModal({
   currency = 'ETB',
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(null);
+  const [orientation, setOrientation] = useState('horizontal'); // 'vertical' | 'square' | 'horizontal'
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -30,11 +39,37 @@ export default function DishDetailModal({
     };
   }, [dish, onClose]);
 
+  // Reset image loaded & orientation state if dish changes
+  useEffect(() => {
+    setImageLoaded(false);
+    setHasError(false);
+    setAspectRatio(null);
+    setOrientation('horizontal');
+  }, [dish?.id, dish?.image]);
+
   if (!dish) return null;
 
   const formattedPrice = `${Number(dish.price).toLocaleString()} ${dish.currency || currency || 'ETB'}`;
   const tags = dish.tags && dish.tags.length > 0 ? dish.tags : [];
   const optimizedModalImg = getDetailModalImage(dish);
+  const modalSrcSet = getDetailModalSrcSet(dish);
+  const modalSizes = getDetailModalSizes();
+
+  const handleImageLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) {
+      const ratio = naturalWidth / naturalHeight;
+      setAspectRatio(ratio);
+      if (ratio < 0.95) {
+        setOrientation('vertical');
+      } else if (ratio <= 1.18) {
+        setOrientation('square');
+      } else {
+        setOrientation('horizontal');
+      }
+    }
+    setImageLoaded(true);
+  };
 
   const toggleFavorite = () => {
     const nextFav = !isFavorite;
@@ -58,18 +93,32 @@ export default function DishDetailModal({
         {/* Top Drag Indicator for Phone Bottom-Sheet View */}
         <div className="cm-modal-drag-bar" aria-hidden="true" />
 
-        {/* Hero image with back & favorite floating buttons */}
-        <div className="cm-modal-hero">
+        {/* Hero image container dynamically flexing with the image dimensions */}
+        <div
+          className={`cm-modal-hero ${imageLoaded ? 'is-loaded' : 'is-loading'} cm-modal-hero--${orientation}`}
+          style={aspectRatio ? { '--modal-hero-ratio': `${aspectRatio}` } : undefined}
+        >
           <img
-            src={optimizedModalImg}
+            src={hasError ? getDishFallbackImage(dish) : optimizedModalImg}
+            srcSet={hasError ? undefined : modalSrcSet}
+            sizes={hasError ? undefined : modalSizes}
             alt={dish.name}
-            className="cm-modal-hero-img"
+            className={`cm-modal-hero-img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
             loading="eager"
             decoding="async"
-            onError={(e) => {
-              e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
+            onLoad={handleImageLoad}
+            onError={() => {
+              if (!hasError) {
+                setHasError(true);
+                setImageLoaded(true);
+              }
             }}
           />
+
+          {dish.badge && (
+            <span className="cm-modal-hero-badge">{dish.badge}</span>
+          )}
+
           <div className="cm-modal-top-actions">
             <button
               type="button"

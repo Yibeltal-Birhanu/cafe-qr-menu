@@ -1636,7 +1636,7 @@ export default function SuperAdminDashboard({
                           <img
                             src={settingsForm.hero_image}
                             alt="Hero banner preview"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
                           />
                           <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
                             Hero Banner Preview

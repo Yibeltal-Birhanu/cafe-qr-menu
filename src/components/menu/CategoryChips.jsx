@@ -1,3 +1,4 @@
+import { getThumbnailImage } from '../common/imageUtils.js';
 import React from 'react';
 import {
   GridIcon,
@@ -68,7 +69,7 @@ export default function CategoryChips({
             <span className="chip__icon">
               {cat.image ? (
                 <img
-                  src={cat.image}
+                  src={getThumbnailImage(cat.image, 32)}
                   alt={locCat.name}
                   style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover', display: 'inline-block' }}
                   onError={(e) => {

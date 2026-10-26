@@ -56,6 +56,19 @@ export default function Preloader({
     }
   }, [isReady, minTimePassed, onFinish]);
 
+  // Safety fallback: Never stay stuck on preloader for more than 2 seconds
+  useEffect(() => {
+    const safety = setTimeout(() => {
+      setProgress(100);
+      setIsHiding(true);
+      setTimeout(() => {
+        if (onFinish) onFinish();
+      }, 300);
+    }, 2000);
+
+    return () => clearTimeout(safety);
+  }, [onFinish]);
+
   const renderLogo = () => {
     const size = 38;
     switch (logo) {

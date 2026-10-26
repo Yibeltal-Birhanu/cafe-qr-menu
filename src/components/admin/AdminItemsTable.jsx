@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { SearchIcon, PlusIcon, EditIcon, TrashIcon, MoreIcon } from './AdminIcons.jsx';
+import { getThumbnailImage, getDishFallbackImage } from '../common/imageUtils.js';
 
 export default function AdminItemsTable({
   dishes = [],
@@ -91,11 +92,12 @@ export default function AdminItemsTable({
                   </td>
                   <td>
                     <img
-                      src={dish.image || '/images/dishes/classic-beef-burger.jpg'}
+                      src={getThumbnailImage(dish.image, 80)}
                       alt={dish.name}
                       className="ad-table-thumb"
+                      loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.src = '/images/dishes/classic-beef-burger.jpg';
+                        e.currentTarget.src = getDishFallbackImage(dish);
                       }}
                     />
                   </td>
