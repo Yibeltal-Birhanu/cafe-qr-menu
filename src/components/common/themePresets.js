@@ -85,20 +85,20 @@ export const THEME_PRESETS = [
   {
     id: 'neon-noir',
     layout: 'noir',
-    name: 'Evening Lounge & Cyan (White & Teal)',
+    name: 'Evening Lounge & Cyan (Midnight & Neon Teal)',
     archetype: 'Cocktail Lounges, Rooftops & Evening Dining',
-    cardStyle: 'Clean Modern Cards with Cyan Accents',
-    navStyle: 'Modern Lounge App Bar with Cyan Badges',
+    cardStyle: 'Obsidian Glass Cards with Electric Cyan Accents',
+    navStyle: 'Sleek Midnight Glass Header with Cyan Glow',
     landingStyle: 'Evening Lounge & Signature Drinks Cover',
-    tagline: 'Clean white canvas, ocean cyan buttons, violet accents & teal highlights.',
-    previewColors: ['#ffffff', '#0891b2', '#7c3aed', '#0d9488'],
-    backgroundColor: '#ffffff',
-    backgroundMode: 'light',
-    surfaceColor: '#ffffff',
-    textColor: '#0f172a',
-    primaryColor: '#0891b2',     // 1st color (Ocean Cyan)
-    secondaryColor: '#7c3aed',   // 2nd color (Violet Accents)
-    accentColor: '#0d9488',      // 3rd color (Teal Price Chips)
+    tagline: 'Deep obsidian canvas, electric cyan accents, subtle glassmorphic glow.',
+    previewColors: ['#090a0f', '#06b6d4', '#1e293b', '#22d3ee'],
+    backgroundColor: '#090a0f',
+    backgroundMode: 'dark',
+    surfaceColor: '#12151e',
+    textColor: '#f8fafc',
+    primaryColor: '#06b6d4',     // 1st color (Electric Cyan)
+    secondaryColor: '#334155',   // 2nd color (Midnight Slate Borders)
+    accentColor: '#22d3ee',      // 3rd color (Vibrant Neon Teal Price Chips)
     fontFamily: 'Plus Jakarta Sans',
   },
   {
@@ -125,18 +125,18 @@ export const THEME_PRESETS = [
     layout: 'minimal',
     name: 'Scandinavian Minimalist (Pure White & Sage)',
     archetype: 'Specialty Cafes & Modern Kitchens',
-    cardStyle: 'Ultra-Clean Borderless List with Subtle Sage Dividers',
-    navStyle: 'Typography-First Floating Header with Minimal Sans Badges',
-    landingStyle: 'Minimalist Dining Cover',
-    tagline: 'Pure white canvas, deep charcoal typography, cool slate framing & calm sage accents.',
-    previewColors: ['#ffffff', '#0f172a', '#94a3b8', '#059669'],
-    backgroundColor: '#ffffff',
+    cardStyle: 'Porcelain Nordic Cards with Botanical Badges',
+    navStyle: 'Architectural Minimalist Header with Location Pin',
+    landingStyle: 'Nordic Atelier Dining Cover',
+    tagline: 'Warm limestone canvas, deep charcoal typography, botanical sage framing & warm clay accents.',
+    previewColors: ['#faf9f5', '#191c1b', '#5d7a68', '#c86245'],
+    backgroundColor: '#faf9f5',
     backgroundMode: 'light',
     surfaceColor: '#ffffff',
-    textColor: '#0f172a',
-    primaryColor: '#0f172a',     // 1st color (Deep Charcoal)
-    secondaryColor: '#94a3b8',   // 2nd color (Cool Slate Hairline)
-    accentColor: '#059669',      // 3rd color (Calm Sage Green)
+    textColor: '#191c1b',
+    primaryColor: '#191c1b',     // 1st color (Deep Charcoal Smoked Oak)
+    secondaryColor: '#5d7a68',   // 2nd color (Botanical Sage Green)
+    accentColor: '#c86245',      // 3rd color (Warm Nordic Clay / Terracotta)
     fontFamily: 'Plus Jakarta Sans',
   },
 ];
@@ -165,11 +165,11 @@ export function applyThemeToDocument(theme) {
     document.body.setAttribute('data-theme-preset', effective.id);
   }
 
-  // Set Core 1st, 2nd, and 3rd Colors + White Canvas
+  // Set Core 1st, 2nd, and 3rd Colors + Canvas
   root.style.setProperty('--cm-bg', effective.backgroundColor);
   root.style.setProperty('--cm-card-bg', effective.surfaceColor);
   root.style.setProperty('--cm-text-dark', effective.textColor);
-  root.style.setProperty('--cm-text-muted', '#64748b');
+  root.style.setProperty('--cm-text-muted', effective.layout === 'noir' ? '#94a3b8' : '#64748b');
   root.style.setProperty('--cm-primary', effective.primaryColor);
   root.style.setProperty('--cm-secondary', effective.secondaryColor);
   root.style.setProperty('--cm-accent', effective.accentColor);
@@ -177,23 +177,23 @@ export function applyThemeToDocument(theme) {
   root.style.setProperty('--cm-star', effective.accentColor);
   root.style.setProperty('--cm-btn-dark', effective.primaryColor);
   root.style.setProperty('--cm-btn-dark-hover', effective.secondaryColor);
-  root.style.setProperty('--cm-border', `${effective.secondaryColor}30`);
-  root.style.setProperty('--cm-border-strong', `${effective.secondaryColor}60`);
+  root.style.setProperty('--cm-border', effective.layout === 'noir' ? 'rgba(6, 182, 212, 0.22)' : `${effective.secondaryColor}30`);
+  root.style.setProperty('--cm-border-strong', effective.layout === 'noir' ? '#06b6d4' : `${effective.secondaryColor}60`);
 
   // Generic platform CSS variable bridges
   root.style.setProperty('--bg', effective.backgroundColor);
-  root.style.setProperty('--bg-2', '#f9fafb');
-  root.style.setProperty('--bg-3', '#f3f4f6');
+  root.style.setProperty('--bg-2', effective.layout === 'noir' ? '#0f1118' : '#f9fafb');
+  root.style.setProperty('--bg-3', effective.layout === 'noir' ? '#161922' : '#f3f4f6');
   root.style.setProperty('--surface', effective.surfaceColor);
   root.style.setProperty('--surface-card', effective.surfaceColor);
-  root.style.setProperty('--surface-strong', effective.surfaceColor);
+  root.style.setProperty('--surface-strong', effective.layout === 'noir' ? '#161922' : effective.surfaceColor);
   root.style.setProperty('--text', effective.textColor);
-  root.style.setProperty('--text-secondary', '#4b5563');
-  root.style.setProperty('--muted', '#6b7280');
+  root.style.setProperty('--text-secondary', effective.layout === 'noir' ? '#94a3b8' : '#4b5563');
+  root.style.setProperty('--muted', effective.layout === 'noir' ? '#64748b' : '#6b7280');
   root.style.setProperty('--accent', effective.primaryColor);
   root.style.setProperty('--accent-2', effective.secondaryColor);
   root.style.setProperty('--accent-gold', effective.accentColor);
-  root.style.setProperty('--border', `${effective.secondaryColor}30`);
+  root.style.setProperty('--border', effective.layout === 'noir' ? 'rgba(6, 182, 212, 0.22)' : `${effective.secondaryColor}30`);
   root.style.setProperty('--border-glow', `${effective.primaryColor}50`);
 
   if (effective.fontFamily) {

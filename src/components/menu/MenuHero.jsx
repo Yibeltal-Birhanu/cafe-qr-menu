@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SparklesIcon } from '../common/Icons.jsx';
 import {
   getHeroBannerImage,
   getHeroBannerSrcSet,
@@ -6,7 +7,7 @@ import {
 } from '../common/imageUtils.js';
 
 export default function MenuHero({
-  layout = 'bento',
+  layout = 'minimal',
   cafeName = 'CafeMenu',
   tagline = '',
   heroTitle = '',
@@ -19,433 +20,188 @@ export default function MenuHero({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const optimizedHero = getHeroBannerImage(heroImage);
-  const heroSrcSet = getHeroBannerSrcSet(heroImage);
-  const heroSizes = getHeroBannerSizes(layout);
-
-  // Helper to highlight the last word in titles when custom title is provided
-  const renderDuoTitle = (titleText, highlightClass = '') => {
-    if (!titleText) return null;
-    const words = titleText.trim().split(' ');
-    if (words.length <= 1) return titleText;
-    const main = words.slice(0, -1).join(' ');
-    const last = words[words.length - 1];
-    return (
-      <>
-        {main} <span className={highlightClass}>{last}</span>
-      </>
-    );
-  };
-
   // =========================================================================
-  // 1. EDITORIAL RESERVE: "LA BELLA TRATTORIA"
-  // Layout Architecture: Left Image, Right Text (Classic Editorial Spread)
-  // Warm parchment canvas, Italian serif, olive flourish, ceramic plate
+  // 1. SCANDINAVIAN MINIMALIST ARCHITECTURE (layout === 'minimal')
+  // Specialty Cafes & Modern Kitchens — Clean Minimalist Architecture
+  // Clean warm limestone canvas, botanical sage accents, professional dining
   // =========================================================================
-  if (layout === 'editorial') {
-    const brandTitle = cafeName && cafeName !== 'CafeMenu' ? cafeName : 'LA BELLA TRATTORIA';
-    const locationStr = cafeCity || (cafeName.toLowerCase().includes('abol') ? 'Addis Ababa, Ethiopia' : 'Rome, Italy');
-    const displayHeading = heroTitle || 'Taste Italy, one scan away';
-    const displayLead = heroSub || tagline || 'Authentic recipes. Timeless flavors. Now just a scan away.';
+  if (layout === 'minimal') {
+    const defaultNordicFallback = 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=1200&q=90';
+    const displayImage = heroImage || defaultNordicFallback;
+    const optimizedHero = getHeroBannerImage(displayImage);
+    const heroSrcSet = getHeroBannerSrcSet(displayImage);
+    const heroSizes = getHeroBannerSizes('minimal');
+
+    const displayTitle = heroTitle || (cafeName ? `Welcome to ${cafeName}` : 'Craft Kitchen & Dining');
+    const displaySubtitle = heroSub || tagline || 'Handcrafted dishes, specialty beverages, and fresh ingredients.';
 
     return (
-      <div className="cm-hero-full cm-hero--editorial">
-        <div className="cm-hero__container cm-hero__container--split-img-left">
-          {/* Left Column: Image Staging */}
-          <div className="cm-hero__col-visual">
-            {optimizedHero && !hasError ? (
-              <div className={`cm-hero__stage cm-hero__stage--editorial ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
-                <img
-                  src={optimizedHero}
-                  srcSet={heroSrcSet}
-                  sizes={heroSizes}
-                  alt={displayHeading}
-                  className={`cm-hero__img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
-                  loading="eager"
-                  decoding="async"
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setHasError(true)}
-                />
-                <div className="cm-hero__badge cm-hero__badge--editorial">
-                  <span>🌿</span> Chef's Handcrafted Special
-                </div>
-              </div>
-            ) : null}
+      <div className="cm-nordic-hero-wrap">
+        <section aria-labelledby="nordic-welcome-heading" className="cm-nordic-hero-card">
+          {/* Top Visual Staging */}
+          <div className="cm-nordic-hero-stage">
+            <img
+              src={hasError ? defaultNordicFallback : (optimizedHero || defaultNordicFallback)}
+              srcSet={hasError ? undefined : heroSrcSet}
+              sizes={heroSizes}
+              alt={displayTitle}
+              className={`cm-nordic-hero-img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
+              loading="eager"
+              decoding="async"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => {
+                if (!hasError) {
+                  setHasError(true);
+                  setImageLoaded(true);
+                }
+              }}
+            />
+            <div className="cm-nordic-hero-gradient" aria-hidden="true" />
+            <div className="cm-nordic-hero-badge">
+              <span className="cm-nordic-badge-dot" />
+              <span>FRESH MENU</span>
+            </div>
           </div>
 
-          {/* Right Column: Editorial Masthead Text */}
-          <div className="cm-hero__col-text">
-            <div className="cm-hero__meta">
-              <span className="cm-hero__brand-tag">TRATTORIA &deg; RISTORANTE</span>
-              <span className="cm-hero__sep">&bull;</span>
-              <span className="cm-hero__location">📍 {locationStr}</span>
-              <span className="cm-hero__sep">&bull;</span>
-              <span className="cm-hero__live">
-                <span className="cm-hero__dot cm-hero__dot--olive" />
-                Open now
+          {/* Clean Content Body */}
+          <div className="cm-nordic-hero-body">
+            <div className="cm-nordic-eyebrow-row">
+              <span className="cm-nordic-eyebrow">
+                SPECIALTY DINING &bull; FRESH KITCHEN
               </span>
-              {tableNumber && (
-                <span className="cm-hero__table">Table #{tableNumber}</span>
-              )}
+              {tableNumber ? (
+                <span className="cm-nordic-table-tag">Table #{tableNumber}</span>
+              ) : null}
             </div>
 
-            <h1 className="cm-hero__heading cm-hero__heading--editorial">
-              {displayHeading}
+            <h1 id="nordic-welcome-heading" className="cm-nordic-title">
+              {displayTitle}
             </h1>
 
-            <div className="cm-hero__divider cm-hero__divider--editorial" aria-hidden="true">
-              <span className="cm-hero__divider-line" />
-              <span className="cm-hero__divider-icon">🌿</span>
-              <span className="cm-hero__divider-line" />
-            </div>
-
-            <p className="cm-hero__lead cm-hero__lead--editorial">
-              {displayLead}
+            <p className="cm-nordic-lead">
+              {displaySubtitle}
             </p>
-
-            <div className="cm-hero__foot-notes cm-hero__foot-notes--editorial">
-              <span className="cm-hero__note-chip">✨ Wood-Fired Hearth</span>
-              <span className="cm-hero__note-chip">🍝 Fresh Artisan Pasta</span>
-              <span className="cm-hero__note-chip">🍷 Tuscan Pairings</span>
-            </div>
           </div>
-        </div>
+        </section>
       </div>
     );
   }
 
   // =========================================================================
-  // 2. NOIR ARCHETYPE: "HIKARI SUSHI BAR"
-  // Layout Architecture: Left Text, Right Floating Slate (Cyber-Midnight Split)
-  // Pure obsidian black, neon coral red accents, Katana flourish, slate dish
+  // 2. EVENING LOUNGE & CYAN (layout === 'noir')
+  // Modern, clean, simple black UI design — uncluttered, punchy & elegant
   // =========================================================================
   if (layout === 'noir') {
-    const brandTitle = cafeName && cafeName !== 'CafeMenu' ? cafeName : 'HIKARI SUSHI BAR';
-    const locationStr = cafeCity || (cafeName.toLowerCase().includes('abol') ? 'Tokyo • Roppongi' : 'Tokyo, Japan');
-    const displayHeading = heroTitle
-      ? renderDuoTitle(heroTitle, 'cm-hero__coral')
-      : (
-        <>
-          Fresh. Fast. <span className="cm-hero__coral">Japanese.</span>
-        </>
-      );
-    const displayLead = heroSub || tagline || 'Premium ingredients. Unforgettable taste.';
+    const defaultNoirFallback = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=90';
+    const displayImage = heroImage || defaultNoirFallback;
+    const optimizedHero = getHeroBannerImage(displayImage);
+    const heroSrcSet = getHeroBannerSrcSet(displayImage);
+    const heroSizes = getHeroBannerSizes('noir');
+
+    const displayTitle = heroTitle || 'Evening Lounge & Dining';
+    const displaySubtitle = heroSub || tagline || 'Cocktails & chef-fired specialties under the city lights.';
 
     return (
-      <div className="cm-hero-full cm-hero--noir">
-        <div className="cm-hero__container cm-hero__container--split-text-left">
-          {/* Left Column: High-Impact Typography & Atmosphere */}
-          <div className="cm-hero__col-text">
-            <div className="cm-hero__meta cm-hero__meta--noir">
-              <span className="cm-hero__kanji-badge">◎ 旬</span>
-              <span className="cm-hero__brand-tag cm-hero__brand-tag--coral">
-                {brandTitle} &bull; SUSHI &amp; ROBATA
-              </span>
-              <span className="cm-hero__sep cm-hero__sep--dark">&bull;</span>
-              <span className="cm-hero__location cm-hero__location--dark">📍 {locationStr}</span>
-              <span className="cm-hero__live cm-hero__live--dark">
-                <span className="cm-hero__dot cm-hero__dot--coral" />
-                Open Tonight
-              </span>
-              {tableNumber && (
-                <span className="cm-hero__table cm-hero__table--noir">Table #{tableNumber}</span>
-              )}
-            </div>
-
-            <h1 className="cm-hero__heading cm-hero__heading--noir">
-              {displayHeading}
-            </h1>
-
-            <div className="cm-hero__divider cm-hero__divider--noir" aria-hidden="true">
-              <span className="cm-hero__divider-line cm-hero__divider-line--coral" />
-              <span className="cm-hero__divider-icon cm-hero__divider-icon--coral">✦</span>
-              <span className="cm-hero__divider-line cm-hero__divider-line--coral" />
-            </div>
-
-            <p className="cm-hero__lead cm-hero__lead--noir">
-              {displayLead}
-            </p>
-
-            <div className="cm-hero__foot-notes cm-hero__foot-notes--noir">
-              <span className="cm-hero__note-chip cm-hero__note-chip--noir">🍣 Tsukiji Market Grade</span>
-              <span className="cm-hero__note-chip cm-hero__note-chip--noir">🔥 Binchotan Charcoal</span>
-              <span className="cm-hero__note-chip cm-hero__note-chip--noir">🍶 Junmai Daiginjo</span>
-            </div>
+      <div className="cm-noir-hero-wrap">
+        <section aria-labelledby="noir-welcome-heading" className="cm-noir-hero-card">
+          {/* Uncropped High-Contrast Visual Staging */}
+          <div className="cm-noir-hero-stage">
+            <img
+              src={hasError ? defaultNoirFallback : (optimizedHero || defaultNoirFallback)}
+              srcSet={hasError ? undefined : heroSrcSet}
+              sizes={heroSizes}
+              alt={displayTitle}
+              className={`cm-noir-hero-img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
+              loading="eager"
+              decoding="async"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => {
+                if (!hasError) {
+                  setHasError(true);
+                  setImageLoaded(true);
+                }
+              }}
+            />
+            <div className="cm-noir-hero-gradient" aria-hidden="true" />
           </div>
 
-          {/* Right Column: Dark Floating Slate Dish Stage */}
-          <div className="cm-hero__col-visual">
-            {optimizedHero && !hasError ? (
-              <div className={`cm-hero__stage cm-hero__stage--noir ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
-                <img
-                  src={optimizedHero}
-                  srcSet={heroSrcSet}
-                  sizes={heroSizes}
-                  alt="Japanese specialties"
-                  className={`cm-hero__img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
-                  loading="eager"
-                  decoding="async"
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setHasError(true)}
-                />
-                <div className="cm-hero__badge cm-hero__badge--noir">
-                  <span>★ 4.9</span> Seasonal Catch
-                </div>
+          {/* Clean, Modern, Slop-Free Content */}
+          <div className="cm-noir-hero-body">
+            {tableNumber ? (
+              <div className="cm-noir-eyebrow-row">
+                <span className="cm-noir-table-tag">Table #{tableNumber}</span>
               </div>
             ) : null}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
-  // =========================================================================
-  // 3. MODERN BENTO ARCHETYPE: "LUNA CAFÉ"
-  // Layout Architecture: Modern Asymmetric Bento Box (Header + Modular Cells)
-  // Soft oat / latte cream canvas, coffee leaf flourish, artisan croissant & cup
-  // =========================================================================
-  if (layout === 'bento') {
-    const brandTitle = cafeName && cafeName !== 'CafeMenu' ? cafeName : 'LUNA CAFÉ';
-    const locationStr = cafeCity || (cafeName.toLowerCase().includes('abol') ? 'Bole • Addis Ababa' : 'Portland, Oregon');
-    const displayHeading = heroTitle || 'Good mornings start here';
-    const displayLead = heroSub || tagline || 'Warm coffee. Fresh bites. Made for your moment.';
+            <h1 id="noir-welcome-heading" className="cm-noir-title">
+              {displayTitle}
+            </h1>
 
-    return (
-      <div className="cm-hero-full cm-hero--bento">
-        <div className="cm-hero__container cm-hero__container--bento">
-          {/* Bento Top Header Banner */}
-          <div className="cm-hero__bento-top">
-            <div className="cm-hero__bento-brand">
-              <span className="cm-hero__leaf-badge">🍃</span>
-              <div>
-                <span className="cm-hero__bento-name">{brandTitle}</span>
-                <span className="cm-hero__bento-sub">ARTISAN COFFEE ROASTERS &amp; BAKERY</span>
-              </div>
-            </div>
-            <div className="cm-hero__bento-status">
-              <span>📍 {locationStr}</span>
-              <span className="cm-hero__bento-live">
-                <span className="cm-hero__dot cm-hero__dot--sage" />
-                Morning Roasts Ready
-              </span>
-              {tableNumber && <span className="cm-hero__table cm-hero__table--bento">Table #{tableNumber}</span>}
-            </div>
-          </div>
-
-          {/* Bento Grid Cells */}
-          <div className="cm-hero__bento-grid">
-            {/* Bento Dish Showcase Cell */}
-            <div className="cm-hero__bento-cell cm-hero__bento-cell--dish">
-              {optimizedHero && !hasError ? (
-                <div className={`cm-hero__stage cm-hero__stage--bento ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
-                  <img
-                    src={optimizedHero}
-                    srcSet={heroSrcSet}
-                    sizes={heroSizes}
-                    alt="Artisan bakery and specialty coffee"
-                    className={`cm-hero__img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
-                    loading="eager"
-                    decoding="async"
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => setHasError(true)}
-                  />
-                  <div className="cm-hero__badge cm-hero__badge--bento">
-                    <span>☕</span> Daily Roast Pairing
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Bento Narrative Cell */}
-            <div className="cm-hero__bento-cell cm-hero__bento-cell--content">
-              <h1 className="cm-hero__heading cm-hero__heading--bento">
-                {displayHeading}
-              </h1>
-              <div className="cm-hero__divider cm-hero__divider--bento" aria-hidden="true">
-                <span className="cm-hero__divider-line" />
-                <span className="cm-hero__divider-icon">🍃</span>
-                <span className="cm-hero__divider-line" />
-              </div>
-              <p className="cm-hero__lead cm-hero__lead--bento">
-                {displayLead}
+            {displaySubtitle ? (
+              <p className="cm-noir-lead">
+                {displaySubtitle}
               </p>
-              <div className="cm-hero__bento-tags">
-                <span className="cm-hero__bento-tag">🌾 Single Origin</span>
-                <span className="cm-hero__bento-tag">🥐 Hand-Laminated</span>
-                <span className="cm-hero__bento-tag">⏱ Brewed to Order</span>
-              </div>
-            </div>
+            ) : null}
           </div>
-        </div>
+        </section>
       </div>
     );
   }
 
   // =========================================================================
-  // 4. RUSTIC ARCHETYPE: "¡BUENOS! TAQUERIA"
-  // Layout Architecture: Diagonal Artisanal Hearth Split (Flame & Sizzle)
-  // Sunny warm maize, terracotta red, zigzag Aztec flourish, street tacos
+  // 2. DEFAULT / MAGICPATH SHARP SUMMER CARD (All other presets)
   // =========================================================================
-  if (layout === 'rustic') {
-    const brandTitle = cafeName && cafeName !== 'CafeMenu' ? cafeName : '¡BUENOS! TAQUERIA';
-    const locationStr = cafeCity || (cafeName.toLowerCase().includes('abol') ? 'Piazza • Flame Hearth' : 'Austin, Texas');
-    const displayHeading = heroTitle
-      ? renderDuoTitle(heroTitle, 'cm-hero__flame')
-      : (
-        <>
-          A little spice, <span className="cm-hero__flame">a lot of flavor</span>
-        </>
-      );
-    const displayLead = heroSub || tagline || 'Bold ingredients. Real taste. Straight from the street.';
+  const defaultHeroFallback = 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=90';
+  const displayImage = heroImage || defaultHeroFallback;
+  const optimizedHero = getHeroBannerImage(displayImage);
+  const heroSrcSet = getHeroBannerSrcSet(displayImage);
+  const heroSizes = getHeroBannerSizes(layout);
 
-    return (
-      <div className="cm-hero-full cm-hero--rustic">
-        <div className="cm-hero__container cm-hero__container--rustic">
-          <div className="cm-hero__rustic-body">
-            {/* Left Column: Terracotta Typography */}
-            <div className="cm-hero__col-text cm-hero__col-text--rustic">
-              <div className="cm-hero__meta cm-hero__meta--rustic">
-                <span className="cm-hero__sun-badge">☀️</span>
-                <span className="cm-hero__brand-tag cm-hero__brand-tag--rustic">
-                  {brandTitle} &bull; HEARTH &amp; GRILL
-                </span>
-                <span className="cm-hero__sep">&bull;</span>
-                <span className="cm-hero__location">📍 {locationStr}</span>
-                <span className="cm-hero__live">
-                  <span className="cm-hero__dot cm-hero__dot--orange" />
-                  Flames Roaring
-                </span>
-                {tableNumber && <span className="cm-hero__table cm-hero__table--rustic">Table #{tableNumber}</span>}
-              </div>
-
-              <h1 className="cm-hero__heading cm-hero__heading--rustic">
-                {displayHeading}
-              </h1>
-
-              <div className="cm-hero__divider cm-hero__divider--rustic" aria-hidden="true">
-                <span className="cm-hero__zigzag">~~~~ 〰 ~~~~</span>
-              </div>
-
-              <p className="cm-hero__lead cm-hero__lead--rustic">
-                {displayLead}
-              </p>
-
-              <div className="cm-hero__foot-notes cm-hero__foot-notes--rustic">
-                <span className="cm-hero__note-chip cm-hero__note-chip--rustic">🔥 Mesquite Wood Charcoal</span>
-                <span className="cm-hero__note-chip cm-hero__note-chip--rustic">🌮 Hand-Pressed Masa</span>
-                <span className="cm-hero__note-chip cm-hero__note-chip--rustic">🌶 Stone-Ground Salsas</span>
-              </div>
-            </div>
-
-            {/* Right Column: Sizzling Dish Presentation */}
-            <div className="cm-hero__col-visual cm-hero__col-visual--rustic">
-              {optimizedHero && !hasError ? (
-                <div className={`cm-hero__stage cm-hero__stage--rustic ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
-                  <img
-                    src={optimizedHero}
-                    srcSet={heroSrcSet}
-                    sizes={heroSizes}
-                    alt="Hearth grilled special"
-                    className={`cm-hero__img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
-                    loading="eager"
-                    decoding="async"
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => setHasError(true)}
-                  />
-                  <div className="cm-hero__badge cm-hero__badge--rustic">
-                    <span>🌶</span> 100% Fire-Roasted
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
-        {/* Full Edge Aztec Base Strip */}
-        <div className="cm-hero__aztec-strip" aria-hidden="true" />
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // 5. BOUTIQUE / LUXURY HOTEL ARCHETYPE: "THE VISTA HOTEL"
-  // Layout Architecture: Haute Horlogerie & Penthouse Suite (Image Left, Gold Text Right)
-  // Midnight royal navy, champagne gold crest, fleur-de-lis, steak & wine
-  // Also applied gracefully to 'minimal' archetype
-  // =========================================================================
-  const brandTitle = cafeName && cafeName !== 'CafeMenu' ? cafeName : 'THE VISTA HOTEL';
-  const locationStr = cafeCity || (cafeName.toLowerCase().includes('abol') ? 'Addis Ababa • Skylight' : 'New York, New York');
-  const displayHeading = heroTitle
-    ? renderDuoTitle(heroTitle, 'cm-hero__gold-italic')
-    : (
-      <>
-        Dining, <span className="cm-hero__gold-italic">reimagined</span>
-      </>
-    );
-  const displayLead = heroSub || tagline || 'Refined flavors. Exceptional service. Exclusively for you.';
+  const displayTitle = heroTitle || (cafeName ? `Welcome to ${cafeName}` : 'Welcome to our Kitchen');
+  const displaySubtitle = heroSub || tagline || 'Fresh dishes, specialty beverages, and quality ingredients made for your table.';
 
   return (
-    <div className="cm-hero-full cm-hero--vista">
-      <div className="cm-hero__container cm-hero__container--split-img-left">
-        {/* Left Column: 24k Gold Pedestal Stage */}
-        <div className="cm-hero__col-visual cm-hero__col-visual--vista">
-          {optimizedHero && !hasError ? (
-            <div className={`cm-hero__stage cm-hero__stage--vista ${imageLoaded ? 'is-loaded' : 'is-loading'}`}>
-              <img
-                src={optimizedHero}
-                srcSet={heroSrcSet}
-                sizes={heroSizes}
-                alt="Haute dining presentation"
-                className={`cm-hero__img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
-                loading="eager"
-                decoding="async"
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setHasError(true)}
-              />
-              <div className="cm-hero__badge cm-hero__badge--vista">
-                <span>⚜</span> Grand Reserve Tasting
-              </div>
-            </div>
-          ) : null}
-        </div>
+    <div className="cm-sharp-hero-wrap">
+      <section
+        aria-labelledby="welcome-heading"
+        className="cm-sharp-hero-card"
+      >
+        <img
+          src={hasError ? defaultHeroFallback : (optimizedHero || defaultHeroFallback)}
+          srcSet={hasError ? undefined : heroSrcSet}
+          sizes={hasError ? undefined : heroSizes}
+          alt={displayTitle}
+          className={`cm-sharp-hero-img ${imageLoaded ? 'is-loaded' : 'is-loading'}`}
+          loading="eager"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            if (!hasError) {
+              setHasError(true);
+              setImageLoaded(true);
+            }
+          }}
+        />
 
-        {/* Right Column: Haute Hospitality Typography */}
-        <div className="cm-hero__col-text cm-hero__col-text--vista">
-          <div className="cm-hero__meta cm-hero__meta--vista">
-            <span className="cm-hero__shield-badge">V</span>
-            <span className="cm-hero__brand-tag cm-hero__brand-tag--gold">
-              {brandTitle} &bull; SALON GASTRONOMIQUE
-            </span>
-            <span className="cm-hero__sep cm-hero__sep--gold">&bull;</span>
-            <span className="cm-hero__location cm-hero__location--gold">📍 {locationStr}</span>
-            <span className="cm-hero__live cm-hero__live--gold">
-              <span className="cm-hero__dot cm-hero__dot--gold" />
-              Tables Available
-            </span>
-            {tableNumber && <span className="cm-hero__table cm-hero__table--gold">Suite Table #{tableNumber}</span>}
+        {/* Gradient Overlay */}
+        <div className="cm-sharp-hero-gradient" aria-hidden="true" />
+
+        {/* Content Box */}
+        <div className="cm-sharp-hero-body">
+          <div className="cm-sharp-hero-badge">
+            <SparklesIcon size={13} strokeWidth={2} />
+            <span>Fresh &bull; Made Daily</span>
           </div>
 
-          <h1 className="cm-hero__heading cm-hero__heading--vista">
-            {displayHeading}
-          </h1>
+          <h2 id="welcome-heading" className="cm-sharp-hero-title">
+            {displayTitle}
+          </h2>
 
-          <div className="cm-hero__divider cm-hero__divider--vista" aria-hidden="true">
-            <span className="cm-hero__divider-line cm-hero__divider-line--gold" />
-            <span className="cm-hero__divider-icon cm-hero__divider-icon--gold">⚜</span>
-            <span className="cm-hero__divider-line cm-hero__divider-line--gold" />
-          </div>
-
-          <p className="cm-hero__lead cm-hero__lead--vista">
-            {displayLead}
+          <p className="cm-sharp-hero-sub">
+            {displaySubtitle}
           </p>
-
-          <div className="cm-hero__foot-notes cm-hero__foot-notes--vista">
-            <span className="cm-hero__note-chip cm-hero__note-chip--vista">👑 Sommelier Reserve Cellar</span>
-            <span className="cm-hero__note-chip cm-hero__note-chip--vista">⭐ Michelin Recommended</span>
-            <span className="cm-hero__note-chip cm-hero__note-chip--vista">✨ White Glove Experience</span>
-          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

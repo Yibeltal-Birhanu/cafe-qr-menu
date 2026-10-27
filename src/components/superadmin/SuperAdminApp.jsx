@@ -1342,7 +1342,7 @@ export default function SuperAdminApp() {
               desc: 'Double grass-fed smash patties, aged cheddar, caramelised onions & truffle aioli on toasted brioche.',
               price: '280 ETB',
               prepTime: '12 min',
-              badge: 'Chef Special 🔥',
+              badge: 'Chef Special',
               image: '/images/dishes/classic-beef-burger.jpg',
               category: 'Burgers',
             },
@@ -1352,7 +1352,7 @@ export default function SuperAdminApp() {
               desc: 'Freshly roasted Yirgacheffe single-origin beans, traditional clay pot brew with organic salted popcorn.',
               price: '120 ETB',
               prepTime: '8 min',
-              badge: 'Heritage ☕',
+              badge: 'Heritage',
               image: '/images/dishes/macchiato.jpg',
               category: 'Coffee',
             },
@@ -1362,7 +1362,7 @@ export default function SuperAdminApp() {
               desc: 'San Marzano plum tomatoes, fresh buffalo mozzarella, aromatic sweet basil, cold-pressed olive oil.',
               price: '340 ETB',
               prepTime: '15 min',
-              badge: 'Wood Fired 🍕',
+              badge: 'Wood Fired',
               image: '/images/dishes/margherita.jpg',
               category: 'Pizza',
             },
@@ -1674,7 +1674,7 @@ export default function SuperAdminApp() {
                   {/* Right Column: Realistic Interactive Smartphone Viewport Simulator */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ marginBottom: '8px', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
-                      📱 Live Smartphone Viewport Simulation ({activeStudioPreset.name.split(' (')[0]})
+                      Live Smartphone Viewport Simulation ({activeStudioPreset.name.split(' (')[0]})
                     </div>
 
                     <div
@@ -1782,7 +1782,7 @@ export default function SuperAdminApp() {
                           {activeLayout === 'rustic' && (
                             <div style={{ background: '#fff7ed', border: `2px solid ${primaryCol}`, borderRadius: '12px', padding: '12px 14px' }}>
                               <div style={{ fontSize: '0.68rem', fontWeight: 900, color: primaryCol, textTransform: 'uppercase' }}>
-                                🔥 WOOD-FIRED HEARTH &amp; GRILL
+                                WOOD-FIRED HEARTH &amp; GRILL
                               </div>
                               <h3 style={{ margin: '3px 0', fontSize: '1.1rem', fontWeight: 900, color: '#0f172a' }}>
                                 CRAFTED BY FLAME
@@ -3082,7 +3082,7 @@ export default function SuperAdminApp() {
                       <div style={{ marginTop: '0.8rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0.8rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <span>🖼️</span> Current Hero Image Preview
+                            Current Hero Image Preview
                           </span>
                           <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: '999px' }}>
                             ● Active on Menu
@@ -3141,7 +3141,7 @@ export default function SuperAdminApp() {
 
                   <div style={{ padding: '1rem', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#e0e7ff', display: 'grid', placeItems: 'center', color: '#4338ca', fontSize: '1.2rem' }}>
-                      📶
+                      WiFi
                     </div>
                     <div style={{ fontSize: '0.84rem', color: '#334155' }}>
                       <strong>Guest Menu Preview:</strong> {settingsForm.wifi_ssid ? `Connect to "${settingsForm.wifi_ssid}" using password "${settingsForm.wifi_pass || '(No password)'}"` : 'No guest Wi-Fi configured yet.'}

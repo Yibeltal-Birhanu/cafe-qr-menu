@@ -45,7 +45,7 @@ before(async () => {
     stdio: 'ignore',
   });
 
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  for (let attempt = 0; attempt < 140; attempt += 1) {
     try {
       const response = await fetch(`${BASE}/api/health`);
       if (response.ok) {

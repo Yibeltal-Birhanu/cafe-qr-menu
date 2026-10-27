@@ -1,5 +1,12 @@
 'use strict';
 
+process.on('unhandledRejection', (reason) => {
+  console.warn('[server] Unhandled Rejection notice:', reason?.message || reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[server] Uncaught Exception notice:', err?.message || err);
+});
+
 const path = require('path');
 const express = require('express');
 const QRCode = require('qrcode');

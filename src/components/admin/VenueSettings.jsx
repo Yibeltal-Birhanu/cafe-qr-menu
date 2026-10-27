@@ -401,7 +401,7 @@ export default function VenueSettings({
                   <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>🖼️</span> Current Hero Image Preview
+                        Current Hero Image Preview
                       </span>
                       <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: '999px' }}>
                         ● Active on Customer Menu
@@ -436,7 +436,7 @@ export default function VenueSettings({
                   </div>
                 ) : (
                   <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '14px', padding: '1.2rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🖼️</div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '4px' }}>IMAGE BANNER</div>
                     <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', marginBottom: '2px' }}>
                       No Custom Hero Image
                     </div>
@@ -986,7 +986,7 @@ export default function VenueSettings({
                           borderRadius: '4px',
                         }}
                       >
-                        🔥
+                        ★
                       </span>
                     </div>
                   ) : null}

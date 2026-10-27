@@ -335,7 +335,7 @@ export default function AdminDishModal({
                       onClick={() => fileInputRef.current && fileInputRef.current.click()}
                       disabled={uploading}
                     >
-                      <span>☁️</span>
+
                       <span>{uploading ? 'Uploading to Cloudinary...' : 'Upload Image to Cloudinary'}</span>
                     </button>
                     <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '0.6rem' }}>
@@ -551,7 +551,7 @@ export default function AdminDishModal({
                       onClick={() => categoryFileInputRef.current && categoryFileInputRef.current.click()}
                       disabled={uploading}
                     >
-                      <span>☁️</span>
+
                       <span>{uploading ? 'Uploading to Cloudinary...' : 'Upload Category Image to Cloudinary'}</span>
                     </button>
                     <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '0.6rem' }}>

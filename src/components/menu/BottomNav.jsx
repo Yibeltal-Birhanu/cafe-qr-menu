@@ -1,64 +1,45 @@
 import React from 'react';
-import { HomeIcon, BookOpenIcon, InfoIcon } from '../common/Icons.jsx';
+import { HomeIcon, UtensilsCrossedIcon, InfoIcon } from '../common/Icons.jsx';
 
 export default function BottomNav({ activeTab = 'home', onTabChange, theme = null }) {
-  const activeColor = theme?.primaryColor;
+  const activeColor = theme?.primaryColor || '#84A98C';
+
+  const tabs = [
+    { id: 'home', label: 'Home', Icon: HomeIcon },
+    { id: 'menu', label: 'Menu', Icon: UtensilsCrossedIcon },
+    { id: 'details', label: 'Info', Icon: InfoIcon },
+  ];
 
   return (
-    <nav className="cm-bottom-nav" aria-label="Bottom Navigation">
-      <button
-        type="button"
-        className={`cm-nav-item ${activeTab === 'home' ? 'is-active' : ''}`}
-        onClick={() => onTabChange('home')}
-        aria-label="Home"
-        style={activeTab === 'home' && activeColor ? { color: activeColor } : {}}
-      >
-        <HomeIcon size={22} />
-        <span>Home</span>
-        {activeTab === 'home' && (
-          <span
-            className="cm-nav-dot"
-            style={activeColor ? { backgroundColor: activeColor } : {}}
-            aria-hidden="true"
-          />
-        )}
-      </button>
-
-      <button
-        type="button"
-        className={`cm-nav-item ${activeTab === 'menu' ? 'is-active' : ''}`}
-        onClick={() => onTabChange('menu')}
-        aria-label="Full Menu"
-        style={activeTab === 'menu' && activeColor ? { color: activeColor } : {}}
-      >
-        <BookOpenIcon size={22} />
-        <span>Menu</span>
-        {activeTab === 'menu' && (
-          <span
-            className="cm-nav-dot"
-            style={activeColor ? { backgroundColor: activeColor } : {}}
-            aria-hidden="true"
-          />
-        )}
-      </button>
-
-      <button
-        type="button"
-        className={`cm-nav-item ${activeTab === 'details' ? 'is-active' : ''}`}
-        onClick={() => onTabChange('details')}
-        aria-label="Cafe Details and Info"
-        style={activeTab === 'details' && activeColor ? { color: activeColor } : {}}
-      >
-        <InfoIcon size={22} />
-        <span>Details</span>
-        {activeTab === 'details' && (
-          <span
-            className="cm-nav-dot"
-            style={activeColor ? { backgroundColor: activeColor } : {}}
-            aria-hidden="true"
-          />
-        )}
-      </button>
-    </nav>
+    <div className="cm-bottom-dock" aria-label="Navigation dock">
+      <nav className="cm-glass-nav glass-effect" aria-label="Bottom Navigation">
+        {tabs.map(({ id, label, Icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              className={`cm-glass-tab ${isActive ? 'is-active' : ''}`}
+              onClick={() => onTabChange(id)}
+              aria-label={label}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <div
+                className={`cm-glass-tab-icon ${isActive ? 'is-active' : ''}`}
+                style={isActive && activeColor ? { backgroundColor: `${activeColor}20`, color: activeColor } : undefined}
+              >
+                <Icon size={21} strokeWidth={isActive ? 2.5 : 2} />
+              </div>
+              <span
+                className="cm-glass-tab-label"
+                style={isActive && activeColor ? { color: activeColor } : undefined}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

@@ -94,6 +94,21 @@ body::after {
   z-index: 40;
   overflow-y: auto;
   border-right: 1px solid rgba(255, 255, 255, 0.04);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.ad-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ad-sidebar-close {
+  display: none;
+}
+
+.ad-sidebar-backdrop {
+  display: none;
 }
 
 .ad-sidebar-brand {
@@ -103,6 +118,8 @@ body::after {
   gap: 0.85rem;
   text-decoration: none;
   color: #ffffff;
+  flex: 1;
+  min-width: 0;
 }
 
 .ad-sidebar-logo {
@@ -246,7 +263,7 @@ body::after {
   padding: 0.4rem;
   cursor: pointer;
   color: var(--ad-text-dark);
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
@@ -2706,5 +2723,256 @@ body::after {
 @media (max-width: 640px) {
   .ad-content-full {
     padding: 1rem 0.8rem 2.5rem;
+  }
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE & HAMBURGER DRAWER SYSTEM
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  /* Hamburger Menu Toggle Button */
+  .ad-menu-toggle {
+    display: inline-flex !important;
+    width: 40px !important;
+    height: 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    flex-shrink: 0 !important;
+  }
+  .ad-menu-toggle:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+
+  /* Off-canvas Slide Drawer Sidebar */
+  .ad-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    box-shadow: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease !important;
+  }
+  .ad-sidebar.is-open {
+    transform: translateX(0) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Dark Backdrop Overlay */
+  .ad-sidebar-backdrop {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 999 !important;
+    animation: cmFadeIn 0.2s ease !important;
+  }
+
+  /* Mobile Close Button in Sidebar */
+  .ad-sidebar-close {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+    margin-right: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+  .ad-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+  }
+  .ad-sidebar-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Layout and Topbar on Tablet */
+  .ad-layout {
+    overflow-x: hidden !important;
+  }
+  .ad-main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .ad-topbar {
+    padding: 0.85rem 1.4rem !important;
+    gap: 1rem !important;
+  }
+  .ad-search-pill {
+    width: 240px !important;
+    padding: 0.45rem 1rem !important;
+  }
+  .ad-content-wrapper {
+    grid-template-columns: 1fr !important;
+    gap: 1.4rem !important;
+    padding: 1.4rem 1.4rem 3rem !important;
+  }
+  .ad-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+  .ad-analytics-row {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Topbar Mobile Refinements */
+  .ad-topbar {
+    padding: 0.75rem 1rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+  }
+  .ad-topbar-left {
+    gap: 0.75rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  .ad-page-title {
+    font-size: 1.15rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .ad-search-pill {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 0.2rem !important;
+  }
+  .ad-topbar-right {
+    gap: 0.5rem !important;
+    margin-left: auto !important;
+  }
+  .ad-profile-info {
+    display: none !important;
+  }
+  .ad-profile-dropdown {
+    padding: 0.2rem !important;
+  }
+  .ad-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Content Refinements on Mobile */
+  .ad-content-wrapper {
+    padding: 1rem 0.85rem 2.5rem !important;
+    gap: 1rem !important;
+  }
+  .ad-hero-card {
+    padding: 1.4rem 1.2rem !important;
+    border-radius: 14px !important;
+  }
+  .ad-hero-title {
+    font-size: 1.35rem !important;
+  }
+  .ad-hero-sub {
+    font-size: 0.82rem !important;
+    margin-bottom: 0.8rem !important;
+  }
+  .ad-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+  .ad-stat-card {
+    padding: 1rem 0.9rem !important;
+    border-radius: 12px !important;
+  }
+  .ad-stat-value {
+    font-size: 1.4rem !important;
+  }
+  .ad-stat-label {
+    font-size: 0.72rem !important;
+  }
+  .ad-panel-card {
+    padding: 1.2rem 1rem !important;
+    border-radius: 14px !important;
+  }
+  .ad-card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  .ad-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .ad-table th,
+  .ad-table td {
+    padding: 0.65rem 0.65rem !important;
+    font-size: 0.80rem !important;
+  }
+  .ad-table-thumb {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+  }
+  .ad-pagination {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+  }
+
+  /* Modals on Mobile */
+  .ad-modal-box {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 1.25rem 1rem !important;
+    border-radius: 16px !important;
+    margin: 1rem auto !important;
+  }
+  .ad-modal-header {
+    margin-bottom: 1rem !important;
+  }
+  .ad-modal-title {
+    font-size: 1.15rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ad-topbar {
+    padding: 0.65rem 0.75rem !important;
+  }
+  .ad-page-title {
+    font-size: 1.05rem !important;
+  }
+  .ad-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  .ad-stat-card {
+    padding: 0.75rem !important;
+  }
+  .ad-stat-value {
+    font-size: 1.25rem !important;
   }
 }

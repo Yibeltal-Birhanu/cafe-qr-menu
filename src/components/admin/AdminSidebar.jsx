@@ -1,7 +1,14 @@
 import React from 'react';
-import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon, ShieldIcon } from './AdminIcons.jsx';
+import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon, ShieldIcon, CloseIcon } from './AdminIcons.jsx';
 
-export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser }) {
+export default function AdminSidebar({
+  activeTab,
+  onSelectTab,
+  cafe,
+  currentUser,
+  isOpen = false,
+  onClose = null,
+}) {
   const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin';
 
   const navItems = [
@@ -12,22 +19,39 @@ export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser
     { id: 'settings', label: 'Settings', icon: <SettingsIcon size={18} /> },
   ];
 
+  const handleItemClick = (id) => {
+    onSelectTab(id);
+    if (onClose) onClose();
+  };
+
   return (
-    <aside className="ad-sidebar" aria-label="Admin Navigation">
+    <aside className={`ad-sidebar ${isOpen ? 'is-open' : ''}`} aria-label="Admin Navigation">
       {/* Brand Header */}
-      <a href="/admin" className="ad-sidebar-brand">
-        <span className="ad-sidebar-logo" aria-hidden="true">
-          <CoffeeIcon size={24} />
-        </span>
-        <div style={{ overflow: 'hidden' }}>
-          <h1 className="ad-sidebar-title" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-            {cafe?.name || 'CafeMenu'}
-          </h1>
-          <p className="ad-sidebar-sub" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-            {cafe?.tagline || 'Good Food • Great Moments'}
-          </p>
-        </div>
-      </a>
+      <div className="ad-sidebar-header">
+        <a href="/admin" className="ad-sidebar-brand" onClick={() => onClose && onClose()}>
+          <span className="ad-sidebar-logo" aria-hidden="true">
+            <CoffeeIcon size={24} />
+          </span>
+          <div style={{ overflow: 'hidden' }}>
+            <h1 className="ad-sidebar-title" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              {cafe?.name || 'CafeMenu'}
+            </h1>
+            <p className="ad-sidebar-sub" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              {cafe?.tagline || 'Good Food • Great Moments'}
+            </p>
+          </div>
+        </a>
+        {onClose && (
+          <button
+            type="button"
+            className="ad-sidebar-close"
+            onClick={onClose}
+            aria-label="Close sidebar navigation"
+          >
+            <CloseIcon size={18} />
+          </button>
+        )}
+      </div>
 
       {/* Navigation List */}
       <nav className="ad-nav">
@@ -36,7 +60,7 @@ export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser
             key={item.id}
             type="button"
             className={`ad-nav-item ${activeTab === item.id ? 'is-active' : ''}`}
-            onClick={() => onSelectTab(item.id)}
+            onClick={() => handleItemClick(item.id)}
             aria-current={activeTab === item.id ? 'page' : undefined}
           >
             <span className="ad-nav-icon">{item.icon}</span>
@@ -52,6 +76,7 @@ export default function AdminSidebar({ activeTab, onSelectTab, cafe, currentUser
             </div>
             <a
               href="/superadmin"
+              onClick={() => onClose && onClose()}
               style={{
                 display: 'flex',
                 alignItems: 'center',

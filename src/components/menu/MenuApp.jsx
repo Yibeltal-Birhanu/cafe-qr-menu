@@ -7,7 +7,21 @@ import BottomNav from './BottomNav.jsx';
 import ThankYouView from './ThankYouView.jsx';
 import MenuHero from './MenuHero.jsx';
 import Preloader from './Preloader.jsx';
-import { SearchIcon, ArrowRightIcon } from '../common/Icons.jsx';
+import SpecialCard from './SpecialCard.jsx';
+import {
+  SearchIcon,
+  ArrowRightIcon,
+  ClockIcon,
+  CoffeeIcon,
+  BurgerIcon,
+  PizzaIcon,
+  CakeIcon,
+  DrinkIcon,
+  BreakfastIcon,
+  StarIcon,
+  UtensilsCrossedIcon,
+  GridIcon,
+} from '../common/Icons.jsx';
 import { showcaseCategories } from './showcaseData.js';
 import { applyThemeToDocument, THEME_PRESETS } from '../common/themePresets.js';
 import { getHeroBannerImage, getThumbnailImage } from '../common/imageUtils.js';
@@ -107,7 +121,6 @@ export default function MenuApp() {
       applyThemeToDocument(apiMenu.cafe.theme);
     }
   }, [apiMenu?.cafe?.theme]);
-
 
   const fallbackCafeName = useMemo(() => {
     const slug = getActiveCafeSlug();
@@ -242,6 +255,51 @@ export default function MenuApp() {
     }
   };
 
+  // Assign clean SVG food icons to categories
+  const renderCategoryIcon = (cat) => {
+    if (cat.image || cat.bannerImg) {
+      return (
+        <img
+          src={getThumbnailImage(cat.image || cat.bannerImg, 36)}
+          alt=""
+          style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            display: 'inline-block',
+          }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      );
+    }
+    const s = `${cat.name || ''} ${cat.id || ''}`.toLowerCase();
+    if (s.includes('coffee') || s.includes('tea') || s.includes('espresso') || s.includes('buna') || s.includes('latte')) {
+      return <CoffeeIcon size={15} />;
+    }
+    if (s.includes('burger') || s.includes('sandwich')) {
+      return <BurgerIcon size={15} />;
+    }
+    if (s.includes('pizza') || s.includes('pasta')) {
+      return <PizzaIcon size={15} />;
+    }
+    if (s.includes('dessert') || s.includes('cake') || s.includes('pastry') || s.includes('sweet')) {
+      return <CakeIcon size={15} />;
+    }
+    if (s.includes('drink') || s.includes('beverage') || s.includes('juice') || s.includes('smoothie') || s.includes('soda')) {
+      return <DrinkIcon size={15} />;
+    }
+    if (s.includes('breakfast') || s.includes('egg') || s.includes('pancake')) {
+      return <BreakfastIcon size={15} />;
+    }
+    if (s.includes('popular') || s.includes('special') || s.includes('signature') || s.includes('bestseller') || s.includes('habesha')) {
+      return <StarIcon size={15} />;
+    }
+    return <UtensilsCrossedIcon size={15} />;
+  };
+
   const cafeLogo = useMemo(() => {
     if (apiMenu?.cafe?.theme?.preset === 'showcase') return 'coffee';
     const slug = apiMenu?.cafe?.slug;
@@ -277,7 +335,7 @@ export default function MenuApp() {
     if (isSampleDemoCafe) {
       if (currentLayout === 'bento') return '/images/dishes/classic-beef-burger.jpg';
       if (currentLayout === 'editorial') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
-      if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408842/cafe-qr-menu/dishes/margherita.jpg';
+      if (currentLayout === 'rustic') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409014/cafe-qr-menu/dishes/doro-wat-special.jpg';
       if (currentLayout === 'boutique') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792408836/cafe-qr-menu/dishes/chocolate-lava.jpg';
       if (currentLayout === 'noir') return 'https://res.cloudinary.com/zsyultue/image/upload/v1792409085/cafe-qr-menu/dishes/special-beef-tibs.jpg';
       return '/images/dishes/classic-beef-burger.jpg';
@@ -285,6 +343,22 @@ export default function MenuApp() {
     // 3. Custom tenant cafes (e.g. yibe) never display unrelated fake food photos
     return '';
   }, [apiMenu?.cafe?.hero_image, apiMenu?.cafe?.slug, currentLayout]);
+
+    const specials = useMemo(() => {
+    const all = [];
+    categories.forEach((cat) => {
+      if (Array.isArray(cat.items)) {
+        cat.items.forEach((it) => {
+          if (it.available !== false) {
+            all.push({ ...it, categoryName: cat.name });
+          }
+        });
+      }
+    });
+    const badged = all.filter((it) => it.badge && it.badge.trim());
+    if (badged.length >= 3) return badged.slice(0, 6);
+    return all.slice(0, 5);
+  }, [categories]);
 
   const { heroTitle, heroSub } = useMemo(() => {
     const customTitle = apiMenu?.cafe?.hero_title?.trim();
@@ -299,8 +373,8 @@ export default function MenuApp() {
     const slug = apiMenu?.cafe?.slug;
     if (slug === 'sunset-bistro' || currentLayout === 'rustic') {
       return {
-        heroTitle: 'Wood-Fired Pizzas & Flame Grills',
-        heroSub: apiMenu?.cafe?.tagline || 'Stone-baked dough, charred prime steaks & hearth comfort.',
+        heroTitle: 'Flame-grilled Chicken. Bold Flavour.',
+        heroSub: apiMenu?.cafe?.tagline || 'PERi-PERi your way. Slow-marinated, flame-fired to perfection.',
       };
     }
     if (slug === 'artisan-patisserie' || currentLayout === 'boutique') {
@@ -363,9 +437,11 @@ export default function MenuApp() {
           />
         )}
 
-        {/* 2. Top Header & Status Bar */}
+        {/* 2. Top Header & Status Bar with Location Bar (NO bell ring, NO person icon) */}
         <MenuHeader
           cafeName={cafeName}
+          tagline={apiMenu?.cafe?.tagline}
+          cafeCity={apiMenu?.cafe?.city || apiMenu?.cafe?.address || ''}
           activeCategory={currentCategory}
           activeTab={activeTab}
           onTabChange={(tab) => {
@@ -502,8 +578,64 @@ export default function MenuApp() {
                 </div>
               </div>
 
-              {/* Horizontal Category Filter Pills */}
-              <div className="cm-category-pills" role="tablist" aria-label="Menu categories">
+              {/* Today's Specials Carousel from MagicPath HomeScreen.tsx */}
+              {!searchQuery && specials.length > 0 && (
+                <section aria-labelledby="specials-heading" className="cm-sharp-specials-section">
+                  <div className="cm-sharp-specials-header">
+                    <div>
+                      <p className="cm-sharp-specials-eyebrow">From our kitchen</p>
+                      <h2 id="specials-heading" className="cm-sharp-specials-title">Today's Specials</h2>
+                    </div>
+                    <button
+                      type="button"
+                      className="cm-sharp-specials-btn"
+                      onClick={() => {
+                        const target = document.querySelector('.cm-category-pills') || document.querySelector('.cm-dish-list');
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      aria-label="See all specials"
+                    >
+                      <span>See all</span>
+                      <ArrowRightIcon size={15} />
+                    </button>
+                  </div>
+
+                  <div className="cm-sharp-specials-carousel no-scrollbar">
+                    {specials.map((dish) => (
+                      <div key={dish.id} className="cm-sharp-specials-cell">
+                        <SpecialCard
+                          dish={dish}
+                          onSelect={(item) => setSelectedDish(item)}
+                          currency={dish.currency || 'ETB'}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Hours & Status Card from MagicPath HomeScreen.tsx */}
+              {currentLayout !== 'noir' && !searchQuery && (
+                <aside className="cm-sharp-status-card">
+                  <div className="cm-sharp-status-left">
+                    <span className="cm-sharp-clock-badge">
+                      <ClockIcon size={17} />
+                    </span>
+                    <div>
+                      <p className="cm-sharp-status-title">Open today</p>
+                      <p className="cm-sharp-status-desc">Until 10:00 PM · Dine-in welcome</p>
+                    </div>
+                  </div>
+                  <span className="cm-sharp-status-live" aria-label="Open now" />
+                </aside>
+              )}
+
+              {/* Horizontal Category Filter Squircles matching Reference Design */}
+              <div
+                className={`cm-category-pills cm-category-pills--${currentLayout}`}
+                role="tablist"
+                aria-label="Menu categories"
+              >
                 <button
                   type="button"
                   className={`cm-pill ${!currentCategory && !searchQuery ? 'is-active' : ''}`}
@@ -512,7 +644,8 @@ export default function MenuApp() {
                     setSearchQuery('');
                   }}
                 >
-                  All
+                  <span className="cm-pill__icon"><GridIcon size={14} /></span>
+                  <span className="cm-pill__label">{currentLayout === 'rustic' ? 'Bestsellers' : 'All'}</span>
                 </button>
                 {categories.map((cat) => (
                   <button
@@ -521,41 +654,40 @@ export default function MenuApp() {
                     className={`cm-pill ${currentCategory?.id === cat.id ? 'is-active' : ''}`}
                     onClick={() => handleSelectCategory(cat)}
                   >
-                    {(cat.image || cat.bannerImg) && (
-                      <img
-                        src={getThumbnailImage(cat.image || cat.bannerImg, 36)}
-                        alt=""
-                        style={{
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          marginRight: '6px',
-                          display: 'inline-block',
-                          verticalAlign: 'middle',
-                        }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    )}
-                    <span>{cat.name}</span>
+                    <span className="cm-pill__icon">
+                      {renderCategoryIcon(cat)}
+                    </span>
+                    <span className="cm-pill__label">{cat.name}</span>
                   </button>
                 ))}
               </div>
 
-              {/* Menu Items Section Head */}
+              {/* Menu Items Section Head (Popular Picks with View All button) */}
               <div className="cm-section-head">
                 <h3 className="cm-section-title">
-                  {searchQuery ? `Search Results (${displayedItems.length})` : 'All Foods'}
+                  {searchQuery
+                    ? `Search Results (${displayedItems.length})`
+                    : currentLayout === 'rustic'
+                    ? 'Popular Picks'
+                    : currentLayout === 'editorial'
+                    ? "Chef's Tasting Menu"
+                    : currentLayout === 'noir'
+                    ? 'Evening Selections'
+                    : currentLayout === 'bento'
+                    ? 'Kitchen & Roastery Specials'
+                    : 'Haute Gastronomie'}
                 </h3>
                 {!searchQuery && displayedItems.length > 0 && (
-                  <span
-                    className="cm-section-link"
-                    style={{ cursor: 'default' }}
+                  <button
+                    type="button"
+                    className="cm-section-link cm-section-link--view-all"
+                    onClick={() => {
+                      setActiveCategory(null);
+                      setSearchQuery('');
+                    }}
                   >
-                    {displayedItems.length} {displayedItems.length === 1 ? 'item' : 'items'}
-                  </span>
+                    View All &rarr;
+                  </button>
                 )}
               </div>
 
@@ -577,11 +709,13 @@ export default function MenuApp() {
                   </div>
                 )}
               </div>
-            </div>
+
+                          </div>
           )}
         </div>
 
-        {/* 4. Bottom Navigation Bar */}
+        
+{/* 4. Floating Bottom Navigation Dock */}
         <BottomNav
           activeTab={activeTab}
           theme={apiMenu?.cafe?.theme}
@@ -596,13 +730,15 @@ export default function MenuApp() {
           }}
         />
 
-        {/* 5. Dish Detail Modal (Screen 4 Bottom Sheet) */}
+        {/* 5. MagicPath Dish Detail Screen Overlay */}
         {selectedDish && (
           <DishDetailModal
             dish={selectedDish}
             onClose={() => setSelectedDish(null)}
             onToast={showToast}
             currency={selectedDish.currency || 'ETB'}
+            layout={currentLayout}
+            theme={apiMenu?.cafe?.theme}
           />
         )}
 

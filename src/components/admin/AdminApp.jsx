@@ -33,6 +33,7 @@ export default function AdminApp() {
   const [menu, setMenu] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [globalSearch, setGlobalSearch] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
 
@@ -546,13 +547,27 @@ export default function AdminApp() {
   const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.id === 'legacy-admin';
 
   return (
-    <div className="ad-layout">
+    <div className={`ad-layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      {/* Mobile Sidebar Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="ad-sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* 1. Left Sidebar */}
       <AdminSidebar
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          setSidebarOpen(false);
+        }}
         cafe={cafe}
         currentUser={currentUser}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {/* 2. Main Content Container */}
@@ -569,6 +584,7 @@ export default function AdminApp() {
           availableCafes={availableCafes}
           onSwitchCafe={handleSwitchCafe}
           onLogout={handleLogout}
+          onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         />
 
         {/* Dedicated Super Admin Platform View */}
