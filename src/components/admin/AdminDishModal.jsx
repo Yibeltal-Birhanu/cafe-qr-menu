@@ -235,7 +235,7 @@ export default function AdminDishModal({
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="ad-form-grid-2">
                   <div>
                     <label className="ad-field-label">Category *</label>
                     <select

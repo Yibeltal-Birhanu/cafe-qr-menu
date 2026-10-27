@@ -107,15 +107,7 @@ export default function CategoryManagerView({
           gap: '1.2rem',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+        <div className="ad-cat-header-strip">
           <div>
             <h2 className="ad-card-title" style={{ fontSize: '1.4rem' }}>
               Menu Categories
@@ -137,17 +129,7 @@ export default function CategoryManagerView({
         </div>
 
         {/* Quick Stats & Controls Strip */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            borderTop: '1px solid #f3f4f6',
-            paddingTop: '1rem',
-          }}
-        >
+        <div className="ad-cat-stats-strip">
           {/* Quick Metrics */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#13221e' }}>
@@ -173,8 +155,8 @@ export default function CategoryManagerView({
           </div>
 
           {/* Search & View Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <div className="ad-header-search" style={{ width: '220px' }}>
+          <div className="ad-cat-search-group">
+            <div className="ad-header-search ad-cat-search-box">
               <SearchIcon size={14} className="ad-header-search-icon" />
               <input
                 type="text"
@@ -273,7 +255,7 @@ export default function CategoryManagerView({
                           }}
                           title="Custom cover image uploaded"
                         >
-                          📷 Image
+                          Custom Cover
                         </span>
                       )}
                       <span className="ad-cat-count-pill" style={{ position: 'static' }}>

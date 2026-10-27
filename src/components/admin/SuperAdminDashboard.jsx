@@ -990,7 +990,7 @@ export default function SuperAdminDashboard({
       {isCreateModalOpen && (
         <div className="sad-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'grid', placeItems: 'center', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)' }}>
           <div
-            className="sad-stat-card"
+            className="sad-stat-card sad-modal-stat-card"
             style={{
               width: '92%',
               maxWidth: '600px',
@@ -1035,7 +1035,7 @@ export default function SuperAdminDashboard({
                 <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#0f172a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   1. Venue Profile
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                <div className="sad-form-grid-2">
                   <div>
                     <label className="ad-field-label">Venue Name *</label>
                     <input
@@ -1071,7 +1071,7 @@ export default function SuperAdminDashboard({
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
+                <div className="sad-form-grid-2" style={{ marginTop: '0.8rem' }}>
                   <div>
                     <label className="ad-field-label">Currency</label>
                     <select
@@ -1103,7 +1103,7 @@ export default function SuperAdminDashboard({
                 <h4 style={{ margin: '0 0 0.8rem', fontSize: '0.88rem', color: '#0f172a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   2. Manager Credentials (Better Auth)
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                <div className="sad-form-grid-2">
                   <div>
                     <label className="ad-field-label">Manager Name</label>
                     <input
@@ -1166,7 +1166,7 @@ export default function SuperAdminDashboard({
       {themeModalCafe && (
         <div className="sad-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'grid', placeItems: 'center', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)' }}>
           <div
-            className="sad-stat-card"
+            className="sad-stat-card sad-modal-stat-card"
             style={{
               width: '94%',
               maxWidth: '860px',
@@ -1341,7 +1341,7 @@ export default function SuperAdminDashboard({
           }}
         >
           <div
-            className="sad-stat-card"
+            className="sad-stat-card sad-modal-stat-card"
             style={{
               width: '90%',
               maxWidth: '840px',
@@ -1416,7 +1416,7 @@ export default function SuperAdminDashboard({
             </div>
 
             {/* Tab Controls */}
-            <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
+            <div className="sad-modal-tabs" style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
               {[
                 { id: 'general', label: 'General & Profile' },
                 { id: 'hero', label: 'Hero & Showcase' },
@@ -1438,6 +1438,7 @@ export default function SuperAdminDashboard({
                     fontSize: '0.82rem',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {tab.label}
@@ -1449,7 +1450,7 @@ export default function SuperAdminDashboard({
               {/* TAB 1: GENERAL */}
               {manageActiveTab === 'general' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                  <div className="sad-form-grid-2">
                     <div>
                       <label className="ad-field-label">Venue Name *</label>
                       <input
@@ -1474,7 +1475,7 @@ export default function SuperAdminDashboard({
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.8rem' }}>
+                  <div className="sad-form-grid-2-1">
                     <div>
                       <label className="ad-field-label">Tagline / Slogan</label>
                       <input
@@ -1504,7 +1505,7 @@ export default function SuperAdminDashboard({
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                  <div className="sad-form-grid-2">
                     <div>
                       <label className="ad-field-label">Contact Phone / Support</label>
                       <input
@@ -1659,7 +1660,7 @@ export default function SuperAdminDashboard({
                     Set guest Wi-Fi details. When entered, guest mobile menus will display instant connect cards.
                   </p>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                  <div className="sad-form-grid-2">
                     <div>
                       <label className="ad-field-label">Wi-Fi Network Name (SSID)</label>
                       <input
@@ -1747,7 +1748,7 @@ export default function SuperAdminDashboard({
                     })}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.5rem' }}>
+                  <div className="sad-form-grid-3" style={{ marginTop: '0.5rem' }}>
                     <div>
                       <label className="ad-field-label">1st Color (Primary)</label>
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -1815,7 +1816,7 @@ export default function SuperAdminDashboard({
                     Manage assigned venue manager credentials. Any changes sync directly to the Better Auth authentication table.
                   </p>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                  <div className="sad-form-grid-2">
                     <div>
                       <label className="ad-field-label">Manager Display Name</label>
                       <input
@@ -1857,7 +1858,7 @@ export default function SuperAdminDashboard({
               )}
 
               {/* Footer Actions */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '1.2rem', marginTop: '0.5rem' }}>
+              <div className="sad-modal-footer">
                 <div>
                   <button
                     type="button"
@@ -1900,7 +1901,7 @@ export default function SuperAdminDashboard({
       {credentialModalCafe && (
         <div className="sad-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'grid', placeItems: 'center', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(8px)' }}>
           <div
-            className="sad-stat-card"
+            className="sad-stat-card sad-modal-stat-card"
             style={{
               width: '92%',
               maxWidth: '480px',

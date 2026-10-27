@@ -181,7 +181,7 @@ export default function VenueSettings({
       </div>
 
       {/* 2. Main 2-Column Split */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="ad-settings-grid">
         {/* Left Column: Settings Forms */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Card A: Cafe Identity & Branding */}
@@ -219,7 +219,7 @@ export default function VenueSettings({
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="ad-form-grid-2">
                 <div>
                   <label className="ad-field-label">Default Currency</label>
                   <input
@@ -311,7 +311,7 @@ export default function VenueSettings({
 
               <div>
                 <label className="ad-field-label">Hero Banner Image URL or Cloudinary Upload</label>
-                <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                <div className="ad-hero-upload-row">
                   <input
                     type="url"
                     className="ad-form-input"
@@ -334,7 +334,7 @@ export default function VenueSettings({
                     disabled={uploadingHero}
                     style={{ whiteSpace: 'nowrap', padding: '0.65rem 1rem' }}
                   >
-                    {uploadingHero ? 'Uploading...' : '☁ Upload to Cloudinary'}
+                    {uploadingHero ? 'Uploading...' : 'Upload to Cloudinary'}
                   </button>
                   {formData.hero_image && (
                     <button
@@ -765,7 +765,7 @@ export default function VenueSettings({
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
+            <div className="ad-form-grid-2">
               <div>
                 <label className="ad-field-label">Guest Wi-Fi Network (SSID)</label>
                 <input
@@ -791,18 +791,7 @@ export default function VenueSettings({
               </div>
             </div>
 
-            <div
-              style={{
-                marginTop: '1.2rem',
-                background: '#f8faf9',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
+            <div className="ad-wifi-preview-strip">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <span style={{ fontSize: '1.1rem' }}>&#128246;</span>
                 <span style={{ fontSize: '0.82rem', color: '#4b5563' }}>
@@ -821,15 +810,7 @@ export default function VenueSettings({
           </div>
 
           {/* Card C: Save Changes Bar */}
-          <div
-            className="ad-panel-card"
-            style={{
-              padding: '1.2rem 1.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
+          <div className="ad-panel-card ad-settings-save-bar">
             <span style={{ fontSize: '0.84rem', color: '#6b7280' }}>
               All modifications are automatically saved to disk.
             </span>

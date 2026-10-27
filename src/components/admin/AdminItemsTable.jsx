@@ -37,8 +37,8 @@ export default function AdminItemsTable({
           <p className="ad-card-sub">Manage your cafe menu items and pricing</p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div className="ad-search-pill" style={{ width: '240px', padding: '0.45rem 1rem' }}>
+        <div className="ad-table-toolbar-actions">
+          <div className="ad-search-pill ad-table-search-pill">
             <span style={{ color: '#9ca3af', display: 'inline-flex' }}>
               <SearchIcon size={14} />
             </span>

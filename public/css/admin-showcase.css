@@ -2714,22 +2714,131 @@ body::after {
   flex-direction: column;
 }
 
-@media (max-width: 1024px) {
-  .ad-content-full {
-    padding: 1.4rem 1.4rem 3rem;
-  }
+/* ==========================================================================
+   MOBILE RESPONSIVE & HAMBURGER DRAWER SYSTEM (ALL SIDE MENU PAGES)
+   ========================================================================== */
+
+/* Base Component Layout Helpers */
+.ad-settings-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
-@media (max-width: 640px) {
-  .ad-content-full {
-    padding: 1rem 0.8rem 2.5rem;
-  }
+.ad-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ad-hero-upload-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.ad-wifi-preview-strip {
+  margin-top: 1.2rem;
+  background: #f8faf9;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.ad-settings-save-bar {
+  padding: 1.2rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ad-table-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.ad-cat-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ad-cat-stats-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 1rem;
+}
+
+.ad-cat-search-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sad-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.sad-form-grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.8rem;
+}
+
+.sad-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.sad-modal-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sad-modal-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.sad-modal-tabs::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.sad-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.2rem;
+  margin-top: 0.5rem;
+  gap: 1rem;
 }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE & HAMBURGER DRAWER SYSTEM
+   BREAKPOINT 1: TABLET & COMPACT DESKTOP (<= 1024px)
    ========================================================================== */
-
 @media (max-width: 1024px) {
   /* Hamburger Menu Toggle Button */
   .ad-menu-toggle {
@@ -2739,43 +2848,37 @@ body::after {
     align-items: center !important;
     justify-content: center !important;
     border-radius: 10px !important;
-    background: #f1f5f9 !important;
-    color: #1e293b !important;
-    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    border: 1px solid var(--ad-border) !important;
+    color: var(--ad-text-dark) !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
     flex-shrink: 0 !important;
   }
   .ad-menu-toggle:hover {
-    background: #e2e8f0 !important;
-    color: #0f172a !important;
+    background: #f8fafc !important;
+    border-color: var(--ad-border-strong) !important;
   }
 
-  /* Off-canvas Slide Drawer Sidebar */
+  /* Off-Canvas Sidebar Drawer */
   .ad-sidebar {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
-    height: 100vh !important;
-    height: 100dvh !important;
     width: 280px !important;
     max-width: 85vw !important;
+    height: 100vh !important;
     z-index: 1000 !important;
     transform: translateX(-100%) !important;
-    box-shadow: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25) !important;
   }
   .ad-sidebar.is-open {
     transform: translateX(0) !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
   }
 
-  /* Dark Backdrop Overlay */
+  /* Backdrop Overlay */
   .ad-sidebar-backdrop {
     display: block !important;
     position: fixed !important;
@@ -2833,6 +2936,9 @@ body::after {
     gap: 1.4rem !important;
     padding: 1.4rem 1.4rem 3rem !important;
   }
+  .ad-content-full {
+    padding: 1.4rem 1.4rem 3rem !important;
+  }
   .ad-stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1rem !important;
@@ -2841,8 +2947,43 @@ body::after {
     grid-template-columns: 1fr !important;
     gap: 1.25rem !important;
   }
+
+  /* 1. Venue Settings Grid on Tablet */
+  .ad-settings-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  /* 2. QR Templates Grid on Tablet */
+  .ad-qr-templates-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.2rem !important;
+  }
+
+  /* 3. Quick Actions full width on Tablet */
+  .ad-card-actions-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* 4. Super Admin Controls on Tablet */
+  .sad-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+  .sad-search-container {
+    width: 100% !important;
+  }
+  .sad-bento-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
+/* ==========================================================================
+   BREAKPOINT 2: MOBILE LANDSCAPE & TABLETS (<= 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
   /* Topbar Mobile Refinements */
   .ad-topbar {
@@ -2888,6 +3029,9 @@ body::after {
     padding: 1rem 0.85rem 2.5rem !important;
     gap: 1rem !important;
   }
+  .ad-content-full {
+    padding: 1rem 0.85rem 2.5rem !important;
+  }
   .ad-hero-card {
     padding: 1.4rem 1.2rem !important;
     border-radius: 14px !important;
@@ -2922,6 +3066,26 @@ body::after {
     align-items: flex-start !important;
     gap: 0.5rem !important;
   }
+
+  /* 1. Items Table Mobile Toolbar */
+  .ad-table-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+  .ad-table-toolbar-actions {
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0.6rem !important;
+  }
+  .ad-table-search-pill {
+    flex: 1 1 180px !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  .ad-table-toolbar-actions .ad-btn-add {
+    flex-shrink: 0 !important;
+  }
   .ad-table-container {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
@@ -2942,6 +3106,96 @@ body::after {
     align-items: center !important;
   }
 
+  /* 2. Category Manager Strips */
+  .ad-cat-header-strip,
+  .ad-cat-stats-strip {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+  .ad-cat-header-strip .ad-btn-add {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .ad-cat-search-group {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+  }
+  .ad-cat-search-box {
+    flex: 1 1 160px !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  /* 3. Super Admin Platform on Mobile */
+  .sad-hero {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1.4rem 1.2rem !important;
+    gap: 1.2rem !important;
+  }
+  .sad-hero-title {
+    font-size: 1.4rem !important;
+  }
+  .sad-hero-actions {
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+  }
+  .sad-hero-actions button {
+    flex: 1 1 140px !important;
+    justify-content: center !important;
+  }
+  .sad-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+  .sad-filter-tabs {
+    width: 100% !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .sad-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 12px !important;
+  }
+  .sad-table {
+    min-width: 680px !important;
+  }
+  .sad-table th,
+  .sad-table td {
+    padding: 0.8rem 0.9rem !important;
+    font-size: 0.82rem !important;
+  }
+  .sad-bento-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  .sad-modal-stat-card {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 1.4rem 1.1rem !important;
+    border-radius: 16px !important;
+    margin: 1rem auto !important;
+  }
+  .sad-modal-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.8rem !important;
+  }
+  .sad-modal-footer > div {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.6rem !important;
+  }
+  .sad-modal-footer button {
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
   /* Modals on Mobile */
   .ad-modal-box {
     width: 95vw !important;
@@ -2958,6 +3212,79 @@ body::after {
   }
 }
 
+/* ==========================================================================
+   BREAKPOINT 3: MOBILE PORTRAIT (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* 1. Venue Settings */
+  .ad-form-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+  }
+  .ad-hero-upload-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.6rem !important;
+  }
+  .ad-hero-upload-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .ad-wifi-preview-strip {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.6rem !important;
+  }
+  .ad-wifi-preview-strip button {
+    width: 100% !important;
+  }
+  .ad-settings-save-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.8rem !important;
+    text-align: center !important;
+  }
+  .ad-settings-save-bar button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* 2. QR Templates */
+  .ad-qr-templates-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  .ad-qr-card-actions {
+    flex-wrap: wrap !important;
+  }
+  .ad-qr-btn-view {
+    flex: 1 1 140px !important;
+  }
+
+  /* 3. Categories Manager */
+  .ad-cat-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  .ad-cat-card {
+    width: 100% !important;
+  }
+
+  /* 4. Super Admin Form Grids */
+  .sad-form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .sad-form-grid-2-1 {
+    grid-template-columns: 1fr !important;
+  }
+  .sad-form-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   BREAKPOINT 4: COMPACT MOBILE & PHONES (<= 480px)
+   ========================================================================== */
 @media (max-width: 480px) {
   .ad-topbar {
     padding: 0.65rem 0.75rem !important;
@@ -2969,10 +3296,42 @@ body::after {
     grid-template-columns: 1fr 1fr !important;
     gap: 0.5rem !important;
   }
+  .sad-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
   .ad-stat-card {
     padding: 0.75rem !important;
   }
   .ad-stat-value {
     font-size: 1.25rem !important;
+  }
+  .sad-stat-card {
+    padding: 0.85rem !important;
+  }
+  .sad-stat-val {
+    font-size: 1.35rem !important;
+  }
+  .ad-card-actions-list {
+    grid-template-columns: 1fr !important;
+  }
+  .ad-filter-pills-row {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+  }
+}
+
+/* ==========================================================================
+   BREAKPOINT 5: ULTRA COMPACT SCREENS (<= 360px)
+   ========================================================================== */
+@media (max-width: 360px) {
+  .ad-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
+  }
+  .sad-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
   }
 }
