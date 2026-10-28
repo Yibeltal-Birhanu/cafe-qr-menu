@@ -14,7 +14,6 @@ import {
   EditIcon,
   TrashIcon,
   SearchIcon,
-  GridIcon,
   CutleryIcon,
 } from './AdminIcons.jsx';
 
@@ -38,7 +37,6 @@ export default function CategoryManagerView({
   onAddDish,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
   const getCategoryIcon = (iconKey) => {
     switch (iconKey) {
@@ -188,44 +186,23 @@ export default function CategoryManagerView({
                 </>
               )}
             </div>
-
-            <div className="ad-filter-pills-row" style={{ margin: 0 }}>
-              <button
-                type="button"
-                className={`ad-filter-pill-btn ${viewMode === 'grid' ? 'is-active' : ''}`}
-                onClick={() => setViewMode('grid')}
-                title="Grid visual view"
-              >
-                Grid
-              </button>
-              <button
-                type="button"
-                className={`ad-filter-pill-btn ${viewMode === 'list' ? 'is-active' : ''}`}
-                onClick={() => setViewMode('list')}
-                title="Compact list view"
-              >
-                List
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
       {/* 2. Visual Categories Presentation */}
       {filteredCategories.length > 0 ? (
-        viewMode === 'grid' ? (
-          /* ================= GRID VIEW ================= */
-          <div className="ad-cat-grid">
-            {filteredCategories.map((cat) => {
-              const originalIndex = categories.findIndex((c) => c.id === cat.id);
-              const items = cat.items || [];
-              const itemCount = items.length;
-              const prices = items.map((i) => i.price).filter((p) => typeof p === 'number');
-              const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-              const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+        <div className="ad-cat-grid">
+          {filteredCategories.map((cat) => {
+            const originalIndex = categories.findIndex((c) => c.id === cat.id);
+            const items = cat.items || [];
+            const itemCount = items.length;
+            const prices = items.map((i) => i.price).filter((p) => typeof p === 'number');
+            const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+            const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
 
-              return (
-                <div key={cat.id} className="ad-cat-card">
+            return (
+              <div key={cat.id} className="ad-cat-card">
                   {/* Visual Header Banner */}
                   <div
                     className="ad-cat-banner"
@@ -383,124 +360,10 @@ export default function CategoryManagerView({
             })}
           </div>
         ) : (
-          /* ================= LIST VIEW ================= */
-          <div className="ad-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
-            <table className="ad-table" style={{ width: '100%' }}>
-              <thead>
-                <tr>
-                  <th style={{ width: '70px', textAlign: 'center' }}>Order</th>
-                  <th style={{ width: '80px' }}>Cover</th>
-                  <th>Category</th>
-                  <th>Dishes</th>
-                  <th>Price Range</th>
-                  <th style={{ textAlign: 'right', paddingRight: '1.5rem' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCategories.map((cat, index) => {
-                  const originalIndex = categories.findIndex((c) => c.id === cat.id);
-                  const items = cat.items || [];
-                  const prices = items.map((i) => i.price).filter((p) => typeof p === 'number');
-                  const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-                  const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
-
-                  return (
-                    <tr key={cat.id}>
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                          <button
-                            type="button"
-                            className="ad-btn-arrow"
-                            disabled={originalIndex === 0}
-                            onClick={() => handleMoveUp(originalIndex)}
-                            title="Move up"
-                          >
-                            &#9650;
-                          </button>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>#{originalIndex + 1}</span>
-                          <button
-                            type="button"
-                            className="ad-btn-arrow"
-                            disabled={originalIndex === categories.length - 1}
-                            onClick={() => handleMoveDown(originalIndex)}
-                            title="Move down"
-                          >
-                            &#9660;
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <img
-                          src={getCategoryCover(cat)}
-                          alt={cat.name}
-                          style={{ width: '48px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
-                        />
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                          <span style={{ color: 'var(--ad-primary)' }}>{getCategoryIcon(cat.icon)}</span>
-                          <div>
-                            <strong style={{ fontSize: '0.9rem', color: 'var(--ad-text-dark)' }}>{cat.name}</strong>
-                            <div style={{ fontSize: '0.72rem', color: '#9ca3af' }}>ID: {cat.id}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="ad-tag-dish" style={{ background: '#f3f4f6', color: '#374151', fontWeight: 700 }}>
-                          {items.length} items
-                        </span>
-                      </td>
-                      <td>
-                        {minPrice !== null ? (
-                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#142820' }}>
-                            {minPrice === maxPrice
-                              ? `${minPrice} ${currency}`
-                              : `${minPrice} – ${maxPrice} ${currency}`}
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>No items</span>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'right', paddingRight: '1.5rem' }}>
-                        <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
-                          <button
-                            type="button"
-                            className="ad-btn-action-secondary"
-                            onClick={() => onAddDish(cat.id)}
-                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', width: 'auto' }}
-                          >
-                            + Dish
-                          </button>
-                          <button
-                            type="button"
-                            className="ad-icon-action"
-                            onClick={() => onEditCategory(cat)}
-                            title="Edit"
-                          >
-                            <EditIcon size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            className="ad-icon-action ad-icon-action--delete"
-                            onClick={() => onDeleteCategory(cat)}
-                            title="Delete"
-                          >
-                            <TrashIcon size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )
-      ) : (
-        <div className="ad-cat-empty-search-card">
-          <div className="ad-cat-empty-search-icon" aria-hidden="true">
-            <SearchIcon size={24} />
-          </div>
+          <div className="ad-cat-empty-search-card">
+            <div className="ad-cat-empty-search-icon" aria-hidden="true">
+              <SearchIcon size={24} />
+            </div>
           <h4 className="ad-cat-empty-search-title">No categories found</h4>
           <p className="ad-cat-empty-search-sub">
             No categories match "<strong>{searchQuery}</strong>". Try clearing your search or checking your spelling.

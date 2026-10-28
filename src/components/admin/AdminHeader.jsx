@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MenuIcon, SearchIcon, BellIcon, ChevronDownIcon, ShieldIcon } from './AdminIcons.jsx';
+import { MenuIcon, SearchIcon, ChevronDownIcon, ShieldIcon } from './AdminIcons.jsx';
 
 export default function AdminHeader({
   title = 'Dashboard',
@@ -118,24 +118,31 @@ export default function AdminHeader({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            padding: '0.45rem 0.85rem',
-            background: 'rgba(217, 119, 6, 0.1)',
-            color: '#b45309',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            letterSpacing: '0.06em',
+            padding: '0.42rem 0.75rem',
+            background: 'rgba(16, 185, 129, 0.12)',
+            color: '#059669',
             borderRadius: '8px',
             textDecoration: 'none',
-            border: '1px solid rgba(217, 119, 6, 0.2)'
+            border: '1px solid rgba(16, 185, 129, 0.25)'
           }}
           title={`Open live menu for ${cafe?.name || currentSlug}`}
         >
-          <span>Live Menu &nearr;</span>
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: '#10b981',
+              display: 'inline-block',
+              boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.2)'
+            }}
+            aria-hidden="true"
+          />
+          <span>LIVE</span>
         </a>
-
-        <button type="button" className="ad-notify-btn" aria-label="Notifications">
-          <BellIcon size={20} />
-          <span className="ad-notify-dot" aria-hidden="true"></span>
-        </button>
 
         <div style={{ position: 'relative' }}>
           <div
@@ -221,7 +228,17 @@ export default function AdminHeader({
                   gap: '8px',
                 }}
               >
-                <span>View Live Menu &nearr;</span>
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#10b981',
+                    display: 'inline-block'
+                  }}
+                  aria-hidden="true"
+                />
+                <span>LIVE</span>
               </a>
 
               <button
