@@ -170,7 +170,7 @@ export default function VenueSettings({
     : `/${cafe?.slug === 'abol-cafe' ? 'abol-cafe' : `cafe/${cafe?.slug || 'abol-cafe'}`}`;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%', minWidth: 0 }}>
       {/* 1. Hero Header Banner */}
       <div
         className="ad-hero-card"
@@ -244,7 +244,7 @@ export default function VenueSettings({
       <div className={`ad-settings-grid ${activeSection === 'preview' ? 'is-preview-only' : ''}`}>
         {/* Left Column: Settings Configuration Cards */}
         {activeSection !== 'preview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%', minWidth: 0 }}>
             
             {/* Card A: Cafe Identity & Branding */}
             {activeSection === 'identity' && (
@@ -337,53 +337,65 @@ export default function VenueSettings({
 
           {/* Card B: Homepage Hero & Banner Showcase */}
           {activeSection === 'hero' && (
-            <div className="ad-panel-card ad-settings-card">
+            <div className="ad-panel-card ad-settings-card ad-hero-settings-card">
               <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
-                <div>
-                  <h3 className="ad-card-title">Homepage Hero &amp; Banner Showcase</h3>
-                  <p className="ad-card-sub">
-                    Customize the headline, description, and hero banner image displayed at the top of the customer mobile menu.
+                <div style={{ width: '100%', minWidth: 0 }}>
+                  <div className="ad-hero-badge-title-row">
+                    <h3 className="ad-card-title">Homepage Hero &amp; Banner Showcase</h3>
+                    <span className="ad-hero-section-tag">Digital Menu Top</span>
+                  </div>
+                  <p className="ad-card-sub" style={{ wordBreak: 'break-word' }}>
+                    Customize the headline, subtitle description, and photo banner displayed at the top of your mobile customer menu.
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label className="ad-field-label">Custom Hero Title</label>
+              <div className="ad-hero-settings-body">
+                <div className="ad-hero-field-group">
+                  <div className="ad-hero-field-header">
+                    <label className="ad-field-label" htmlFor="hero_title_input">Custom Hero Title</label>
+                    <span className="ad-hero-optional-badge">Optional</span>
+                  </div>
                   <input
+                    id="hero_title_input"
                     type="text"
                     className="ad-form-input"
-                    placeholder="e.g. Wood-Fired Delicacies &amp; Reserve Roasts (leave empty for theme default)"
+                    placeholder="e.g. Wood-Fired Delicacies &amp; Reserve Roasts"
                     value={formData.hero_title || ''}
                     onChange={(e) => handleChange('hero_title', e.target.value)}
                   />
-                  <span style={{ fontSize: '0.74rem', color: '#6b7280', marginTop: '4px', display: 'block' }}>
-                    If empty, automatically uses your cafe name or signature theme heading.
+                  <span className="ad-hero-field-hint">
+                    If left empty, automatically displays your cafe name or signature theme heading.
                   </span>
                 </div>
 
-                <div>
-                  <label className="ad-field-label">Custom Hero Description / Subtitle</label>
+                <div className="ad-hero-field-group">
+                  <div className="ad-hero-field-header">
+                    <label className="ad-field-label" htmlFor="hero_desc_input">Custom Hero Description / Subtitle</label>
+                    <span className="ad-hero-optional-badge">Optional</span>
+                  </div>
                   <textarea
-                    className="ad-form-input"
+                    id="hero_desc_input"
+                    className="ad-form-input ad-hero-textarea"
                     rows={2}
                     placeholder="e.g. Freshly handcrafted ingredients, organic sourdough pizzas, and single-origin coffee."
                     value={formData.hero_description || ''}
                     onChange={(e) => handleChange('hero_description', e.target.value)}
-                    style={{ resize: 'vertical' }}
                   />
                 </div>
 
-                <div>
-                  <label className="ad-field-label">Hero Banner Image URL or Upload</label>
+                <div className="ad-hero-field-group">
+                  <div className="ad-hero-field-header">
+                    <label className="ad-field-label">Hero Banner Image</label>
+                    <span className="ad-hero-optional-badge">Cloudinary / Web URL</span>
+                  </div>
                   <div className="ad-hero-upload-row">
                     <input
                       type="url"
-                      className="ad-form-input"
+                      className="ad-form-input ad-hero-url-input"
                       placeholder="https://res.cloudinary.com/... or paste image URL"
                       value={formData.hero_image || ''}
                       onChange={(e) => handleChange('hero_image', e.target.value)}
-                      style={{ flex: 1, minWidth: 0 }}
                     />
                     <input
                       type="file"
@@ -395,10 +407,9 @@ export default function VenueSettings({
                     <div className="ad-hero-upload-buttons">
                       <button
                         type="button"
-                        className="ad-btn-action-secondary"
+                        className="ad-btn-action-secondary ad-hero-upload-btn"
                         onClick={() => heroFileInputRef.current && heroFileInputRef.current.click()}
                         disabled={uploadingHero}
-                        style={{ whiteSpace: 'nowrap', padding: '0.65rem 1rem' }}
                       >
                         <UploadIcon size={14} />
                         <span>{uploadingHero ? 'Uploading...' : 'Upload Image'}</span>
@@ -406,9 +417,8 @@ export default function VenueSettings({
                       {formData.hero_image && (
                         <button
                           type="button"
-                          className="ad-btn-danger"
+                          className="ad-btn-danger ad-hero-clear-icon-btn"
                           onClick={() => handleChange('hero_image', '')}
-                          style={{ padding: '0.65rem 0.85rem' }}
                           title="Clear custom image"
                           aria-label="Clear image"
                         >
@@ -420,8 +430,8 @@ export default function VenueSettings({
 
                   {/* Optional Quick-select from dishes */}
                   {dishes && dishes.filter((d) => d && (typeof d.image === 'string' ? d.image : d.image?.url)).length > 0 && (
-                    <div style={{ marginTop: '0.8rem' }}>
-                      <span style={{ fontSize: '0.74rem', color: '#6b7280', display: 'block', marginBottom: '6px' }}>
+                    <div className="ad-hero-dish-picker">
+                      <span className="ad-hero-dish-picker-label">
                         Or select from existing dish photography:
                       </span>
                       <div className="ad-dish-select-strip">
@@ -435,29 +445,17 @@ export default function VenueSettings({
                               <button
                                 key={d.id}
                                 type="button"
+                                className={`ad-dish-select-btn ${isSelected ? 'is-selected' : ''}`}
                                 onClick={() => handleChange('hero_image', imgUrl)}
-                                style={{
-                                  border: isSelected ? '2px solid #e6923c' : '1px solid #e5e7eb',
-                                  borderRadius: '8px',
-                                  padding: '3px 8px 3px 3px',
-                                  background: isSelected ? 'rgba(230, 146, 60, 0.08)' : '#ffffff',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '6px',
-                                  fontSize: '0.72rem',
-                                  fontWeight: isSelected ? 700 : 500,
-                                  whiteSpace: 'nowrap',
-                                  transition: 'all 0.15s ease',
-                                }}
                                 title={`Use ${d.name} image`}
                               >
                                 <img
                                   src={imgUrl}
                                   alt={d.name}
-                                  style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }}
+                                  className="ad-dish-select-thumb"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />
-                                <span style={{ maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span className="ad-dish-select-name">
                                   {d.name}
                                 </span>
                               </button>
@@ -469,50 +467,76 @@ export default function VenueSettings({
 
                   {/* Current Hero Image Preview Card */}
                   {formData.hero_image ? (
-                    <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                    <div className="ad-hero-preview-card">
+                      <div className="ad-hero-preview-header">
+                        <span className="ad-hero-preview-title">
                           Current Hero Banner Preview
                         </span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: '999px' }}>
+                        <span className="ad-hero-preview-badge">
                           Active on Customer Menu
                         </span>
                       </div>
-                      <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #cbd5e1', maxHeight: '180px', position: 'relative', background: '#0e1411' }}>
+
+                      <div className="ad-hero-preview-media">
                         <img
                           src={formData.hero_image}
                           alt="Current Hero Banner Preview"
-                          style={{ width: '100%', height: '170px', objectFit: 'contain', display: 'block' }}
+                          className="ad-hero-preview-img"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
                             e.currentTarget.style.opacity = '0.5';
                           }}
                         />
-                        <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', color: '#ffffff', fontSize: '0.7rem', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                          Live Banner
+                        <div className="ad-hero-preview-gradient">
+                          <div className="ad-hero-preview-caption">
+                            <div className="ad-hero-preview-caption-title">
+                              {formData.hero_title || formData.name || 'Your Venue Title'}
+                            </div>
+                            {(formData.hero_description || formData.tagline) && (
+                              <div className="ad-hero-preview-caption-sub">
+                                {formData.hero_description || formData.tagline}
+                              </div>
+                            )}
+                          </div>
+                          <div className="ad-hero-live-badge">
+                            Live Banner
+                          </div>
                         </div>
                       </div>
-                      <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.8rem', fontSize: '0.75rem', color: '#64748b' }}>
-                        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {formData.hero_image}
-                        </span>
+
+                      <div className="ad-hero-preview-footer">
+                        <div className="ad-hero-preview-url" title={formData.hero_image}>
+                          <span className="ad-hero-url-text">{formData.hero_image}</span>
+                        </div>
                         <button
                           type="button"
+                          className="ad-hero-remove-btn"
                           onClick={() => handleChange('hero_image', '')}
-                          style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}
                         >
                           Remove image
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '14px', padding: '1.2rem', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', marginBottom: '2px' }}>
-                        No Custom Hero Image
+                    <div className="ad-hero-empty-card">
+                      <div className="ad-hero-empty-icon-wrap">
+                        <UploadIcon size={22} />
                       </div>
-                      <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', maxWidth: '380px', marginInline: 'auto' }}>
-                        The customer menu currently displays a clean typographic title card. Upload an image or select a dish photo to display a photo banner.
+                      <div className="ad-hero-empty-title">
+                        No Custom Hero Image Configured
+                      </div>
+                      <p className="ad-hero-empty-sub">
+                        The customer menu currently displays a clean typographic title card. Upload high-res photography or select a dish photo above to display a vivid photo banner.
                       </p>
+                      <button
+                        type="button"
+                        className="ad-btn-action-secondary ad-hero-empty-upload-btn"
+                        onClick={() => heroFileInputRef.current && heroFileInputRef.current.click()}
+                        disabled={uploadingHero}
+                      >
+                        <UploadIcon size={14} />
+                        <span>{uploadingHero ? 'Uploading...' : 'Upload Hero Photo'}</span>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1023,7 +1047,7 @@ export default function VenueSettings({
                         <img
                           src={formData.hero_image}
                           alt="Hero preview"
-                          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                         />
                         <span
                           style={{

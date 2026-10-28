@@ -3082,12 +3082,157 @@ body::after {
   gap: 0.9rem;
 }
 
+.ad-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ==========================================================================
+   Hero Showcase & Banner Customizer
+   ========================================================================== */
+.ad-hero-badge-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.ad-hero-section-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.ad-hero-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 2px;
+}
+
+.ad-hero-optional-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.ad-hero-field-hint {
+  font-size: 0.74rem;
+  color: #64748b;
+  line-height: 1.35;
+  margin-top: 3px;
+  word-break: break-word;
+}
+
+.ad-hero-textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.4;
+  font-family: inherit;
+}
+
+/* Upload Row */
+.ad-hero-upload-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-url-input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-upload-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ad-hero-upload-btn {
+  white-space: nowrap;
+  padding: 0.65rem 1rem;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ad-hero-clear-icon-btn {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  border-radius: 8px;
+}
+
+/* Dish Quick Select Strip */
+.ad-hero-dish-picker {
+  margin-top: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-dish-picker-label {
+  font-size: 0.74rem;
+  color: #64748b;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
 .ad-dish-select-strip {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding: 4px 2px 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .ad-dish-select-strip::-webkit-scrollbar {
@@ -3099,23 +3244,278 @@ body::after {
   border-radius: 4px;
 }
 
-.ad-form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.ad-hero-upload-row {
-  display: flex;
-  gap: 0.8rem;
-  align-items: center;
-}
-
-.ad-hero-upload-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+.ad-dish-select-btn {
   flex-shrink: 0;
+  min-width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 4px 10px 4px 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.ad-dish-select-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.ad-dish-select-btn.is-selected {
+  border-color: #e6923c;
+  background: rgba(230, 146, 60, 0.09);
+  color: #b45309;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px #e6923c;
+}
+
+.ad-dish-select-thumb {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
+.ad-dish-select-name {
+  max-width: 95px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Banner Preview Card */
+.ad-hero-preview-card {
+  margin-top: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-preview-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.ad-hero-preview-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ad-hero-preview-media {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 210px;
+  min-height: 130px;
+  background: #0f172a;
+  box-sizing: border-box;
+}
+
+.ad-hero-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.ad-hero-preview-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.35) 45%, rgba(15, 23, 42, 0.05) 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  gap: 0.75rem;
+}
+
+.ad-hero-preview-caption {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ad-hero-preview-caption-title {
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.ad-hero-preview-caption-sub {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.ad-hero-live-badge {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.ad-hero-preview-footer {
+  margin-top: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-preview-url {
+  flex: 1;
+  min-width: 0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ad-hero-url-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  width: 100%;
+}
+
+.ad-hero-remove-btn {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.ad-hero-remove-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* Empty Banner State */
+.ad-hero-empty-card {
+  margin-top: 1rem;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-hero-empty-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.ad-hero-empty-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.ad-hero-empty-sub {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+  max-width: 420px;
+  line-height: 1.45;
+}
+
+.ad-hero-empty-upload-btn {
+  margin-top: 0.4rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .ad-wifi-preview-strip {
@@ -3484,6 +3884,39 @@ body::after {
     gap: 0.65rem !important;
   }
 
+  /* Hero Showcase on Tablet / Mobile */
+  .ad-hero-upload-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+  }
+  .ad-hero-upload-buttons {
+    width: 100% !important;
+    display: flex !important;
+  }
+  .ad-hero-upload-buttons .ad-hero-upload-btn,
+  .ad-hero-upload-buttons .ad-hero-upload-btn,
+  .ad-hero-upload-buttons .ad-btn-action-secondary {
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+  .ad-hero-preview-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.4rem !important;
+  }
+  .ad-hero-preview-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+  .ad-hero-remove-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 7px 12px !important;
+  }
+
   /* 1. Items Table Mobile Toolbar */
   .ad-table-toolbar {
     flex-direction: column !important;
@@ -3647,6 +4080,7 @@ body::after {
     width: 100% !important;
     display: flex !important;
   }
+  .ad-hero-upload-buttons .ad-hero-upload-btn,
   .ad-hero-upload-buttons .ad-btn-action-secondary {
     flex: 1 !important;
     justify-content: center !important;
@@ -3773,6 +4207,40 @@ body::after {
     padding: 0.4rem 0.6rem !important;
   }
 
+  /* Hero Showcase Compact Phone Polish */
+  .ad-hero-badge-title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+  }
+  .ad-hero-section-tag {
+    font-size: 0.65rem !important;
+    padding: 1px 7px !important;
+  }
+  .ad-hero-preview-card {
+    padding: 0.85rem 0.75rem !important;
+  }
+  .ad-hero-preview-media {
+    aspect-ratio: 16 / 10 !important;
+    min-height: 120px !important;
+  }
+  .ad-hero-preview-gradient {
+    padding: 0.65rem 0.75rem !important;
+  }
+  .ad-hero-preview-caption-title {
+    font-size: 0.8rem !important;
+  }
+  .ad-hero-preview-caption-sub {
+    font-size: 0.68rem !important;
+  }
+  .ad-hero-empty-card {
+    padding: 1.2rem 0.85rem !important;
+  }
+  .ad-hero-empty-upload-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
   /* Mobile Responsive Side Menu Containment */
   .ad-sidebar {
     width: min(280px, calc(100vw - 36px)) !important;
@@ -3824,6 +4292,22 @@ body::after {
   .sad-stats-grid {
     grid-template-columns: 1fr !important;
     gap: 0.6rem !important;
+  }
+
+  /* Hero Showcase Ultra Compact Screens */
+  .ad-hero-preview-media {
+    aspect-ratio: 16 / 10 !important;
+    min-height: 110px !important;
+  }
+  .ad-hero-preview-header {
+    gap: 0.3rem !important;
+  }
+  .ad-hero-preview-title {
+    font-size: 0.78rem !important;
+  }
+  .ad-hero-preview-badge {
+    font-size: 0.65rem !important;
+    padding: 2px 7px !important;
   }
 
   /* Ultra Compact Side Menu Containment */
