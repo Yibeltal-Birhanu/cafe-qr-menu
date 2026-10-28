@@ -96,7 +96,7 @@ export default function CategoryManagerView({
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', minWidth: 0 }}>
       {/* 1. Header Bar with Stats */}
       <div
         className="ad-panel-card"
@@ -156,15 +156,37 @@ export default function CategoryManagerView({
 
           {/* Search & View Toggle */}
           <div className="ad-cat-search-group">
-            <div className="ad-header-search ad-cat-search-box">
-              <SearchIcon size={14} className="ad-header-search-icon" />
+            <div className="ad-cat-search-box">
+              <span className="ad-cat-search-icon" aria-hidden="true">
+                <SearchIcon size={15} />
+              </span>
               <input
                 type="text"
-                className="ad-header-search-input"
-                placeholder="Search categories..."
+                className="ad-cat-search-input"
+                placeholder="Search categories by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') setSearchQuery('');
+                }}
+                aria-label="Search categories"
               />
+              {searchQuery.trim() && (
+                <>
+                  <span className="ad-cat-match-badge">
+                    {filteredCategories.length} {filteredCategories.length === 1 ? 'match' : 'matches'}
+                  </span>
+                  <button
+                    type="button"
+                    className="ad-cat-search-clear"
+                    onClick={() => setSearchQuery('')}
+                    title="Clear search"
+                    aria-label="Clear category search"
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
             </div>
 
             <div className="ad-filter-pills-row" style={{ margin: 0 }}>
@@ -475,10 +497,22 @@ export default function CategoryManagerView({
           </div>
         )
       ) : (
-        <div className="ad-panel-card" style={{ textAlign: 'center', padding: '3.5rem', color: '#6b7280' }}>
-          <p style={{ margin: 0, fontSize: '0.95rem' }}>
-            No categories matched "{searchQuery}".
+        <div className="ad-cat-empty-search-card">
+          <div className="ad-cat-empty-search-icon" aria-hidden="true">
+            <SearchIcon size={24} />
+          </div>
+          <h4 className="ad-cat-empty-search-title">No categories found</h4>
+          <p className="ad-cat-empty-search-sub">
+            No categories match "<strong>{searchQuery}</strong>". Try clearing your search or checking your spelling.
           </p>
+          <button
+            type="button"
+            className="ad-btn-action-secondary"
+            onClick={() => setSearchQuery('')}
+            style={{ marginTop: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.8rem' }}
+          >
+            Clear Search Filter
+          </button>
         </div>
       )}
     </div>

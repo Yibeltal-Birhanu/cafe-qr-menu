@@ -576,7 +576,16 @@ export default function AdminApp() {
         <AdminHeader
           title={titles[activeTab] || 'Dashboard'}
           searchQuery={globalSearch}
-          onSearchChange={activeTab === 'templates' || activeTab === 'superadmin' ? null : setGlobalSearch}
+          onSearchChange={
+            activeTab === 'categories' ||
+            activeTab === 'settings' ||
+            activeTab === 'templates' ||
+            activeTab === 'superadmin' ||
+            activeTab === 'platform' ||
+            activeTab === 'items'
+              ? null
+              : setGlobalSearch
+          }
           searchPlaceholder={activeTab === 'templates' ? 'Search templates...' : 'Search menu items, categories...'}
           user={currentUser}
           cafe={cafe}

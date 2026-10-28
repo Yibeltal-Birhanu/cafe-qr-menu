@@ -3562,10 +3562,144 @@ body::after {
   padding-top: 1rem;
 }
 
+/* Category Manager Search & Controls */
 .ad-cat-search-group {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.ad-cat-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 0.85rem;
+  height: 38px;
+  min-width: 250px;
+  max-width: 360px;
+  flex: 1;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ad-cat-search-box:focus-within {
+  border-color: #e6923c;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(230, 146, 60, 0.12);
+}
+
+.ad-cat-search-icon {
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.ad-cat-search-box:focus-within .ad-cat-search-icon {
+  color: #e6923c;
+}
+
+.ad-cat-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #0f172a;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+}
+
+.ad-cat-search-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.ad-cat-search-clear {
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.ad-cat-search-clear:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ad-cat-match-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Empty Search State */
+.ad-cat-empty-search-card {
+  background: #ffffff;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 2.8rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.ad-cat-empty-search-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+}
+
+.ad-cat-empty-search-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ad-cat-empty-search-sub {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  max-width: 360px;
+  line-height: 1.45;
 }
 
 .sad-form-grid-2 {
@@ -3973,9 +4107,11 @@ body::after {
     gap: 0.6rem !important;
   }
   .ad-cat-search-box {
-    flex: 1 1 160px !important;
-    width: auto !important;
+    flex: 1 1 200px !important;
+    max-width: 100% !important;
+    width: 100% !important;
     min-width: 0 !important;
+    height: 40px !important;
   }
 
   /* 3. Super Admin Platform on Mobile */
