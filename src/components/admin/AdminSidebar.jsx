@@ -1,5 +1,14 @@
 import React from 'react';
-import { CoffeeIcon, HomeIcon, GridIcon, BookOpenIcon, SettingsIcon, QrCodeIcon, ShieldIcon, CloseIcon } from './AdminIcons.jsx';
+import {
+  CoffeeIcon,
+  HomeIcon,
+  GridIcon,
+  BookOpenIcon,
+  SettingsIcon,
+  QrCodeIcon,
+  ShieldIcon,
+  CloseIcon,
+} from './AdminIcons.jsx';
 
 export default function AdminSidebar({
   activeTab,
@@ -25,28 +34,39 @@ export default function AdminSidebar({
   };
 
   return (
-    <aside className={`ad-sidebar ${isOpen ? 'is-open' : ''}`} aria-label="Admin Navigation">
+    <aside
+      className={`ad-sidebar ${isOpen ? 'is-open' : ''}`}
+      aria-label="Admin Navigation"
+      role="navigation"
+    >
       {/* Brand Header */}
       <div className="ad-sidebar-header">
-        <a href="/admin" className="ad-sidebar-brand" onClick={() => onClose && onClose()}>
-          <span className="ad-sidebar-logo" aria-hidden="true">
-            <CoffeeIcon size={24} />
-          </span>
-          <div style={{ overflow: 'hidden' }}>
-            <h1 className="ad-sidebar-title" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+        <a
+          href="/admin"
+          className="ad-sidebar-brand"
+          onClick={() => onClose && onClose()}
+          title={cafe?.name || 'CafeMenu'}
+        >
+          <div className="ad-sidebar-logo" aria-hidden="true">
+            <CoffeeIcon size={22} />
+          </div>
+          <div className="ad-sidebar-brand-meta">
+            <h1 className="ad-sidebar-title">
               {cafe?.name || 'CafeMenu'}
             </h1>
-            <p className="ad-sidebar-sub" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            <p className="ad-sidebar-sub">
               {cafe?.tagline || 'Good Food • Great Moments'}
             </p>
           </div>
         </a>
+
         {onClose && (
           <button
             type="button"
             className="ad-sidebar-close"
             onClick={onClose}
             aria-label="Close sidebar navigation"
+            title="Close navigation"
           >
             <CloseIcon size={18} />
           </button>
@@ -55,47 +75,42 @@ export default function AdminSidebar({
 
       {/* Navigation List */}
       <nav className="ad-nav">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`ad-nav-item ${activeTab === item.id ? 'is-active' : ''}`}
-            onClick={() => handleItemClick(item.id)}
-            aria-current={activeTab === item.id ? 'page' : undefined}
-          >
-            <span className="ad-nav-icon">{item.icon}</span>
-            <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
-          </button>
-        ))}
+        <div className="ad-nav-list">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`ad-nav-item ${isActive ? 'is-active' : ''}`}
+                onClick={() => handleItemClick(item.id)}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="ad-nav-icon">{item.icon}</span>
+                <span className="ad-nav-label">{item.label}</span>
+                {isActive && <span className="ad-nav-indicator" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
 
         {/* Dedicated Super Admin Console Access Link */}
         {isSuperAdmin && (
-          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.45)', padding: '0 0.75rem 0.5rem', fontWeight: 700 }}>
+          <div className="ad-sidebar-owner-section">
+            <div className="ad-sidebar-owner-label">
               Platform Owner
             </div>
             <a
               href="/superadmin"
+              className="ad-sidebar-owner-link"
               onClick={() => onClose && onClose()}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '0.7rem 0.9rem',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.06))',
-                border: '1px solid rgba(245, 158, 11, 0.35)',
-                color: '#f59e0b',
-                textDecoration: 'none',
-                fontWeight: 700,
-                fontSize: '0.82rem',
-                transition: 'all 0.2s ease',
-              }}
               title="Open standalone Super Admin Platform Console"
             >
-              <ShieldIcon size={18} />
-              <span style={{ flex: 1 }}>Super Admin</span>
-              <span style={{ fontSize: '0.85rem' }}>&nearr;</span>
+              <span className="ad-sidebar-owner-icon">
+                <ShieldIcon size={18} />
+              </span>
+              <span className="ad-sidebar-owner-text">Super Admin</span>
+              <span className="ad-sidebar-owner-arrow" aria-hidden="true">&nearr;</span>
             </a>
           </div>
         )}
@@ -103,7 +118,14 @@ export default function AdminSidebar({
 
       {/* Sidebar Footer & Watermark */}
       <div className="ad-sidebar-footer">
-        <svg className="ad-sidebar-leaf-art" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.2">
+        <svg
+          className="ad-sidebar-leaf-art"
+          viewBox="0 0 100 100"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          aria-hidden="true"
+        >
           <path d="M50 95 C50 50, 10 30, 20 5 C35 30, 60 40, 50 95 Z" />
           <path d="M50 95 C55 60, 90 40, 80 15 C65 40, 45 50, 50 95 Z" />
           <line x1="50" y1="95" x2="45" y2="25" />
@@ -112,8 +134,8 @@ export default function AdminSidebar({
         </svg>
 
         <div className="ad-sidebar-credits">
-          <strong>CafeMenu Admin</strong>
-          <span>v1.0.0 &bull; Manager</span>
+          <strong className="ad-sidebar-credits-title">CafeMenu Admin</strong>
+          <span className="ad-sidebar-credits-version">v1.0.0 &bull; Manager</span>
         </div>
       </div>
     </aside>

@@ -79,11 +79,11 @@ body::after {
 }
 
 /* ==========================================================================
-   1. Left Sidebar
+   1. Left Sidebar (Redesigned & Mobile Responsive)
    ========================================================================== */
 .ad-sidebar {
   width: 260px;
-  background-color: var(--ad-sidebar-bg);
+  background: linear-gradient(180deg, #0d1512 0%, #12201b 50%, #0d1512 100%);
   color: var(--ad-sidebar-text);
   display: flex;
   flex-direction: column;
@@ -93,26 +93,38 @@ body::after {
   flex-shrink: 0;
   z-index: 40;
   overflow-y: auto;
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
+.ad-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.ad-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
+}
+
+/* Sidebar Brand Header */
 .ad-sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.ad-sidebar-close {
-  display: none;
-}
-
-.ad-sidebar-backdrop {
-  display: none;
+  gap: 0.65rem;
+  padding: 1.25rem 1.15rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .ad-sidebar-brand {
-  padding: 1.8rem 1.6rem 1.6rem;
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -120,71 +132,171 @@ body::after {
   color: #ffffff;
   flex: 1;
   min-width: 0;
+  padding: 0;
+  border-radius: 12px;
+  transition: opacity 0.18s ease;
+}
+
+.ad-sidebar-brand:hover {
+  opacity: 0.92;
 }
 
 .ad-sidebar-logo {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(230, 146, 60, 0.22) 0%, rgba(230, 146, 60, 0.08) 100%);
+  border: 1px solid rgba(230, 146, 60, 0.38);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #f59e0b;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.ad-sidebar-brand:hover .ad-sidebar-logo {
+  transform: scale(1.04);
+  border-color: rgba(230, 146, 60, 0.55);
+}
+
+.ad-sidebar-brand-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .ad-sidebar-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.25;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .ad-sidebar-sub {
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 0.04em;
-  margin: 2px 0 0;
+  color: #94a39f;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  margin: 3px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+/* Mobile Close Button in Sidebar */
+.ad-sidebar-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.ad-sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile Backdrop Overlay */
+.ad-sidebar-backdrop {
+  display: none;
 }
 
 /* Navigation List */
 .ad-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 1rem 1.1rem;
+  justify-content: space-between;
+  padding: 1.1rem 0.95rem;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.ad-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .ad-nav-item {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  font-size: 0.92rem;
+  padding: 0.72rem 0.95rem;
+  border-radius: 11px;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--ad-sidebar-text);
-  background: none;
-  border: none;
+  background: transparent;
+  border: 1px solid transparent;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .ad-nav-item:hover {
-  background-color: var(--ad-sidebar-hover);
+  background: rgba(255, 255, 255, 0.05);
   color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
 }
 
 .ad-nav-item.is-active {
-  background-color: var(--ad-sidebar-active);
-  color: var(--ad-sidebar-text-active);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, rgba(230, 146, 60, 0.18) 0%, rgba(230, 146, 60, 0.05) 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: rgba(230, 146, 60, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.ad-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: #e6923c;
+  box-shadow: 0 0 8px rgba(230, 146, 60, 0.7);
 }
 
 .ad-nav-icon {
@@ -193,23 +305,136 @@ body::after {
   justify-content: center;
   width: 20px;
   height: 20px;
+  min-width: 20px;
   flex-shrink: 0;
+  color: inherit;
+  transition: color 0.18s ease;
+}
+
+.ad-nav-item.is-active .ad-nav-icon {
+  color: #f59e0b;
+}
+
+.ad-nav-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.ad-nav-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e6923c;
+  box-shadow: 0 0 6px rgba(230, 146, 60, 0.8);
+  flex-shrink: 0;
+}
+
+/* Dedicated Super Admin Platform Owner Section */
+.ad-sidebar-owner-section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ad-sidebar-owner-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 158, 11, 0.75);
+  padding: 0 0.5rem 0.45rem;
+  font-weight: 800;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ad-sidebar-owner-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(245, 158, 11, 0.04) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  color: #f59e0b;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.84rem;
+  transition: all 0.18s ease;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ad-sidebar-owner-link:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border-color: rgba(245, 158, 11, 0.55);
+  color: #fbbf24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.ad-sidebar-owner-icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ad-sidebar-owner-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.ad-sidebar-owner-arrow {
+  font-size: 0.88rem;
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: transform 0.18s ease;
+}
+
+.ad-sidebar-owner-link:hover .ad-sidebar-owner-arrow {
+  transform: translate(2px, -2px);
+  opacity: 1;
 }
 
 /* Sidebar Footer & Watermark */
 .ad-sidebar-footer {
-  padding: 1.4rem 1.4rem 1.6rem;
+  padding: 1.15rem 1.15rem 1.35rem;
   position: relative;
   overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.14);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .ad-sidebar-leaf-art {
   position: absolute;
-  bottom: -15px;
-  left: 10px;
-  width: 140px;
-  height: 140px;
-  opacity: 0.12;
+  bottom: -20px;
+  right: -5px;
+  width: 135px;
+  height: 135px;
+  opacity: 0.08;
   pointer-events: none;
   color: #ffffff;
 }
@@ -217,15 +442,34 @@ body::after {
 .ad-sidebar-credits {
   position: relative;
   z-index: 2;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.5);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
+.ad-sidebar-credits-title,
 .ad-sidebar-credits strong {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 0.82rem;
+  font-weight: 700;
   display: block;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.ad-sidebar-credits-version,
+.ad-sidebar-credits span {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.72rem;
+  font-weight: 500;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* ==========================================================================
@@ -2751,6 +2995,9 @@ body::after {
   font-size: 0.82rem;
   font-weight: 600;
   color: #4b5563;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .ad-settings-status-dot {
@@ -2780,6 +3027,9 @@ body::after {
   overflow-x: auto;
   padding-bottom: 0.35rem;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .ad-settings-nav-strip::-webkit-scrollbar {
@@ -2990,19 +3240,23 @@ body::after {
     border-color: var(--ad-border-strong) !important;
   }
 
-  /* Off-Canvas Sidebar Drawer */
+  /* Off-Canvas Sidebar Drawer (Redesigned & Responsive) */
   .ad-sidebar {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
-    width: 280px !important;
-    max-width: 85vw !important;
+    width: min(290px, calc(100vw - 44px)) !important;
+    max-width: calc(100vw - 44px) !important;
     height: 100vh !important;
+    height: 100dvh !important;
     z-index: 1000 !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.35) !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
   .ad-sidebar.is-open {
     transform: translateX(0) !important;
@@ -3013,9 +3267,9 @@ body::after {
     display: block !important;
     position: fixed !important;
     inset: 0 !important;
-    background: rgba(0, 0, 0, 0.55) !important;
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
+    background: rgba(10, 16, 14, 0.65) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
     z-index: 999 !important;
     animation: cmFadeIn 0.2s ease !important;
   }
@@ -3025,15 +3279,16 @@ body::after {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 8px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 10px !important;
     background: rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     cursor: pointer !important;
     transition: background 0.15s ease !important;
-    margin-right: 1rem !important;
+    margin: 0 !important;
     flex-shrink: 0 !important;
   }
   .ad-sidebar-close:hover {
@@ -3043,6 +3298,7 @@ body::after {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    padding: 1.15rem 1rem 1rem !important;
   }
 
   /* Layout and Topbar on Tablet */
@@ -3516,6 +3772,45 @@ body::after {
     text-align: center !important;
     padding: 0.4rem 0.6rem !important;
   }
+
+  /* Mobile Responsive Side Menu Containment */
+  .ad-sidebar {
+    width: min(280px, calc(100vw - 36px)) !important;
+    max-width: calc(100vw - 36px) !important;
+  }
+  .ad-sidebar-header {
+    padding: 1rem 0.85rem 0.85rem !important;
+    gap: 0.5rem !important;
+  }
+  .ad-sidebar-logo {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+  }
+  .ad-sidebar-title {
+    font-size: 1.02rem !important;
+  }
+  .ad-sidebar-sub {
+    font-size: 0.68rem !important;
+  }
+  .ad-nav {
+    padding: 0.85rem 0.75rem !important;
+  }
+  .ad-nav-item {
+    padding: 0.65rem 0.8rem !important;
+    font-size: 0.86rem !important;
+  }
+  .ad-sidebar-owner-section {
+    margin-top: 1rem !important;
+    padding-top: 0.85rem !important;
+  }
+  .ad-sidebar-owner-link {
+    padding: 0.62rem 0.75rem !important;
+    font-size: 0.8rem !important;
+  }
+  .ad-sidebar-footer {
+    padding: 0.95rem 0.85rem 1.15rem !important;
+  }
 }
 
 /* ==========================================================================
@@ -3529,5 +3824,41 @@ body::after {
   .sad-stats-grid {
     grid-template-columns: 1fr !important;
     gap: 0.6rem !important;
+  }
+
+  /* Ultra Compact Side Menu Containment */
+  .ad-sidebar {
+    width: min(270px, calc(100vw - 28px)) !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+  .ad-sidebar-header {
+    padding: 0.85rem 0.75rem 0.75rem !important;
+  }
+  .ad-sidebar-logo {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 9px !important;
+  }
+  .ad-sidebar-title {
+    font-size: 0.95rem !important;
+  }
+  .ad-sidebar-sub {
+    font-size: 0.65rem !important;
+  }
+  .ad-sidebar-close {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+  .ad-nav {
+    padding: 0.75rem 0.65rem !important;
+  }
+  .ad-nav-item {
+    padding: 0.58rem 0.7rem !important;
+    font-size: 0.82rem !important;
+  }
+  .ad-sidebar-footer {
+    padding: 0.85rem 0.75rem 1rem !important;
   }
 }
