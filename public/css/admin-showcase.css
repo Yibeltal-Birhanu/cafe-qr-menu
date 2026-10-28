@@ -2726,6 +2726,129 @@ body::after {
   align-items: start;
 }
 
+.ad-settings-card {
+  padding: 1.8rem;
+  border-radius: var(--ad-radius-card);
+}
+
+.ad-settings-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: #ffffff;
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-card);
+  padding: 0.9rem 1.4rem;
+  box-shadow: var(--ad-shadow-sm);
+}
+
+.ad-settings-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.ad-settings-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.ad-settings-status-dot.is-saved {
+  background: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+}
+
+.ad-settings-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ad-settings-nav-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ad-settings-nav-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ad-settings-nav-strip::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.ad-settings-nav-btn {
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid var(--ad-border);
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-settings-nav-btn:hover {
+  border-color: var(--ad-border-strong);
+  color: var(--ad-text-dark);
+  background: #f8fafc;
+}
+
+.ad-settings-nav-btn.is-active {
+  background: var(--ad-primary);
+  color: #ffffff;
+  border-color: var(--ad-primary);
+  box-shadow: 0 2px 8px rgba(19, 34, 30, 0.15);
+}
+
+.ad-theme-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.85rem;
+}
+
+.ad-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.9rem;
+}
+
+.ad-dish-select-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ad-dish-select-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ad-dish-select-strip::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
 .ad-form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2736,6 +2859,13 @@ body::after {
   display: flex;
   gap: 0.8rem;
   align-items: center;
+}
+
+.ad-hero-upload-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .ad-wifi-preview-strip {
@@ -2951,7 +3081,7 @@ body::after {
   /* 1. Venue Settings Grid on Tablet */
   .ad-settings-grid {
     grid-template-columns: 1fr !important;
-    gap: 1.25rem !important;
+    gap: 1.4rem !important;
   }
 
   /* 2. QR Templates Grid on Tablet */
@@ -3065,6 +3195,37 @@ body::after {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 0.5rem !important;
+  }
+
+  /* Venue Settings Card & Controls on Mobile */
+  .ad-settings-card {
+    padding: 1.25rem 1rem !important;
+    border-radius: 14px !important;
+  }
+  .ad-settings-topbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 0.9rem 1rem !important;
+  }
+  .ad-settings-topbar-actions {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.6rem !important;
+  }
+  .ad-settings-topbar-actions button,
+  .ad-settings-topbar-actions a {
+    flex: 1 !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  .ad-theme-presets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    gap: 0.65rem !important;
+  }
+  .ad-palette-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
   }
 
   /* 1. Items Table Mobile Toolbar */
@@ -3226,17 +3387,22 @@ body::after {
     align-items: stretch !important;
     gap: 0.6rem !important;
   }
-  .ad-hero-upload-row button {
+  .ad-hero-upload-buttons {
     width: 100% !important;
+    display: flex !important;
+  }
+  .ad-hero-upload-buttons .ad-btn-action-secondary {
+    flex: 1 !important;
     justify-content: center !important;
   }
   .ad-wifi-preview-strip {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 0.6rem !important;
+    gap: 0.75rem !important;
   }
   .ad-wifi-preview-strip button {
     width: 100% !important;
+    justify-content: center !important;
   }
   .ad-settings-save-bar {
     flex-direction: column !important;
@@ -3247,6 +3413,15 @@ body::after {
   .ad-settings-save-bar button {
     width: 100% !important;
     justify-content: center !important;
+  }
+  .ad-phone-sim-box {
+    border-radius: 16px !important;
+  }
+  .ad-phone-sim-topbar {
+    padding: 1.2rem 1rem 1.4rem !important;
+  }
+  .ad-phone-sim-body {
+    padding: 1rem !important;
   }
 
   /* 2. QR Templates */
@@ -3319,6 +3494,27 @@ body::after {
     width: 100% !important;
     justify-content: flex-start !important;
     overflow-x: auto !important;
+  }
+
+  /* Venue Settings on Compact Phones */
+  .ad-settings-card {
+    padding: 1rem 0.85rem !important;
+  }
+  .ad-palette-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+  .ad-theme-presets-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+  .ad-currency-selector {
+    flex-wrap: wrap !important;
+  }
+  .ad-currency-btn {
+    flex: 1 1 50px !important;
+    text-align: center !important;
+    padding: 0.4rem 0.6rem !important;
   }
 }
 
