@@ -42,7 +42,7 @@ export default function VenueSettings({
     },
   });
 
-  const [activeSection, setActiveSection] = useState('all'); // 'all' | 'identity' | 'hero' | 'theme' | 'wifi' | 'preview'
+  const [activeSection, setActiveSection] = useState('identity'); // 'identity' | 'hero' | 'theme' | 'wifi' | 'preview'
   const [isSaved, setIsSaved] = useState(false);
   const [uploadingHero, setUploadingHero] = useState(false);
   const heroFileInputRef = useRef(null);
@@ -221,7 +221,6 @@ export default function VenueSettings({
       {/* 3. Segmented Navigation Strip for Mobile & Quick Filtering */}
       <div className="ad-settings-nav-strip" role="tablist" aria-label="Settings section tabs">
         {[
-          { id: 'all', label: 'All Settings' },
           { id: 'identity', label: 'Identity' },
           { id: 'hero', label: 'Hero Showcase' },
           { id: 'theme', label: 'Theme & Colors' },
@@ -242,12 +241,13 @@ export default function VenueSettings({
       </div>
 
       {/* 4. Main 2-Column Responsive Layout */}
-      <div className="ad-settings-grid">
+      <div className={`ad-settings-grid ${activeSection === 'preview' ? 'is-preview-only' : ''}`}>
         {/* Left Column: Settings Configuration Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          
-          {/* Card A: Cafe Identity & Branding */}
-          {(activeSection === 'all' || activeSection === 'identity') && (
+        {activeSection !== 'preview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            {/* Card A: Cafe Identity & Branding */}
+            {activeSection === 'identity' && (
             <div className="ad-panel-card ad-settings-card">
               <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
                 <div>
@@ -336,7 +336,7 @@ export default function VenueSettings({
           )}
 
           {/* Card B: Homepage Hero & Banner Showcase */}
-          {(activeSection === 'all' || activeSection === 'hero') && (
+          {activeSection === 'hero' && (
             <div className="ad-panel-card ad-settings-card">
               <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
                 <div>
@@ -521,7 +521,7 @@ export default function VenueSettings({
           )}
 
           {/* Card C: Theme & Visual Identity Customizer */}
-          {(activeSection === 'all' || activeSection === 'theme') && (
+          {activeSection === 'theme' && (
             <div className="ad-panel-card ad-settings-card">
               <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
                 <div>
@@ -820,7 +820,7 @@ export default function VenueSettings({
           )}
 
           {/* Card D: Customer Wi-Fi Connectivity */}
-          {(activeSection === 'all' || activeSection === 'wifi') && (
+          {activeSection === 'wifi' && (
             <div className="ad-panel-card ad-settings-card">
               <div className="ad-card-header" style={{ marginBottom: '1.2rem' }}>
                 <div>
@@ -877,7 +877,7 @@ export default function VenueSettings({
           )}
 
           {/* Card E: Save Changes Bar */}
-          {(activeSection === 'all' || activeSection === 'identity' || activeSection === 'hero' || activeSection === 'theme' || activeSection === 'wifi') && (
+          {true && (
             <div className="ad-panel-card ad-settings-card ad-settings-save-bar">
               <span style={{ fontSize: '0.84rem', color: '#6b7280' }}>
                 All modifications are automatically saved to disk.
@@ -895,7 +895,7 @@ export default function VenueSettings({
           )}
 
           {/* Card F: Danger Zone */}
-          {activeSection === 'all' && (
+          {activeSection === 'identity' && (
             <div className="ad-danger-card" style={{ marginTop: '0.5rem' }}>
               <h4 style={{ margin: '0 0 0.35rem', color: '#b91c1c', fontSize: '0.95rem', fontWeight: 800 }}>
                 Danger Zone
@@ -914,11 +914,11 @@ export default function VenueSettings({
               </button>
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         {/* Right Column: Live Customer Header Simulator & Public URL */}
-        {(activeSection === 'all' || activeSection === 'preview') && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className={`ad-settings-preview-col ${activeSection === 'preview' ? 'is-active-tab' : ''}`}>
             {/* Simulator Box */}
             <div className="ad-panel-card ad-settings-card">
               <h4 className="ad-card-title" style={{ marginBottom: '0.35rem', fontSize: '1.05rem' }}>
@@ -1103,8 +1103,7 @@ export default function VenueSettings({
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
   );
 }

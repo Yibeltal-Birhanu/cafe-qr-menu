@@ -3862,3 +3862,26 @@ body::after {
     padding: 0.85rem 0.75rem 1rem !important;
   }
 }
+
+/* Venue Settings Navigation Tabs & Preview Column */
+.ad-settings-preview-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1025px) {
+  .ad-settings-grid.is-preview-only {
+    grid-template-columns: minmax(0, 520px) !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ad-settings-preview-col {
+    display: none !important;
+  }
+  .ad-settings-preview-col.is-active-tab {
+    display: flex !important;
+  }
+}
